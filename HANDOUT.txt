@@ -86,6 +86,17 @@ Godot project:  ./godot/   (project.godot lives here)
 This handout:   ./HANDOUT.txt   (project root, outside godot/)
 Godot exe:      D:\steam\steamapps\common\Godot Engine\godot.windows.opt.tools.64.exe
 
+GitHub:         https://github.com/megalodooon/crystal-protectors
+                (public, branch main, root = this folder)
+Web build:      https://megalodooon.github.io/crystal-protectors/
+
+- Every push to main runs .github/workflows/web.yml: it downloads
+  Godot + web templates, exports preset "Web" (export_presets.cfg,
+  thread support off so it runs on GitHub Pages) and deploys it.
+  When upgrading Godot, change GODOT_VERSION in that file.
+- The web build uses the Compatibility renderer (WebGL 2), not
+  Mobile. Check new shaders/effects in the web build too.
+- Local web exports go to build/ (git ignored).
 - The developer usually has the editor open. After editing
   project.godot or moving files, tell them to use
   Project > Reload Current Project, and never save stale tabs.
@@ -291,3 +302,4 @@ Input actions: left, right, up, down (WASD), attack (left mouse).
             Slash redone as one shader crescent (no echo lines),
             smaller 8x8 dust. Orbs + dust only at hit location.
             Damage types, crits, floating damage numbers.
+            GitHub repo + auto-deployed web build (GitHub Pages).
