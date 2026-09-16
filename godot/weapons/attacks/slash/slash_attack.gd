@@ -7,6 +7,8 @@ const SLASH_SCENE := preload("res://weapons/attacks/slash/slash.tscn")
 @export var radius : float = 17.0
 @export var size : float = 14.0
 @export_range(10.0, 360.0, 1.0, "suffix:°") var curve : float = 160.0
+@export var raritySizeGrowth : float = 1.0
+@export var colorTexture : Texture2D
 @export var styleOverride : SlashStyleClass
 
 static var colorCache : Dictionary = {}
@@ -19,31 +21,38 @@ var swingTween : Tween
 func perform() -> void:
 	var style : SlashStyleClass = get_style()
 	var totalCurve : float = minf(curve + style.curveBonus, 360.0)
+	var sizeMultiplier : float = 1.0 + (style.sizeMultiplier - 1.0) * raritySizeGrowth
+	var centerAngle : float = 0.0
+	if totalCurve >= 360.0:
+		centerAngle = PI
 	var slash : SlashClass = SLASH_SCENE.instantiate()
 	slash.attack = self
 	slash.style = style
 	slash.colors = get_blade_colors()
-	slash.radius = radius * style.sizeMultiplier
-	slash.size = size * style.sizeMultiplier
+	slash.radius = radius * sizeMultiplier
+	slash.size = size * sizeMultiplier
 	slash.curve = totalCurve
 	slash.swingDirection = swingDirection
-	slash.rotation = global_rotation
+	slash.rotation = global_rotation + centerAngle
 	if weapon.wielder:
 		weapon.wielder.add_child(slash)
 	else:
 		slash.position = global_position
 		get_tree().current_scene.add_child(slash)
-	swing_weapon(style.duration * 0.7, totalCurve)
+	swing_weapon(style.duration * 0.7, totalCurve, centerAngle)
 	swingDirection *= -1.0
 
-func swing_weapon(duration : float, totalCurve : float) -> void:
+func swing_weapon(duration : float, totalCurve : float, centerAngle : float) -> void:
 	if swingTween:
 		swingTween.kill()
 	var halfCurve : float = deg_to_rad(totalCurve) / 2.0 * swingDirection
-	weapon.visuals.rotation = -halfCurve
+	var endRotation : float = (centerAngle + halfCurve) * weapon.scale.y
+	weapon.isSwinging = true
+	weapon.visuals.rotation = (centerAngle - halfCurve) * weapon.scale.y
 	swingTween = create_tween()
-	swingTween.tween_property(weapon.visuals, "rotation", halfCurve, duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	swingTween.tween_property(weapon.visuals, "rotation", 0.0, 0.2).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	swingTween.tween_property(weapon.visuals, "rotation", endRotation, duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	swingTween.tween_property(weapon.visuals, "rotation", weapon.get_hold_rotation(), 0.2).from(wrapf(endRotation, -PI, PI)).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	swingTween.tween_callback(func() -> void: weapon.isSwinging = false)
 
 func get_style() -> SlashStyleClass:
 	if styleOverride:
@@ -53,12 +62,17 @@ func get_style() -> SlashStyleClass:
 	return SlashStyleClass.new()
 
 func get_blade_colors() -> Array[Color]:
-	for child in weapon.visuals.get_children():
-		if child is Sprite2D and child.texture:
-			if not colorCache.has(child.texture):
-				colorCache[child.texture] = extract_colors(child.texture)
-			return colorCache[child.texture]
-	return [Color.WHITE, Color.WHITE, Color.WHITE]
+	var texture : Texture2D = colorTexture
+	if not texture:
+		for child in weapon.visuals.get_children():
+			if child is Sprite2D and child.texture:
+				texture = child.texture
+				break
+	if not texture:
+		return [Color.WHITE, Color.WHITE, Color.WHITE]
+	if not colorCache.has(texture):
+		colorCache[texture] = extract_colors(texture)
+	return colorCache[texture]
 
 func extract_colors(texture : Texture2D) -> Array[Color]:
 	var image : Image = texture.get_image()

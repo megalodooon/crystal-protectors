@@ -6,7 +6,7 @@
 [sub_resource type="Resource" id="Resource_slashstyle"]
 script = ExtResource("2_slashstyle")
 duration = 0.23
-sizeMultiplier = 1.05
+sizeMultiplier = 1.1
 curveBonus = 0.0
 trail = 0.55
 glow = 0.45

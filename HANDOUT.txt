@@ -39,6 +39,8 @@ invent design details that have not been agreed on.
     * easy to understand
     * easy to expand for new content
     * usable by the developer without Claude's help
+- After finishing a change, commit and push it to the GitHub repo
+  (branch main). The push also updates the web build.
 
 
 --------------------------------------------------------------
@@ -64,8 +66,9 @@ coding style (section 5). Follow it exactly.
 - A folder holds either subfolders or files, never both
   (so base scripts go in a "base" folder next to content folders).
 - Exception: godot/test.tscn + test.gd sit in the project root on
-  purpose. Main scene, used to test new stuff. Keys 1-7 switch
-  the test weapon's rarity. Has a Camera2D and two hit dummies.
+  purpose. Main scene, used to test new stuff. Q cycles the test
+  weapons (weapons list), keys 1-7 switch rarity. Has a Camera2D
+  and two hit dummies.
 
 [Other]
 - No comments in code unless the developer asks.
@@ -145,7 +148,14 @@ Example: godot/weapons/base/weapon.gd
   equip_weapon(scene, rarity = null) swaps weapons; rarity null =
   keep the weapon scene's rarity. "weapon" = current weapon (var).
 - HandPivot rotates to the mouse, so the hand circles the player.
-  The hand and the weapon never flip.
+  The hand never flips. The weapon mirrors vertically (scale.y -1)
+  while pointing right (WeaponClass.update_flip), so sprite tip
+  slopes face down on both sides. Swings multiply by scale.y.
+- Idle: weapon Visuals held upright (WeaponClass holdAngle, -100 =
+  up tilted back, mirrored on the left; holdSpeed). Only visual:
+  attacks still aim at the mouse. Attacks that move Visuals set
+  weapon.isSwinging while they do (SlashAttack returns to
+  get_hold_rotation() after the swing).
 - Facing the mouse side flips only the body like a 3D turn:
   player Visuals scale.x slides to +1/-1.
   So never animate player Visuals scale; animate its Sprite2D.
@@ -190,7 +200,7 @@ Example: godot/weapons/base/weapon.gd
   wielder = the player holding it (set by equip_weapon).
 - Weapon scenes live by category: weapons/melee/slashing/
   (png + tscn together). Hammers etc. get their own category.
-  Example: weapons/melee/slashing/wooden_sword.tscn (common).
+  Existing: wooden_sword, iron_sword, spear (360 spin).
 - Attacks (attacks/<type>/): nodes placed inside the weapon scene.
   Node position = where the attack comes from.
   * AttackClass (base/): damageMultiplier, weapon. perform().
@@ -223,9 +233,15 @@ Example: godot/weapons/base/weapon.gd
 [Slash]  godot/weapons/attacks/slash/
 - SlashAttackClass node in a weapon: radius (middle of the swept
   band, from wielder center), size (band thickness), curve (arc
-  degrees), styleOverride (custom style, e.g. artifacts).
+  degrees), raritySizeGrowth, styleOverride (custom style, e.g.
+  artifacts).
   Each attack: spawns ONE slash.tscn as child of the wielder, swings
   weapon Visuals over 70% of duration, alternates swing direction.
+- Size = 1 + (style.sizeMultiplier - 1) x raritySizeGrowth.
+  raritySizeGrowth 1 = normal, higher = grows more per rarity
+  (spear uses 2.5).
+- Curve 360 = full spin: slash and weapon start and end at the aim
+  direction, hitbox is a full circle.
 - Style = styleOverride, else weapon.rarity.slashStyle.
 - SlashStyleClass (Resource): duration, sizeMultiplier, curveBonus,
   trail, glow, core, tipGlow, streaks, chromaticAberration,
@@ -240,7 +256,8 @@ Example: godot/weapons/base/weapon.gd
   position along the arc, "trail" the fading length behind it.
   ShaderMaterial is local_to_scene so every slash has its own.
 - Colors: taken automatically from the weapon's Visuals Sprite2D
-  (dark/main/light by luminance, cached per texture).
+  (dark/main/light by luminance, cached per texture), or from
+  SlashAttack colorTexture if set (spear uses iron_sword.png).
 - Particles: none on the arc. Dust (dust.png, Nearest, scale 0.6-1.4)
   and glowing orbs spawn only at the HIT location (hit_spark scene).
 - Own HitboxComponent: sector polygon from radius/size/curve, mask
@@ -303,3 +320,7 @@ Input actions: left, right, up, down (WASD), attack (left mouse).
             smaller 8x8 dust. Orbs + dust only at hit location.
             Damage types, crits, floating damage numbers.
             GitHub repo + auto-deployed web build (GitHub Pages).
+            Iron sword, spear (360 spin that grows with rarity),
+            raritySizeGrowth, test scene weapon cycling (Q).
+            Weapons mirror on the right side, slash colorTexture.
+            Weapons held upright when idle (holdAngle).

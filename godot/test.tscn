@@ -14,6 +14,8 @@
 [ext_resource type="Script" uid="uid://iyol7ynmkhca" path="res://components/hurtbox/hurtbox_component.gd" id="12_hurtbox"]
 [ext_resource type="Texture2D" uid="uid://da3o6uce0fi14" path="res://player/base/player_placeholder.png" id="13_placeholder"]
 [ext_resource type="Script" path="res://weapons/rarities/rarity.gd" id="14_rarity"]
+[ext_resource type="PackedScene" path="res://weapons/melee/slashing/iron_sword.tscn" id="15_iron_sword"]
+[ext_resource type="PackedScene" path="res://weapons/melee/slashing/spear.tscn" id="16_spear"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_dummy"]
 radius = 6.0
@@ -21,6 +23,7 @@ radius = 6.0
 [node name="Test" type="Node2D" node_paths=PackedStringArray("player")]
 script = ExtResource("1_test")
 player = NodePath("Player")
+weapons = Array[PackedScene]([ExtResource("3_sword"), ExtResource("15_iron_sword"), ExtResource("16_spear")])
 rarities = Array[ExtResource("14_rarity")]([ExtResource("4_common"), ExtResource("5_uncommon"), ExtResource("6_rare"), ExtResource("7_epic"), ExtResource("8_legendary"), ExtResource("9_mythic"), ExtResource("10_artifact")])
 
 [node name="Camera2D" type="Camera2D" parent="."]
@@ -76,6 +79,6 @@ shape = SubResource("CircleShape2D_dummy")
 [node name="RarityLabel" type="Label" parent="CanvasLayer"]
 offset_left = 3.0
 offset_top = 1.0
-offset_right = 120.0
+offset_right = 190.0
 offset_bottom = 12.0
 theme_override_font_sizes/font_size = 8
