@@ -4,9 +4,13 @@ extends Node2D
 @export var player : PlayerClass
 @export var weapons : Array[PackedScene]
 @export var rarities : Array[RarityClass]
+@export var waveManager : WaveManagerClass
+@export var enemySpriteScales : Dictionary[PackedScene, float]
+@export var enemyColors : Dictionary[PackedScene, Color]
 
 @onready var rarityLabel : Label = $CanvasLayer/RarityLabel
 @onready var upgradeLabel : Label = $CanvasLayer/UpgradeLabel
+@onready var waveLabel : Label = $CanvasLayer/WaveLabel
 
 var weaponIndex : int = 0
 
@@ -14,6 +18,9 @@ var weaponIndex : int = 0
 
 func _ready() -> void:
 	update_labels()
+
+func _process(_delta : float) -> void:
+	update_wave_label()
 
 func _unhandled_input(event : InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
@@ -28,6 +35,8 @@ func _unhandled_input(event : InputEvent) -> void:
 			item.upgrade_rarity()
 		if event.keycode == KEY_C:
 			item.upgrade_combat_level()
+		if event.keycode == KEY_G:
+			waveManager.start_next_wave()
 		var index : int = event.keycode - KEY_1
 		if index >= 0 and index < rarities.size():
 			var newItem : WeaponItemClass = WeaponItemClass.new()
@@ -36,6 +45,14 @@ func _unhandled_input(event : InputEvent) -> void:
 			newItem.combatLevel = item.combatLevel
 			player.equip_weapon(newItem)
 		update_labels()
+
+func on_enemy_spawned(enemy : EnemyClass) -> void:
+	for scene : PackedScene in enemySpriteScales:
+		if scene.resource_path == enemy.scene_file_path:
+			enemy.sprite.scale = Vector2.ONE * enemySpriteScales[scene]
+	for scene : PackedScene in enemyColors:
+		if scene.resource_path == enemy.scene_file_path:
+			enemy.sprite.modulate = enemyColors[scene]
 
 func update_labels() -> void:
 	var item : WeaponItemClass = player.weaponItem
@@ -52,3 +69,12 @@ func update_labels() -> void:
 	upgradeLabel.text = "E Level " + str(item.level) + "/" + str(item.UPGRADES.maxLevel) + "  C Combat " + str(item.combatLevel)
 	upgradeLabel.text += "  Damage " + NumberFormatClass.format(player.weapon.get_damage())
 	upgradeLabel.text += "\n" + rarityText
+
+func update_wave_label() -> void:
+	var waveText : String = str(waveManager.waveIndex + 1) + "/" + str(waveManager.waves.size())
+	if waveManager.isWaveRunning:
+		waveLabel.text = "Wave " + waveText + "  Enemies " + str(waveManager.aliveEnemies + waveManager.pendingSpawns)
+	elif waveManager.has_next_wave():
+		waveLabel.text = "G Start wave " + waveText
+	else:
+		waveLabel.text = "All waves cleared"

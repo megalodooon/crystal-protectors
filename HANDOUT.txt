@@ -7,7 +7,7 @@ project that a fresh chat would need.
 Keep it short: only write down what matters. Small details
 that are easy to see in the project do not belong here.
 
-Last updated: 2026-09-16
+Last updated: 2026-09-17
 
 
 --------------------------------------------------------------
@@ -82,9 +82,15 @@ coding style (section 5). Follow it exactly.
 - Exception: godot/test.tscn + test.gd sit in the project root on
   purpose. Main scene, used to test new stuff. Q cycles the test
   weapons (weapons list), keys 1-7 = new item of that rarity
-  (level 0), E level up, R upgrade rarity, C combat level +1.
-  Has a Camera2D, two hit dummies and labels (UpgradeLabel shows
-  level, combat level, damage).
+  (level 0), E level up, R upgrade rarity, C combat level +1,
+  G start next wave.
+  Has a Camera2D, two hit dummies (top right, out of the paths),
+  labels (UpgradeLabel shows level, combat level, damage; WaveLabel),
+  a PathNetwork (PathWest on; PathBranch + PathNorth turned on by
+  wave 2) and a WaveManager with 3 waves. enemySpriteScales and
+  enemyColors (test.gd) size and tint enemies ONLY in the test
+  scene: enemy scenes keep unscaled placeholder sprites on purpose
+  (real size-appropriate sprites come later).
 
 [Other]
 - No comments in code unless the developer asks.
@@ -437,6 +443,72 @@ Example: godot/weapons/base/weapon.gd
 - Autoloads do not exist in --script test runs; test by running a
   harness scene normally instead.
 
+[Paths]  godot/paths/
+- Level setup: a PathNetwork node (PathNetworkClass, base/) with
+  EnemyPath children (EnemyPathClass, extends Path2D). Draw the curve
+  with the Path2D tools: first point = start, last point = end.
+  Paths must be children of a PathNetwork.
+- EnemyPath exports: active (off = no pulse, no enemies branch into or
+  merge into it; setter emits active_changed), branchFrom (this path
+  starts on that path at the closest point), mergeInto (this path's
+  end joins that path at the closest point, enemies continue on it),
+  cornerRadius. Start/end are snapped onto the connected path, so
+  placing them roughly is enough.
+- route = the Curve2D enemies and visuals use: the drawn curve with
+  rounded corners (cornerRadius). get_length(), get_global_point(d),
+  get_closest_distance(point). branches = paths branching off it.
+- Pulse animation (between waves and at level start): purple glowing
+  pulse travels from spawn starts through branches and merges, leaves
+  an afterglow, then fades and repeats (network clock, all paths in
+  sync). play_preview() / stop_preview(). During a wave (stopped) the
+  whole active network stays visible, grayed out and transparent
+  (waveOpacity). playOnStart export.
+- Look + timing: pulse/path_pulse_style.tres (PathPulseStyleClass),
+  the network's style export (default = that file).
+- pulse/path_pulse.tscn: spawned per path at runtime. Line
+  (MeshInstance2D, strip mesh built in code, path_pulse.gdshader
+  additive), head halos drawn in _draw (headTexture), StartDot and
+  EndDot (path_dot.tscn: glow, core, ring pop; shown when the pulse
+  reaches them). Dots on connection points use connectionDotSize.
+  Mesh inner width is limited around bends so it never folds (the
+  developer saw spiky artifacts before that).
+- Draw layer: path pulse is z_index -5 (absolute). Ground/tilesets
+  must be below that (e.g. -10); characters stay at 0.
+
+[Enemies]  godot/enemies/
+- EnemyClass (base/enemy.gd + enemy.tscn, CharacterBody2D, layer
+  Enemy): image export (empty = placeholder), flipSpeed,
+  healthComponent, movementComponent, pathFollowComponent. Visuals/
+  Sprite2D like the player, walk animation, Hurtbox (Enemy Hurtbox) +
+  StatusComponent. Health x COMBAT_SCALING.get_multiplier(combatLevel)
+  (combatLevel set by the WaveManager). died -> die() (queue_free),
+  reached_end -> on_reached_end() (queue_free for now, no crystal yet).
+  Signals connected in the scene.
+- New enemy = inherited scene of enemy.tscn, set stats on the
+  components. basic/: regular_enemy (40 hp, speed 22), big_enemy
+  (160 hp, speed 12, bigger hurtbox), small_enemy (10 hp, speed 40,
+  smaller hurtbox).
+- PathFollowComponentClass (components/path_follow/): start(path,
+  body) places the body at the path start. get_direction(body) moves a
+  target point along the route, lookAhead px ahead of the body, and
+  returns the direction to it (MovementComponent does the moving, so
+  knockback/blocking keep working). At a branch point it picks
+  randomly between staying and every active branch there. Merges
+  continue on mergeInto. reached_end signal.
+
+[Waves]  godot/waves/
+- WaveManager node (WaveManagerClass): exports pathNetwork,
+  enemyParent (empty = current scene), combatLevel. Children = Wave
+  nodes in order. start_next_wave(). Signals wave_started,
+  wave_finished, enemy_spawned(enemy). A wave ends when everything
+  spawned and every enemy is gone.
+- Wave node (WaveClass): activatePaths. Children = SpawnGroup nodes.
+  When a wave is NEXT (level start / previous wave done) its
+  activatePaths and every path its SpawnGroups use turn on, then the
+  path preview plays.
+- SpawnGroup node (SpawnGroupClass): enemyScene, path, count,
+  interval, delay.
+
 [Collision layers]
 1 World, 2 Player, 3 Enemy, 4 Player Hurtbox, 5 Enemy Hurtbox.
 Hitboxes/projectiles: layer none, mask the target hurtbox layer.
@@ -484,3 +556,8 @@ Input actions: left, right, up, down (WASD), attack (left mouse).
             equips items. Status effects scale with full weapon power.
             Rarity upgrade resets level to 0. Short number format
             (100k, 7.32m) for damage numbers.
+2026-09-17  Path network (branch/merge, active paths), purple glowing
+            pulse preview with dots, grayed out during waves.
+            Enemy base + regular/big/small enemies, path follow
+            component, wave manager/waves/spawn groups. Test scene
+            paths + 3 waves (G), dummies moved top right.

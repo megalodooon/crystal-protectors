@@ -1,0 +1,39 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://paths/pulse/path_pulse.gd" id="1_pulse"]
+[ext_resource type="Shader" path="res://paths/pulse/path_pulse.gdshader" id="2_shader"]
+[ext_resource type="PackedScene" path="res://paths/pulse/path_dot.tscn" id="3_dot"]
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_add"]
+blend_mode = 1
+
+[sub_resource type="Gradient" id="Gradient_head"]
+offsets = PackedFloat32Array(0, 0.2, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0.5, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_head"]
+gradient = SubResource("Gradient_head")
+width = 64
+height = 64
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 0)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_line"]
+resource_local_to_scene = true
+shader = ExtResource("2_shader")
+
+[node name="PathPulse" type="Node2D"]
+z_index = -5
+z_as_relative = false
+texture_filter = 2
+material = SubResource("CanvasItemMaterial_add")
+script = ExtResource("1_pulse")
+headTexture = SubResource("GradientTexture2D_head")
+
+[node name="Line" type="MeshInstance2D" parent="."]
+material = SubResource("ShaderMaterial_line")
+
+[node name="StartDot" parent="." instance=ExtResource("3_dot")]
+
+[node name="EndDot" parent="." instance=ExtResource("3_dot")]
