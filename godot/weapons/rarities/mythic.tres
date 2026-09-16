@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="RarityClass" format=3]
+
+[ext_resource type="Script" uid="uid://b38xrlaoouxfl" path="res://weapons/rarities/rarity.gd" id="1_rarity"]
+[ext_resource type="Script" path="res://weapons/attacks/slash/slash_style.gd" id="2_slashstyle"]
+
+[sub_resource type="Resource" id="Resource_slashstyle"]
+script = ExtResource("2_slashstyle")
+duration = 0.27
+sizeMultiplier = 1.3
+curveBonus = 40.0
+trail = 0.8
+glow = 0.9
+core = 1.0
+tipGlow = 1.0
+streaks = 0.85
+chromaticAberration = 1.4
+dustAmount = 2
+orbAmount = 5
+hitSparkSize = 1.35
+hitSparkAmount = 16
+screenShake = 3.0
+hitStop = 0.06
+
+[resource]
+script = ExtResource("1_rarity")
+rarityName = "Mythic"
+color = Color(1, 0.2, 0.35, 1)
+damageMultiplier = 4.0
+slashStyle = SubResource("Resource_slashstyle")

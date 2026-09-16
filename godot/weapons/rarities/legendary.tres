@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="RarityClass" format=3]
+
+[ext_resource type="Script" uid="uid://b38xrlaoouxfl" path="res://weapons/rarities/rarity.gd" id="1_rarity"]
+[ext_resource type="Script" path="res://weapons/attacks/slash/slash_style.gd" id="2_slashstyle"]
+
+[sub_resource type="Resource" id="Resource_slashstyle"]
+script = ExtResource("2_slashstyle")
+duration = 0.25
+sizeMultiplier = 1.2
+curveBonus = 20.0
+trail = 0.7
+glow = 0.8
+core = 0.85
+tipGlow = 0.8
+streaks = 0.7
+chromaticAberration = 1.0
+dustAmount = 2
+orbAmount = 4
+hitSparkSize = 1.2
+hitSparkAmount = 12
+screenShake = 2.5
+hitStop = 0.05
+
+[resource]
+script = ExtResource("1_rarity")
+rarityName = "Legendary"
+color = Color(1, 0.6, 0.15, 1)
+damageMultiplier = 3.0
+slashStyle = SubResource("Resource_slashstyle")

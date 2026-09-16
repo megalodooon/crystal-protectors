@@ -1,0 +1,293 @@
+==============================================================
+  CRYSTAL PROTECTORS - PROJECT HANDOUT
+==============================================================
+Read this first in every new chat. Update it whenever we add
+new systems, change conventions, or learn something about the
+project that a fresh chat would need.
+Keep it short: only write down what matters. Small details
+that are easy to see in the project do not belong here.
+
+Last updated: 2026-09-16
+
+
+--------------------------------------------------------------
+1. WHAT WE ARE MAKING
+--------------------------------------------------------------
+A 2D pixel art game inspired by Dungeon Defenders: players
+protect a crystal from waves of enemies using heroes and
+placeable defenses. Stays pixel art (vector art was considered
+and rejected). Effects may be smooth and glowy on top of the
+pixel art, like the Terraria "Cooler Weapon Effects" mod:
+the developer wants attacks to feel very smooth and juicy.
+
+Rarities: common > uncommon > rare > epic > legendary > mythic
+> artifact. Mythic = exceedingly rare, endgame. Artifact =
+custom weapons with insane abilities, incredibly rare.
+Higher rarity = cooler attack effects.
+
+The full vision belongs to the developer and is not written
+down yet. Fill in details here as they get decided. Do not
+invent design details that have not been agreed on.
+
+
+--------------------------------------------------------------
+2. HOW WE WORK
+--------------------------------------------------------------
+- The developer writes most of the game code themselves.
+- Claude helps build the complicated and time-consuming systems.
+- Every system Claude builds must be:
+    * easy to understand
+    * easy to expand for new content
+    * usable by the developer without Claude's help
+
+
+--------------------------------------------------------------
+3. RULES
+--------------------------------------------------------------
+[Godot-first, not code-first]
+Do not do things from code when it is not necessary. Use the
+Godot node / scene / resource / inspector system instead:
+- Build structure as nodes and scenes in the editor, not by
+  creating nodes in code.
+- Store data and configuration in Resources (.tres) and
+  @export variables, not hardcoded values.
+- Connect signals in the editor where it makes sense.
+- Code should hold behavior; the editor should hold setup
+  and data.
+
+[Coding style]
+Every single script must be written in the developer's own
+coding style (section 5). Follow it exactly.
+
+[Folders]
+- Every file lives in the folder of its system. No loose files.
+- A folder holds either subfolders or files, never both
+  (so base scripts go in a "base" folder next to content folders).
+- Exception: godot/test.tscn + test.gd sit in the project root on
+  purpose. Main scene, used to test new stuff. Keys 1-7 switch
+  the test weapon's rarity. Has a Camera2D and two hit dummies.
+
+[Other]
+- No comments in code unless the developer asks.
+- No test files unless the developer asks, or it is truly
+  needed to protect the project.
+- No extra scenes or code beyond what the task needs.
+
+
+--------------------------------------------------------------
+4. TECHNICAL SETUP
+--------------------------------------------------------------
+Engine:         Godot 4.7
+Renderer:       Mobile
+Resolution:     192x108, stretch canvas_items, aspect expand,
+                integer scaling (pixels always scale evenly)
+Textures:       Nearest filter by default (sharp pixels)
+Godot project:  ./godot/   (project.godot lives here)
+This handout:   ./HANDOUT.txt   (project root, outside godot/)
+Godot exe:      D:\steam\steamapps\common\Godot Engine\godot.windows.opt.tools.64.exe
+
+- The developer usually has the editor open. After editing
+  project.godot or moving files, tell them to use
+  Project > Reload Current Project, and never save stale tabs.
+- Verify changes headless on a scratch copy of the project, never
+  inside it. To catch warnings: set every
+  debug/gdscript/warnings/* that is 1 to 2 in the copy, then load
+  all scripts. The developer wants zero errors and zero warnings.
+
+
+--------------------------------------------------------------
+5. CODING STYLE
+--------------------------------------------------------------
+Example: godot/weapons/base/weapon.gd
+
+- Line 1-2: extends, then class_name (if any). Then 2 blank lines.
+- Signals first, then variables in this order:
+  const > @export > @onready > normal var.
+  Same kind stays together; 1 blank line when the kind changes.
+- Many variables on one topic: group them by topic, each group
+  uses the same order, then the next topic starts.
+- After the variables: 1 blank line, then  #------------------------#
+  then 1 blank line. A label goes in the middle of the dashes,
+  e.g.  #-------MOVEMENT VARIABLES-------#
+- Variables and parameters: camelCase  (maxHealth, newState)
+- Functions and signals: snake_case  (take_damage, health_changed)
+- Own functions never start with _. Only Godot's built-in
+  functions do (_ready, _physics_process).
+- Types written with spaces: var speed : float = 80.0
+- 1 blank line between functions. Tabs for indentation.
+- class_name always ends with "Class": PlayerClass, WeaponClass.
+  (Node names in scenes do not: nodes stay "Player", "Weapon".)
+
+
+--------------------------------------------------------------
+6. SYSTEMS BUILT SO FAR
+--------------------------------------------------------------
+[Player]  godot/player/base/player.tscn + player.gd  (PlayerClass)
+- Base player = the player with no class chosen.
+  Classes = inherited scenes of player.tscn.
+- Scene: Visuals/Sprite2D (body), HandPivot/Hand/Sprite2D (hand),
+  AnimationPlayer, CollisionShape2D, components, StateMachine
+  (MoveState, AttackState).
+- Exports: image, handImage, weaponScene, weaponRarity, flipSpeed,
+  healthComponent, movementComponent. No image/handImage = placeholders.
+- weaponScene is spawned into HandPivot/Hand on _ready.
+  equip_weapon(scene, rarity = null) swaps weapons; rarity null =
+  keep the weapon scene's rarity. "weapon" = current weapon (var).
+- HandPivot rotates to the mouse, so the hand circles the player.
+  The hand and the weapon never flip.
+- Facing the mouse side flips only the body like a 3D turn:
+  player Visuals scale.x slides to +1/-1.
+  So never animate player Visuals scale; animate its Sprite2D.
+- Animations: idle (subtle stretch), walk (quick side-to-side
+  rotation). Sprite2D origin is at the feet (offset -8).
+  States pick the animation (MoveState/AttackState).
+
+[Components]  godot/components/<name>/
+- HealthComponentClass: maxHealth. take_damage(), heal().
+  Signals: health_changed(currentHealth, maxHealth), died.
+- MovementComponentClass: speed, acceleration, deceleration.
+  move(body, direction, delta) sets velocity + move_and_slide.
+  Unique movement feel: extend it and override move().
+- HurtboxComponentClass (Area2D): can be hit. Exports healthComponent,
+  showDamageNumbers. take_damage(amount, damageType, isCrit) spawns
+  a floating DamageNumber.
+- HitboxComponentClass (Area2D): damages hurtboxes it touches.
+  Exports damage, damageType, critChance, critMultiplier (crit is
+  rolled per hit). Attacks fill these via AttackClass.setup_hitbox().
+  Signal: hit(hurtbox, damage) (deferred).
+
+[State machine]  godot/components/state_machine/
+- StateMachineClass node: children are states. initialState export.
+  Runs the current state's physics_update().
+- StateClass: enter(), exit(), physics_update(delta).
+  Switch with stateMachine.change_state(otherState), where
+  otherState is an @export StateClass set in the inspector.
+- States get their character with:
+  @onready var player : PlayerClass = owner
+- Player states: godot/player/states/
+  MoveState -> AttackState while "attack" is held (needs weapon).
+  AttackState: canMove export, back to MoveState on release.
+
+[Weapons]  godot/weapons/
+- WeaponClass (base/weapon.gd): a scene per weapon. Root Node2D,
+  child Node2D "Visuals" with the Sprite2D (attacks may rotate
+  Visuals to swing). Grip at (0,0), weapon points right (+x).
+  Exports rarity, damage, attackCooldown, damageType, critChance,
+  critMultiplier, effects.
+  attack() runs perform() on EVERY child attack node, then waits
+  attackCooldown. The hand rotates it, so child nodes aim too.
+  wielder = the player holding it (set by equip_weapon).
+- Weapon scenes live by category: weapons/melee/slashing/
+  (png + tscn together). Hammers etc. get their own category.
+  Example: weapons/melee/slashing/wooden_sword.tscn (common).
+- Attacks (attacks/<type>/): nodes placed inside the weapon scene.
+  Node position = where the attack comes from.
+  * AttackClass (base/): damageMultiplier, weapon. perform().
+    Hits must be passed to register_hit(hurtbox, damage) so
+    effects hear about them (connect hitbox/projectile "hit").
+  * MeleeAttackClass (melee/): plain hitbox attack, no visuals.
+  * ProjectileAttackClass (projectile/): projectileScene,
+    projectileCount, spreadAngle.
+  * SlashAttackClass (slash/): see [Slash] below.
+  New attack type = script extending AttackClass, override perform().
+  Each attack type with visuals (hammer smash etc.) gets its own
+  style resource on RarityClass, like slashStyle.
+- ProjectileClass (projectiles/base/): script for projectile scenes
+  (Area2D root). speed, lifetime. Destroyed on hit or on a wall.
+- RarityClass (rarities/): Resource with rarityName, color,
+  damageMultiplier, slashStyle (embedded), effects.
+  New rarity = duplicate a .tres (embedded style is copied too).
+  Final damage = weapon damage x rarity x attack damageMultiplier.
+- Effects (effects/): custom behavior for weapons AND rarities.
+  WeaponEffectClass Resource with on_attack(weapon) and
+  on_hit(weapon, hurtbox, damage). New behavior = script extending
+  WeaponEffectClass, add it to a weapon's or rarity's effects list.
+  A weapon uses its own effects + its rarity's effects.
+  Each weapon gets its own copies, so effects may keep variables.
+  Set rarity before the weapon enters the tree (effects are
+  collected in _ready).
+  "hit" is emitted deferred, so on_hit can safely spawn nodes.
+- Totally different attacking: new attack type, or extend WeaponClass.
+
+[Slash]  godot/weapons/attacks/slash/
+- SlashAttackClass node in a weapon: radius (middle of the swept
+  band, from wielder center), size (band thickness), curve (arc
+  degrees), styleOverride (custom style, e.g. artifacts).
+  Each attack: spawns ONE slash.tscn as child of the wielder, swings
+  weapon Visuals over 70% of duration, alternates swing direction.
+- Style = styleOverride, else weapon.rarity.slashStyle.
+- SlashStyleClass (Resource): duration, sizeMultiplier, curveBonus,
+  trail, glow, core, tipGlow, streaks, chromaticAberration,
+  dustAmount, orbAmount, hitSparkSize, hitSparkAmount,
+  screenShake, hitStop.
+- Look = ONE filled crescent (like Terraria Cooler Weapon Effects),
+  drawn by slash.gdshader on a MeshInstance2D arc mesh built in code.
+  The developer disliked stacked lines/echo arcs: never go back to
+  layering separate arcs. Higher rarity = longer trail, glow, white
+  rim, streaks (noise texture), rim-only RGB fringe, wider curve.
+- Shader uniforms set from slash.gd; "head" (0-1) is the blade
+  position along the arc, "trail" the fading length behind it.
+  ShaderMaterial is local_to_scene so every slash has its own.
+- Colors: taken automatically from the weapon's Visuals Sprite2D
+  (dark/main/light by luminance, cached per texture).
+- Particles: none on the arc. Dust (dust.png, Nearest, scale 0.6-1.4)
+  and glowing orbs spawn only at the HIT location (hit_spark scene).
+- Own HitboxComponent: sector polygon from radius/size/curve, mask
+  Enemy Hurtbox, active first 60% of duration.
+  On hit: hit spark, GameFeel hit stop + shake, register_hit.
+- slash.gd types "attack" as AttackClass on purpose: typing it as
+  SlashAttackClass creates a preload cycle (slash_attack.gd preloads
+  slash.tscn) and breaks opening slash.tscn.
+- Smooth VFX nodes use texture_filter Linear (project default is
+  Nearest). Pixel art VFX stays Nearest.
+- Shaders follow the same style (2 blank lines after the header,
+  camelCase uniforms, //------------------------// separator).
+
+[VFX]  godot/vfx/
+- hit_spark/: HitSparkClass star burst (drawn spikes + flash +
+  spark particles + glowing orbs). Vars: color, strength,
+  sparkAmount, orbAmount, dustAmount, angle.
+- dust/dust.png: 5-frame 8x8 pixel dust puff (white/gray, tinted).
+  16x16 was too big.
+
+[Damage types]  godot/damage/
+- DamageTypeClass (base/damage_type.gd): typeName, color, critColor.
+- New damage type = new .tres in damage/types/ (physical, fire, ice,
+  poison exist). Set it on a weapon (damageType).
+- vfx/damage_number/: DamageNumberClass pops, rises, fades. Crit =
+  bigger, critColor, "!" suffix.
+
+[GameFeel]  godot/autoload/game_feel.gd  (autoload "GameFeel")
+- hit_stop(seconds): Engine.time_scale = 0, restored by real time.
+- shake(strength): shakes the active Camera2D offset. Needs a camera.
+- Autoloads do not exist in --script test runs; test by running a
+  harness scene normally instead.
+
+[Collision layers]
+1 World, 2 Player, 3 Enemy, 4 Player Hurtbox, 5 Enemy Hurtbox.
+Hitboxes/projectiles: layer none, mask the target hurtbox layer.
+Projectiles also mask World. Hurtboxes: own layer, mask none.
+
+Input actions: left, right, up, down (WASD), attack (left mouse).
+
+
+--------------------------------------------------------------
+7. PROGRESS LOG
+--------------------------------------------------------------
+2026-09-16  Project created (empty Godot 4.7 project).
+            Handout created.
+            Pixel art project settings set.
+            Player base, Health/Movement components, state machine.
+            Folder cleanup, weapon system, rarities, attack state,
+            hitbox/hurtbox components, collision layer names.
+            Weapon effects (custom behavior for weapons + rarities).
+            Base player scene: hand, animations, 3D-style flip.
+            test.tscn (main scene). Zero errors/warnings check.
+            Class names end with Class. Weapon spawns in hand,
+            wooden sword, walk = side-to-side rotation.
+            Slash system + rarity slash styles (7 rarities),
+            hit spark, dust sprite, GameFeel autoload, weapon
+            no longer flips, test scene rarity switching.
+            Slash redone as one shader crescent (no echo lines),
+            smaller 8x8 dust. Orbs + dust only at hit location.
+            Damage types, crits, floating damage numbers.
