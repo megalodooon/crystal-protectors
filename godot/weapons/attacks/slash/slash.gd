@@ -16,6 +16,7 @@ var size : float = 14.0
 var curve : float = 160.0
 var swingDirection : float = 1.0
 var elapsed : float = 0.0
+var hitFeelPlayed : bool = false
 var shader : ShaderMaterial
 
 #------------------------#
@@ -102,5 +103,7 @@ func on_hit(hurtbox : HurtboxComponentClass, hitDamage : float) -> void:
 	hitSpark.orbAmount = style.orbAmount
 	hitSpark.angle = (hurtbox.global_position - global_position).angle() + PI / 2.0 * swingDirection
 	get_tree().current_scene.add_child(hitSpark)
-	GameFeel.hit_stop(style.hitStop)
-	GameFeel.shake(style.screenShake)
+	if not hitFeelPlayed:
+		hitFeelPlayed = true
+		GameFeel.hit_stop(style.hitStop)
+		GameFeel.shake(style.screenShake)

@@ -1,98 +1,98 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://syrpd78moacd"]
 
-[ext_resource type="Script" path="res://test.gd" id="1_test"]
+[ext_resource type="Script" uid="uid://dttya6kqeq481" path="res://test.gd" id="1_test"]
 [ext_resource type="PackedScene" uid="uid://bxgjh5il07bj3" path="res://player/base/player.tscn" id="2_player"]
 [ext_resource type="PackedScene" path="res://weapons/melee/slashing/wooden_sword.tscn" id="3_sword"]
-[ext_resource type="Resource" path="res://weapons/rarities/common.tres" id="4_common"]
-[ext_resource type="Resource" path="res://weapons/rarities/uncommon.tres" id="5_uncommon"]
-[ext_resource type="Resource" path="res://weapons/rarities/rare.tres" id="6_rare"]
-[ext_resource type="Resource" path="res://weapons/rarities/epic.tres" id="7_epic"]
-[ext_resource type="Resource" path="res://weapons/rarities/legendary.tres" id="8_legendary"]
-[ext_resource type="Resource" path="res://weapons/rarities/mythic.tres" id="9_mythic"]
-[ext_resource type="Resource" path="res://weapons/rarities/artifact.tres" id="10_artifact"]
+[ext_resource type="Resource" uid="uid://uawdk2x0kkvq" path="res://weapons/rarities/common.tres" id="4_common"]
+[ext_resource type="Resource" uid="uid://bd3ny53s6x1mp" path="res://weapons/rarities/uncommon.tres" id="5_uncommon"]
+[ext_resource type="Resource" uid="uid://cywkw6gp1tqc6" path="res://weapons/rarities/rare.tres" id="6_rare"]
+[ext_resource type="Resource" uid="uid://121jaf6vltyn" path="res://weapons/rarities/epic.tres" id="7_epic"]
+[ext_resource type="Resource" uid="uid://mdhadydield1" path="res://weapons/rarities/legendary.tres" id="8_legendary"]
+[ext_resource type="Resource" uid="uid://cd3jmqh6dfk0i" path="res://weapons/rarities/mythic.tres" id="9_mythic"]
+[ext_resource type="Resource" uid="uid://b7q7gwc0hjfgl" path="res://weapons/rarities/artifact.tres" id="10_artifact"]
 [ext_resource type="Script" uid="uid://dkhf1rkvog3oh" path="res://components/health/health_component.gd" id="11_health"]
 [ext_resource type="Script" uid="uid://iyol7ynmkhca" path="res://components/hurtbox/hurtbox_component.gd" id="12_hurtbox"]
 [ext_resource type="Texture2D" uid="uid://da3o6uce0fi14" path="res://player/base/player_placeholder.png" id="13_placeholder"]
-[ext_resource type="Script" path="res://weapons/rarities/rarity.gd" id="14_rarity"]
+[ext_resource type="Script" uid="uid://b38xrlaoouxfl" path="res://weapons/rarities/rarity.gd" id="14_rarity"]
 [ext_resource type="PackedScene" path="res://weapons/melee/slashing/iron_sword.tscn" id="15_iron_sword"]
 [ext_resource type="PackedScene" path="res://weapons/melee/slashing/spear.tscn" id="16_spear"]
 [ext_resource type="PackedScene" path="res://weapons/melee/slashing/flame_sword.tscn" id="17_flame_sword"]
-[ext_resource type="Script" path="res://components/status/status_component.gd" id="18_status"]
+[ext_resource type="Script" uid="uid://0got7glne0r5" path="res://components/status/status_component.gd" id="18_status"]
 [ext_resource type="PackedScene" path="res://weapons/melee/slashing/frost_scythe.tscn" id="19_frost_scythe"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_dummy"]
 radius = 6.0
 
-[node name="Test" type="Node2D" node_paths=PackedStringArray("player")]
+[node name="Test" type="Node2D" unique_id=1342735548 node_paths=PackedStringArray("player")]
 script = ExtResource("1_test")
 player = NodePath("Player")
 weapons = Array[PackedScene]([ExtResource("3_sword"), ExtResource("15_iron_sword"), ExtResource("16_spear"), ExtResource("17_flame_sword"), ExtResource("19_frost_scythe")])
 rarities = Array[ExtResource("14_rarity")]([ExtResource("4_common"), ExtResource("5_uncommon"), ExtResource("6_rare"), ExtResource("7_epic"), ExtResource("8_legendary"), ExtResource("9_mythic"), ExtResource("10_artifact")])
 
-[node name="Camera2D" type="Camera2D" parent="."]
-process_callback = 0
+[node name="Camera2D" type="Camera2D" parent="." unique_id=1434578543]
 position = Vector2(96, 54)
+process_callback = 0
 
-[node name="Player" parent="." instance=ExtResource("2_player")]
+[node name="Player" parent="." unique_id=1472814208 instance=ExtResource("2_player")]
 position = Vector2(96, 54)
 weaponScene = ExtResource("3_sword")
 weaponRarity = ExtResource("4_common")
 
-[node name="DummyRight" type="Node2D" parent="."]
+[node name="DummyRight" type="Node2D" parent="." unique_id=441248857]
 position = Vector2(120, 54)
 
-[node name="Sprite2D" type="Sprite2D" parent="DummyRight"]
+[node name="Sprite2D" type="Sprite2D" parent="DummyRight" unique_id=1597118294]
 modulate = Color(1, 0.55, 0.55, 1)
 texture = ExtResource("13_placeholder")
 
-[node name="HealthComponent" type="Node" parent="DummyRight"]
+[node name="HealthComponent" type="Node" parent="DummyRight" unique_id=1831882491]
 script = ExtResource("11_health")
 maxHealth = 1000000.0
 
-[node name="HurtboxComponent" type="Area2D" parent="DummyRight" node_paths=PackedStringArray("healthComponent", "statusComponent")]
+[node name="HurtboxComponent" type="Area2D" parent="DummyRight" unique_id=1922040675 node_paths=PackedStringArray("healthComponent", "statusComponent")]
 collision_layer = 16
 collision_mask = 0
 script = ExtResource("12_hurtbox")
 healthComponent = NodePath("../HealthComponent")
 statusComponent = NodePath("../StatusComponent")
 
-[node name="StatusComponent" type="Node" parent="DummyRight" node_paths=PackedStringArray("hurtbox", "sprite")]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DummyRight/HurtboxComponent" unique_id=656574928]
+shape = SubResource("CircleShape2D_dummy")
+
+[node name="StatusComponent" type="Node" parent="DummyRight" unique_id=824769302 node_paths=PackedStringArray("hurtbox", "sprite")]
 script = ExtResource("18_status")
 hurtbox = NodePath("../HurtboxComponent")
 sprite = NodePath("../Sprite2D")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="DummyRight/HurtboxComponent"]
-shape = SubResource("CircleShape2D_dummy")
-
-[node name="DummyLeft" type="Node2D" parent="."]
+[node name="DummyLeft" type="Node2D" parent="." unique_id=1812046715]
 position = Vector2(72, 54)
 
-[node name="Sprite2D" type="Sprite2D" parent="DummyLeft"]
+[node name="Sprite2D" type="Sprite2D" parent="DummyLeft" unique_id=1237072971]
 modulate = Color(1, 0.55, 0.55, 1)
 texture = ExtResource("13_placeholder")
 
-[node name="HealthComponent" type="Node" parent="DummyLeft"]
+[node name="HealthComponent" type="Node" parent="DummyLeft" unique_id=816502892]
 script = ExtResource("11_health")
 maxHealth = 1000000.0
 
-[node name="HurtboxComponent" type="Area2D" parent="DummyLeft" node_paths=PackedStringArray("healthComponent", "statusComponent")]
+[node name="HurtboxComponent" type="Area2D" parent="DummyLeft" unique_id=1258152798 node_paths=PackedStringArray("healthComponent", "statusComponent")]
 collision_layer = 16
 collision_mask = 0
 script = ExtResource("12_hurtbox")
 healthComponent = NodePath("../HealthComponent")
 statusComponent = NodePath("../StatusComponent")
 
-[node name="StatusComponent" type="Node" parent="DummyLeft" node_paths=PackedStringArray("hurtbox", "sprite")]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DummyLeft/HurtboxComponent" unique_id=317214427]
+shape = SubResource("CircleShape2D_dummy")
+
+[node name="StatusComponent" type="Node" parent="DummyLeft" unique_id=2007870812 node_paths=PackedStringArray("hurtbox", "sprite")]
 script = ExtResource("18_status")
 hurtbox = NodePath("../HurtboxComponent")
 sprite = NodePath("../Sprite2D")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="DummyLeft/HurtboxComponent"]
-shape = SubResource("CircleShape2D_dummy")
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=421371986]
 
-[node name="CanvasLayer" type="CanvasLayer" parent="."]
-
-[node name="RarityLabel" type="Label" parent="CanvasLayer"]
+[node name="RarityLabel" type="Label" parent="CanvasLayer" unique_id=317467087]
 offset_left = 3.0
 offset_top = 1.0
 offset_right = 190.0

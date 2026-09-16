@@ -1,28 +1,18 @@
-[gd_resource type="Resource" script_class="RarityClass" format=3]
+[gd_resource type="Resource" script_class="RarityClass" format=3 uid="uid://uawdk2x0kkvq"]
 
 [ext_resource type="Script" uid="uid://b38xrlaoouxfl" path="res://weapons/rarities/rarity.gd" id="1_rarity"]
-[ext_resource type="Script" path="res://weapons/attacks/slash/slash_style.gd" id="2_slashstyle"]
+[ext_resource type="Script" uid="uid://62usds3gqkdb" path="res://weapons/attacks/slash/slash_style.gd" id="2_slashstyle"]
 
 [sub_resource type="Resource" id="Resource_slashstyle"]
 script = ExtResource("2_slashstyle")
-duration = 0.22
-sizeMultiplier = 1.0
-curveBonus = 0.0
-trail = 0.45
-glow = 0.0
 core = 0.15
-tipGlow = 0.0
 streaks = 0.15
-chromaticAberration = 0.0
-orbAmount = 0
 hitSparkSize = 0.7
 hitSparkAmount = 3
 screenShake = 0.5
-hitStop = 0.0
 
 [resource]
 script = ExtResource("1_rarity")
 rarityName = "Common"
 color = Color(0.8, 0.8, 0.8, 1)
-damageMultiplier = 1.0
 slashStyle = SubResource("Resource_slashstyle")

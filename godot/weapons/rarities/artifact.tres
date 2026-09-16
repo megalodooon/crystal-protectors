@@ -1,8 +1,15 @@
-[gd_resource type="Resource" script_class="RarityClass" format=3]
+[gd_resource type="Resource" script_class="RarityClass" format=3 uid="uid://b7q7gwc0hjfgl"]
 
 [ext_resource type="Script" uid="uid://b38xrlaoouxfl" path="res://weapons/rarities/rarity.gd" id="1_rarity"]
-[ext_resource type="Script" path="res://weapons/attacks/slash/slash_style.gd" id="2_slashstyle"]
-[ext_resource type="Script" path="res://weapons/enchant/enchant_style.gd" id="3_enchantstyle"]
+[ext_resource type="Script" uid="uid://62usds3gqkdb" path="res://weapons/attacks/slash/slash_style.gd" id="2_slashstyle"]
+[ext_resource type="Script" uid="uid://bxwnpisywsux2" path="res://weapons/enchant/enchant_style.gd" id="3_enchantstyle"]
+
+[sub_resource type="Resource" id="Resource_enchantstyle"]
+script = ExtResource("3_enchantstyle")
+glowStrength = 0.75
+glowSize = 3.0
+pulseSpeed = 1.4
+particleAmount = 8
 
 [sub_resource type="Resource" id="Resource_slashstyle"]
 script = ExtResource("2_slashstyle")
@@ -20,13 +27,6 @@ hitSparkSize = 1.55
 hitSparkAmount = 22
 screenShake = 2.0
 hitStop = 0.04
-
-[sub_resource type="Resource" id="Resource_enchantstyle"]
-script = ExtResource("3_enchantstyle")
-glowStrength = 0.75
-glowSize = 3.0
-pulseSpeed = 1.4
-particleAmount = 8
 
 [resource]
 script = ExtResource("1_rarity")

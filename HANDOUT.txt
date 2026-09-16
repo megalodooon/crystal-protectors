@@ -315,7 +315,8 @@ Example: godot/weapons/base/weapon.gd
   it, it looked out of place.
 - Own HitboxComponent: sector polygon from radius/size/curve, mask
   Enemy Hurtbox, active first 60% of duration.
-  On hit: hit spark, GameFeel hit stop + shake, register_hit.
+  On hit: hit spark + register_hit per enemy; GameFeel hit stop +
+  shake only once per slash (hitFeelPlayed), however many enemies.
 - slash.gd types "attack" as AttackClass on purpose: typing it as
   SlashAttackClass creates a preload cycle (slash_attack.gd preloads
   slash.tscn) and breaks opening slash.tscn.
