@@ -4,7 +4,7 @@
 [ext_resource type="Resource" path="res://weapons/rarities/common.tres" id="2_common"]
 [ext_resource type="Texture2D" uid="uid://bj32hu8l1uv4f" path="res://weapons/melee/slashing/flame_sword.png" id="3_sprite"]
 [ext_resource type="Script" path="res://weapons/attacks/slash/slash_attack.gd" id="4_slash"]
-[ext_resource type="Resource" path="res://damage/types/fire.tres" id="5_fire"]
+[ext_resource type="Resource" path="res://damage/types/physical.tres" id="5_physical"]
 [ext_resource type="Script" path="res://weapons/effects/base/weapon_effect.gd" id="6_effect"]
 [ext_resource type="Resource" path="res://weapons/effects/fire/fire.tres" id="7_fire_effect"]
 
@@ -13,7 +13,7 @@ script = ExtResource("1_weapon")
 rarity = ExtResource("2_common")
 damage = 12.0
 attackCooldown = 0.4
-damageType = ExtResource("5_fire")
+damageType = ExtResource("5_physical")
 effects = Array[ExtResource("6_effect")]([ExtResource("7_fire_effect")])
 
 [node name="Visuals" type="Node2D" parent="."]
