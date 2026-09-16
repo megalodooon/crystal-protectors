@@ -353,7 +353,8 @@ Example: godot/weapons/base/weapon.gd
   bottom up, fully frozen at stacksToProc - 1, + mist/snow), at
   stacksToProc (4) = frostbite:
   frostbiteDamage (20, ice = blue numbers) + frostbite_explosion.tscn
-  (flash, icicle.png particles, shards; Timer frees it),
+  (flash, icicle.png particles with icicle.gdshader glow halo, ice
+  blue shards in normal blend; Timer frees it),
   then removed. Build-up clears after duration (4s) without hits.
   Removed (and blocks it) when Burn is applied; fire damage removes it.
 - Targets need a StatusComponent (+ hurtbox statusComponent set) to
