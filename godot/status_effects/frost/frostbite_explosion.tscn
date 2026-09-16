@@ -24,6 +24,10 @@ point_count = 2
 [sub_resource type="Gradient" id="Gradient_flash_fade"]
 colors = PackedColorArray(1, 1, 1, 0.9, 1, 1, 1, 0)
 
+[sub_resource type="Curve" id="Curve_icicle_shrink"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0.25), 0.0, 0.0, 0, 0]
+point_count = 2
+
 [sub_resource type="Gradient" id="Gradient_icicle_fade"]
 offsets = PackedFloat32Array(0, 0.7, 1)
 colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0)
@@ -50,17 +54,20 @@ color_ramp = SubResource("Gradient_flash_fade")
 [node name="Icicles" type="CPUParticles2D" parent="."]
 amount = 8
 texture = ExtResource("1_icicle")
-lifetime = 0.55
+lifetime = 0.6
 one_shot = true
 explosiveness = 1.0
 randomness = 0.3
 particle_flag_align_y = true
 spread = 180.0
 gravity = Vector2(0, 40)
-initial_velocity_min = 45.0
-initial_velocity_max = 75.0
-damping_min = 110.0
-damping_max = 150.0
+initial_velocity_min = 65.0
+initial_velocity_max = 110.0
+damping_min = 80.0
+damping_max = 110.0
+scale_amount_min = 0.6
+scale_amount_max = 0.85
+scale_amount_curve = SubResource("Curve_icicle_shrink")
 color_ramp = SubResource("Gradient_icicle_fade")
 
 [node name="Shards" type="CPUParticles2D" parent="."]
