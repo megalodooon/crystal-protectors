@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://b38xrlaoouxfl" path="res://weapons/rarities/rarity.gd" id="1_rarity"]
 [ext_resource type="Script" path="res://weapons/attacks/slash/slash_style.gd" id="2_slashstyle"]
+[ext_resource type="Script" path="res://weapons/enchant/enchant_style.gd" id="3_enchantstyle"]
 
 [sub_resource type="Resource" id="Resource_slashstyle"]
 script = ExtResource("2_slashstyle")
@@ -21,9 +22,18 @@ hitSparkAmount = 12
 screenShake = 2.5
 hitStop = 0.05
 
+[sub_resource type="Resource" id="Resource_enchantstyle"]
+script = ExtResource("3_enchantstyle")
+glowStrength = 0.45
+glowSize = 2.0
+pulseSpeed = 1.0
+shimmer = 0.25
+particleAmount = 3
+
 [resource]
 script = ExtResource("1_rarity")
 rarityName = "Legendary"
 color = Color(1, 0.6, 0.15, 1)
 damageMultiplier = 3.0
 slashStyle = SubResource("Resource_slashstyle")
+enchantStyle = SubResource("Resource_enchantstyle")

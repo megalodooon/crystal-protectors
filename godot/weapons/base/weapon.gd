@@ -2,6 +2,8 @@ extends Node2D
 class_name WeaponClass
 
 
+const ENCHANT_SCENE := preload("res://weapons/enchant/enchant.tscn")
+
 @export var rarity : RarityClass
 @export var damage : float = 10.0
 @export var attackCooldown : float = 0.5
@@ -33,6 +35,7 @@ func _ready() -> void:
 			activeEffects.append(effect.duplicate())
 	update_flip()
 	visuals.rotation = get_hold_rotation()
+	add_enchant()
 
 func _process(delta : float) -> void:
 	if not isSwinging:
@@ -50,6 +53,18 @@ func get_hold_rotation() -> float:
 	if scale.y > 0.0:
 		angle = PI - angle
 	return wrapf((angle - global_rotation) * scale.y, -PI, PI)
+
+func add_enchant() -> void:
+	if not rarity or not rarity.enchantStyle:
+		return
+	for child in visuals.get_children():
+		if child is Sprite2D and child.texture:
+			var enchant : EnchantClass = ENCHANT_SCENE.instantiate()
+			enchant.style = rarity.enchantStyle
+			enchant.color = rarity.color
+			enchant.texture = child.texture
+			child.add_child(enchant)
+			return
 
 func attack() -> void:
 	if not canAttack:

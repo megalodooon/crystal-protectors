@@ -1,0 +1,36 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://weapons/enchant/enchant.gd" id="1_enchant"]
+[ext_resource type="Shader" path="res://weapons/enchant/enchant.gdshader" id="2_shader"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_glow"]
+resource_local_to_scene = true
+shader = ExtResource("2_shader")
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_add"]
+blend_mode = 1
+
+[sub_resource type="Gradient" id="Gradient_twinkle"]
+offsets = PackedFloat32Array(0, 0.3, 1)
+colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 0.9, 1, 1, 1, 0)
+
+[node name="Enchant" type="Node2D"]
+script = ExtResource("1_enchant")
+
+[node name="Glow" type="Sprite2D" parent="."]
+texture_filter = 2
+material = SubResource("ShaderMaterial_glow")
+
+[node name="Particles" type="CPUParticles2D" parent="."]
+material = SubResource("CanvasItemMaterial_add")
+emitting = false
+amount = 1
+lifetime = 1.4
+randomness = 0.5
+local_coords = false
+emission_shape = 4
+spread = 180.0
+gravity = Vector2(0, -5)
+initial_velocity_min = 1.0
+initial_velocity_max = 3.0
+color_ramp = SubResource("Gradient_twinkle")

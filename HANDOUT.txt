@@ -221,7 +221,7 @@ Example: godot/weapons/base/weapon.gd
 - ProjectileClass (projectiles/base/): script for projectile scenes
   (Area2D root). speed, lifetime. Destroyed on hit or on a wall.
 - RarityClass (rarities/): Resource with rarityName, color,
-  damageMultiplier, slashStyle (embedded), effects.
+  damageMultiplier, slashStyle (embedded), enchantStyle, effects.
   New rarity = duplicate a .tres (embedded style is copied too).
   Final damage = weapon damage x rarity x attack damageMultiplier.
 - Effects (effects/): custom behavior for weapons AND rarities.
@@ -234,6 +234,16 @@ Example: godot/weapons/base/weapon.gd
   collected in _ready).
   "hit" is emitted deferred, so on_hit can safely spawn nodes.
 - Totally different attacking: new attack type, or extend WeaponClass.
+
+[Enchant]  godot/weapons/enchant/
+- RarityClass enchantStyle (EnchantStyleClass, embedded): glowStrength,
+  glowSize, pulseSpeed, shimmer, particleAmount. Empty = no enchant
+  (common-epic). Legendary, mythic, artifact have one.
+- WeaponClass.add_enchant() puts enchant.tscn under the first
+  Visuals Sprite2D: Glow (enchant.gdshader: slow pulsing halo +
+  moving shimmer band, additive, Linear) and Particles (tiny
+  CPUParticles2D emitted from the sprite's opaque pixels, world
+  coords so they trail). Color = rarity color.
 
 [Slash]  godot/weapons/attacks/slash/
 - SlashAttackClass node in a weapon: radius (middle of the swept
@@ -330,3 +340,4 @@ Input actions: left, right, up, down (WASD), attack (left mouse).
             Weapons mirror on the right side, slash colorTexture.
             Weapons held upright when idle (holdAngle).
             Hand swings with the weapon (swingRotation).
+            Enchant glow + particles on legendary and above.
