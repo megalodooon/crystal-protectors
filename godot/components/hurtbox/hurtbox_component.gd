@@ -5,9 +5,14 @@ class_name HurtboxComponentClass
 const DAMAGE_NUMBER_SCENE := preload("res://vfx/damage_number/damage_number.tscn")
 
 @export var healthComponent : HealthComponentClass
+@export var statusComponent : StatusComponentClass
 @export var showDamageNumbers : bool = true
 
 #------------------------#
+
+func apply_status(effect : StatusEffectClass) -> void:
+	if statusComponent:
+		statusComponent.apply_effect(effect)
 
 func take_damage(amount : float, damageType : DamageTypeClass = null, isCrit : bool = false) -> void:
 	healthComponent.take_damage(amount)

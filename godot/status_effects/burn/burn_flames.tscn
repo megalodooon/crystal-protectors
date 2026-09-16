@@ -1,0 +1,65 @@
+[gd_scene format=3]
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_add"]
+blend_mode = 1
+
+[sub_resource type="Gradient" id="Gradient_soft"]
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_soft"]
+gradient = SubResource("Gradient_soft")
+width = 8
+height = 8
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 0)
+
+[sub_resource type="Curve" id="Curve_shrink"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Gradient" id="Gradient_fire"]
+offsets = PackedFloat32Array(0, 0.25, 0.6, 1)
+colors = PackedColorArray(1, 0.95, 0.6, 1, 1, 0.6, 0.15, 0.9, 0.85, 0.2, 0.05, 0.6, 0.4, 0.05, 0.02, 0)
+
+[sub_resource type="Gradient" id="Gradient_ember"]
+offsets = PackedFloat32Array(0, 0.2, 1)
+colors = PackedColorArray(1, 0.9, 0.5, 0, 1, 0.7, 0.3, 1, 1, 0.3, 0.05, 0)
+
+[node name="BurnFlames" type="Node2D"]
+z_index = 1
+
+[node name="Flames" type="CPUParticles2D" parent="."]
+texture_filter = 2
+material = SubResource("CanvasItemMaterial_add")
+amount = 16
+texture = SubResource("GradientTexture2D_soft")
+lifetime = 0.5
+randomness = 0.4
+local_coords = false
+emission_shape = 3
+emission_rect_extents = Vector2(4, 5)
+spread = 180.0
+gravity = Vector2(0, -30)
+initial_velocity_min = 1.0
+initial_velocity_max = 4.0
+scale_amount_min = 0.4
+scale_amount_max = 0.8
+scale_amount_curve = SubResource("Curve_shrink")
+color_ramp = SubResource("Gradient_fire")
+
+[node name="Embers" type="CPUParticles2D" parent="."]
+material = SubResource("CanvasItemMaterial_add")
+amount = 4
+lifetime = 0.8
+randomness = 0.5
+local_coords = false
+emission_shape = 3
+emission_rect_extents = Vector2(5, 5)
+spread = 180.0
+gravity = Vector2(0, -20)
+initial_velocity_min = 3.0
+initial_velocity_max = 8.0
+scale_amount_min = 0.5
+scale_amount_max = 0.7
+color_ramp = SubResource("Gradient_ember")

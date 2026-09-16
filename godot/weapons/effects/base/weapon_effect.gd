@@ -4,6 +4,9 @@ class_name WeaponEffectClass
 
 #------------------------#
 
+func on_equip(_weapon : WeaponClass) -> void:
+	pass
+
 func on_attack(_weapon : WeaponClass) -> void:
 	pass
 

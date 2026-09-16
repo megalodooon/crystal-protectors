@@ -16,6 +16,8 @@
 [ext_resource type="Script" path="res://weapons/rarities/rarity.gd" id="14_rarity"]
 [ext_resource type="PackedScene" path="res://weapons/melee/slashing/iron_sword.tscn" id="15_iron_sword"]
 [ext_resource type="PackedScene" path="res://weapons/melee/slashing/spear.tscn" id="16_spear"]
+[ext_resource type="PackedScene" path="res://weapons/melee/slashing/flame_sword.tscn" id="17_flame_sword"]
+[ext_resource type="Script" path="res://components/status/status_component.gd" id="18_status"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_dummy"]
 radius = 6.0
@@ -23,7 +25,7 @@ radius = 6.0
 [node name="Test" type="Node2D" node_paths=PackedStringArray("player")]
 script = ExtResource("1_test")
 player = NodePath("Player")
-weapons = Array[PackedScene]([ExtResource("3_sword"), ExtResource("15_iron_sword"), ExtResource("16_spear")])
+weapons = Array[PackedScene]([ExtResource("3_sword"), ExtResource("15_iron_sword"), ExtResource("16_spear"), ExtResource("17_flame_sword")])
 rarities = Array[ExtResource("14_rarity")]([ExtResource("4_common"), ExtResource("5_uncommon"), ExtResource("6_rare"), ExtResource("7_epic"), ExtResource("8_legendary"), ExtResource("9_mythic"), ExtResource("10_artifact")])
 
 [node name="Camera2D" type="Camera2D" parent="."]
@@ -45,11 +47,16 @@ texture = ExtResource("13_placeholder")
 script = ExtResource("11_health")
 maxHealth = 1000000.0
 
-[node name="HurtboxComponent" type="Area2D" parent="DummyRight" node_paths=PackedStringArray("healthComponent")]
+[node name="HurtboxComponent" type="Area2D" parent="DummyRight" node_paths=PackedStringArray("healthComponent", "statusComponent")]
 collision_layer = 16
 collision_mask = 0
 script = ExtResource("12_hurtbox")
 healthComponent = NodePath("../HealthComponent")
+statusComponent = NodePath("../StatusComponent")
+
+[node name="StatusComponent" type="Node" parent="DummyRight" node_paths=PackedStringArray("hurtbox")]
+script = ExtResource("18_status")
+hurtbox = NodePath("../HurtboxComponent")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="DummyRight/HurtboxComponent"]
 shape = SubResource("CircleShape2D_dummy")
@@ -65,11 +72,16 @@ texture = ExtResource("13_placeholder")
 script = ExtResource("11_health")
 maxHealth = 1000000.0
 
-[node name="HurtboxComponent" type="Area2D" parent="DummyLeft" node_paths=PackedStringArray("healthComponent")]
+[node name="HurtboxComponent" type="Area2D" parent="DummyLeft" node_paths=PackedStringArray("healthComponent", "statusComponent")]
 collision_layer = 16
 collision_mask = 0
 script = ExtResource("12_hurtbox")
 healthComponent = NodePath("../HealthComponent")
+statusComponent = NodePath("../StatusComponent")
+
+[node name="StatusComponent" type="Node" parent="DummyLeft" node_paths=PackedStringArray("hurtbox")]
+script = ExtResource("18_status")
+hurtbox = NodePath("../HurtboxComponent")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="DummyLeft/HurtboxComponent"]
 shape = SubResource("CircleShape2D_dummy")

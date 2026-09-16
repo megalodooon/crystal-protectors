@@ -175,8 +175,16 @@ Example: godot/weapons/base/weapon.gd
   move(body, direction, delta) sets velocity + move_and_slide.
   Unique movement feel: extend it and override move().
 - HurtboxComponentClass (Area2D): can be hit. Exports healthComponent,
-  showDamageNumbers. take_damage(amount, damageType, isCrit) spawns
-  a floating DamageNumber.
+  statusComponent, showDamageNumbers. take_damage(amount, damageType,
+  isCrit) spawns a floating DamageNumber. apply_status(effect) passes
+  status effects to its statusComponent (none = ignored).
+- StatusComponentClass (Node): active status effects on a target.
+  Exports hurtbox (effects deal damage through it, so damage numbers
+  work) and visualParent (default: its parent). Many different effects
+  at once, keyed by effectName; the same name again = refresh
+  (longest duration, burn keeps highest damage). Visual particles
+  stop emitting and are freed 1s after the effect ends.
+  Signals: effect_added, effect_removed. has_effect(name).
 - HitboxComponentClass (Area2D): damages hurtboxes it touches.
   Exports damage, damageType, critChance, critMultiplier (crit is
   rolled per hit). Attacks fill these via AttackClass.setup_hitbox().
@@ -205,7 +213,8 @@ Example: godot/weapons/base/weapon.gd
   wielder = the player holding it (set by equip_weapon).
 - Weapon scenes live by category: weapons/melee/slashing/
   (png + tscn together). Hammers etc. get their own category.
-  Existing: wooden_sword, iron_sword, spear (360 spin).
+  Existing: wooden_sword, iron_sword, spear (360 spin), flame_sword
+  (fire damage + fire effect).
 - Attacks (attacks/<type>/): nodes placed inside the weapon scene.
   Node position = where the attack comes from.
   * AttackClass (base/): damageMultiplier, weapon. perform().
@@ -224,15 +233,27 @@ Example: godot/weapons/base/weapon.gd
   damageMultiplier, slashStyle (embedded), enchantStyle, effects.
   New rarity = duplicate a .tres (embedded style is copied too).
   Final damage = weapon damage x rarity x attack damageMultiplier.
-- Effects (effects/): custom behavior for weapons AND rarities.
-  WeaponEffectClass Resource with on_attack(weapon) and
-  on_hit(weapon, hurtbox, damage). New behavior = script extending
+- Effects (effects/, base script in effects/base/): custom behavior
+  for weapons AND rarities. WeaponEffectClass Resource with
+  on_equip(weapon) (in _ready, for weapon visuals), on_attack(weapon)
+  and on_hit(weapon, hurtbox, damage). New behavior = script extending
   WeaponEffectClass, add it to a weapon's or rarity's effects list.
   A weapon uses its own effects + its rarity's effects.
   Each weapon gets its own copies, so effects may keep variables.
   Set rarity before the weapon enters the tree (effects are
   collected in _ready).
   "hit" is emitted deferred, so on_hit can safely spawn nodes.
+- Fire (effects/fire/): add fire.tres to a weapon's effects. Hits apply
+  burn (status_effects/burn/burn.tres; damagePerTick x rarity
+  damageMultiplier if scaleWithRarity). on_equip adds weapon_flames.tscn
+  under the sprite (orange flicker glow reusing enchant.gdshader +
+  flame/ember particles from the blade pixels).
+- WeaponClass.get_sprite() = first Visuals Sprite2D.
+  WeaponClass.get_pixel_points(texture, bladeOnly) = opaque pixel
+  positions for particle emission (bladeOnly keeps the top-right half,
+  since sprites are drawn handle bottom-left). Scenes preloaded by
+  weapon.gd must not reference WeaponClass (preload cycle), so pass
+  data in instead.
 - Totally different attacking: new attack type, or extend WeaponClass.
 
 [Enchant]  godot/weapons/enchant/
@@ -294,6 +315,17 @@ Example: godot/weapons/base/weapon.gd
 - dust/dust.png: 5-frame 8x8 pixel dust puff (white/gray, tinted).
   16x16 was too big.
 
+[Status effects]  godot/status_effects/
+- StatusEffectClass (base/): Resource with effectName, duration,
+  tickInterval, visualScene (spawned on the target while active).
+  on_apply(), on_tick(), on_remove(), refresh(newEffect). "status" =
+  the StatusComponentClass it is on. Applied copies are duplicated.
+  New effect = script extending it + a .tres in its own folder.
+- Burn (burn/): BurnEffectClass damagePerTick, damageType (fire).
+  burn.tres = 3s, tick 0.5s, burn_flames.tscn on the target.
+- Targets need a StatusComponent (+ hurtbox statusComponent set) to
+  receive effects. Test dummies have one.
+
 [Damage types]  godot/damage/
 - DamageTypeClass (base/damage_type.gd): typeName, color, critColor.
 - New damage type = new .tres in damage/types/ (physical, fire, ice,
@@ -342,3 +374,5 @@ Input actions: left, right, up, down (WASD), attack (left mouse).
             Weapons held upright when idle (holdAngle).
             Hand swings with the weapon (swingRotation).
             Enchant glow + particles on legendary and above.
+            Status effect system, burn, fire weapon effect with
+            weapon flames, flame sword.

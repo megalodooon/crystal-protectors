@@ -36,6 +36,8 @@ func _ready() -> void:
 	update_flip()
 	visuals.rotation = get_hold_rotation()
 	add_enchant()
+	for effect in activeEffects:
+		effect.on_equip(self)
 
 func _process(delta : float) -> void:
 	if not isSwinging:
@@ -55,16 +57,33 @@ func get_hold_rotation() -> float:
 	return wrapf((angle - global_rotation) * scale.y, -PI, PI)
 
 func add_enchant() -> void:
-	if not rarity or not rarity.enchantStyle:
+	var sprite : Sprite2D = get_sprite()
+	if not rarity or not rarity.enchantStyle or not sprite:
 		return
+	var enchant : EnchantClass = ENCHANT_SCENE.instantiate()
+	enchant.style = rarity.enchantStyle
+	enchant.color = rarity.color
+	enchant.texture = sprite.texture
+	enchant.points = get_pixel_points(sprite.texture)
+	sprite.add_child(enchant)
+
+func get_sprite() -> Sprite2D:
 	for child in visuals.get_children():
 		if child is Sprite2D and child.texture:
-			var enchant : EnchantClass = ENCHANT_SCENE.instantiate()
-			enchant.style = rarity.enchantStyle
-			enchant.color = rarity.color
-			enchant.texture = child.texture
-			child.add_child(enchant)
-			return
+			return child
+	return null
+
+static func get_pixel_points(texture : Texture2D, bladeOnly : bool = false) -> PackedVector2Array:
+	var image : Image = texture.get_image()
+	if image.is_compressed():
+		image.decompress()
+	var halfSize : Vector2 = Vector2(image.get_size()) / 2.0
+	var points : PackedVector2Array = []
+	for y in image.get_height():
+		for x in image.get_width():
+			if image.get_pixel(x, y).a > 0.5 and (not bladeOnly or x - y >= -1):
+				points.append(Vector2(x, y) + Vector2(0.5, 0.5) - halfSize)
+	return points
 
 func attack() -> void:
 	if not canAttack:

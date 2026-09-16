@@ -8,6 +8,7 @@ class_name EnchantClass
 var style : EnchantStyleClass
 var color : Color = Color.WHITE
 var texture : Texture2D
+var points : PackedVector2Array
 
 #------------------------#
 
@@ -18,20 +19,8 @@ func _ready() -> void:
 	shader.set_shader_parameter("strength", style.glowStrength)
 	shader.set_shader_parameter("glowSize", style.glowSize)
 	shader.set_shader_parameter("pulseSpeed", style.pulseSpeed)
-	if style.particleAmount > 0:
+	if style.particleAmount > 0 and not points.is_empty():
 		particles.color = color.lerp(Color.WHITE, 0.3)
 		particles.amount = style.particleAmount
-		particles.emission_points = get_pixel_points()
+		particles.emission_points = points
 		particles.emitting = true
-
-func get_pixel_points() -> PackedVector2Array:
-	var image : Image = texture.get_image()
-	if image.is_compressed():
-		image.decompress()
-	var halfSize : Vector2 = Vector2(image.get_size()) / 2.0
-	var points : PackedVector2Array = []
-	for y in image.get_height():
-		for x in image.get_width():
-			if image.get_pixel(x, y).a > 0.5:
-				points.append(Vector2(x, y) + Vector2(0.5, 0.5) - halfSize)
-	return points

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="FireEffectClass" format=3]
+
+[ext_resource type="Script" path="res://weapons/effects/fire/fire_effect.gd" id="1_fire"]
+[ext_resource type="Resource" path="res://status_effects/burn/burn.tres" id="2_burn"]
+
+[resource]
+script = ExtResource("1_fire")
+burn = ExtResource("2_burn")
+scaleWithRarity = true
