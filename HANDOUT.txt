@@ -214,7 +214,7 @@ Example: godot/weapons/base/weapon.gd
 - Weapon scenes live by category: weapons/melee/slashing/
   (png + tscn together). Hammers etc. get their own category.
   Existing: wooden_sword, iron_sword, spear (360 spin), flame_sword
-  (fire damage + fire effect).
+  (physical hits + fire effect; only the burn deals fire damage).
 - Attacks (attacks/<type>/): nodes placed inside the weapon scene.
   Node position = where the attack comes from.
   * AttackClass (base/): damageMultiplier, weapon. perform().
