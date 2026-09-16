@@ -260,6 +260,8 @@ Example: godot/weapons/base/weapon.gd
 - RarityClass enchantStyle (EnchantStyleClass, embedded): glowStrength,
   glowSize, pulseSpeed, particleAmount. Empty = no enchant
   (common-epic). Legendary, mythic, artifact have one.
+  Enchant draws behind the weapon sprite (show_behind_parent);
+  weapon effect visuals (flames) draw on top (z_index 1).
 - WeaponClass.add_enchant() puts enchant.tscn under the first
   Visuals Sprite2D: Glow (enchant.gdshader: slow pulsing halo,
   additive, Linear; no shimmer band, the developer disliked it) and
@@ -284,6 +286,8 @@ Example: godot/weapons/base/weapon.gd
   trail, glow, core, tipGlow, streaks, chromaticAberration,
   dustAmount, orbAmount, hitSparkSize, hitSparkAmount,
   screenShake, hitStop.
+- screenShake is capped at epic (2.0): legendary+ use 2.0 too, more
+  felt like too much.
 - Look = ONE filled crescent (like Terraria Cooler Weapon Effects),
   drawn by slash.gdshader on a MeshInstance2D arc mesh built in code.
   The developer disliked stacked lines/echo arcs: never go back to

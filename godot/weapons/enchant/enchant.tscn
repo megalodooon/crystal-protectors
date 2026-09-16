@@ -15,6 +15,7 @@ offsets = PackedFloat32Array(0, 0.3, 1)
 colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 0.9, 1, 1, 1, 0)
 
 [node name="Enchant" type="Node2D"]
+show_behind_parent = true
 script = ExtResource("1_enchant")
 
 [node name="Glow" type="Sprite2D" parent="."]
