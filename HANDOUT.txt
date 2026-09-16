@@ -155,7 +155,12 @@ Example: godot/weapons/base/weapon.gd
   up tilted back, mirrored on the left; holdSpeed). Only visual:
   attacks still aim at the mouse. Attacks that move Visuals set
   weapon.isSwinging while they do (SlashAttack returns to
-  get_hold_rotation() after the swing).
+  get_hold_rotation() after the swing). Flip is locked while
+  swinging.
+- Swings move the whole arm: SlashAttack tweens weapon.swingRotation
+  (Visuals stay at 0) and the player adds it to HandPivot rotation.
+  Aim = attack global_rotation - weapon.swingRotation. Any future
+  wielder must also add swingRotation to its hand.
 - Facing the mouse side flips only the body like a 3D turn:
   player Visuals scale.x slides to +1/-1.
   So never animate player Visuals scale; animate its Sprite2D.
@@ -324,3 +329,4 @@ Input actions: left, right, up, down (WASD), attack (left mouse).
             raritySizeGrowth, test scene weapon cycling (Q).
             Weapons mirror on the right side, slash colorTexture.
             Weapons held upright when idle (holdAngle).
+            Hand swings with the weapon (swingRotation).

@@ -17,6 +17,7 @@ class_name WeaponClass
 var wielder : Node2D
 var canAttack : bool = true
 var isSwinging : bool = false
+var swingRotation : float = 0.0
 var activeEffects : Array[WeaponEffectClass]
 
 #------------------------#
@@ -34,8 +35,8 @@ func _ready() -> void:
 	visuals.rotation = get_hold_rotation()
 
 func _process(delta : float) -> void:
-	update_flip()
 	if not isSwinging:
+		update_flip()
 		visuals.rotation = lerp_angle(visuals.rotation, get_hold_rotation(), minf(holdSpeed * delta, 1.0))
 
 func update_flip() -> void:

@@ -33,7 +33,7 @@ func perform() -> void:
 	slash.size = size * sizeMultiplier
 	slash.curve = totalCurve
 	slash.swingDirection = swingDirection
-	slash.rotation = global_rotation + centerAngle
+	slash.rotation = global_rotation - weapon.swingRotation + centerAngle
 	if weapon.wielder:
 		weapon.wielder.add_child(slash)
 	else:
@@ -46,12 +46,14 @@ func swing_weapon(duration : float, totalCurve : float, centerAngle : float) -> 
 	if swingTween:
 		swingTween.kill()
 	var halfCurve : float = deg_to_rad(totalCurve) / 2.0 * swingDirection
-	var endRotation : float = (centerAngle + halfCurve) * weapon.scale.y
+	var endRotation : float = centerAngle + halfCurve
 	weapon.isSwinging = true
-	weapon.visuals.rotation = (centerAngle - halfCurve) * weapon.scale.y
+	weapon.swingRotation = centerAngle - halfCurve
+	weapon.visuals.rotation = 0.0
 	swingTween = create_tween()
-	swingTween.tween_property(weapon.visuals, "rotation", endRotation, duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	swingTween.tween_property(weapon.visuals, "rotation", weapon.get_hold_rotation(), 0.2).from(wrapf(endRotation, -PI, PI)).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	swingTween.tween_property(weapon, "swingRotation", endRotation, duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	swingTween.tween_property(weapon, "swingRotation", 0.0, 0.2).from(wrapf(endRotation, -PI, PI)).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	swingTween.parallel().tween_property(weapon.visuals, "rotation", weapon.get_hold_rotation(), 0.2).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	swingTween.tween_callback(func() -> void: weapon.isSwinging = false)
 
 func get_style() -> SlashStyleClass:

@@ -39,6 +39,8 @@ func _ready() -> void:
 func _physics_process(delta : float) -> void:
 	var mousePosition : Vector2 = get_global_mouse_position()
 	handPivot.look_at(mousePosition)
+	if weapon:
+		handPivot.rotation += weapon.swingRotation
 	update_facing(mousePosition, delta)
 
 func equip_weapon(newWeaponScene : PackedScene, newRarity : RarityClass = null) -> void:
