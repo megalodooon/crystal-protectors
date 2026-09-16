@@ -1,0 +1,88 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" path="res://status_effects/frost/icicle.png" id="1_icicle"]
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_add"]
+blend_mode = 1
+
+[sub_resource type="Gradient" id="Gradient_radial"]
+offsets = PackedFloat32Array(0, 0.4, 1)
+colors = PackedColorArray(1, 1, 1, 1, 0.6, 0.85, 1, 0.5, 0.4, 0.7, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_flash"]
+gradient = SubResource("Gradient_radial")
+width = 32
+height = 32
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 0)
+
+[sub_resource type="Curve" id="Curve_grow"]
+_data = [Vector2(0, 0.3), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Gradient" id="Gradient_flash_fade"]
+colors = PackedColorArray(1, 1, 1, 0.9, 1, 1, 1, 0)
+
+[sub_resource type="Gradient" id="Gradient_icicle_fade"]
+offsets = PackedFloat32Array(0, 0.7, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="Gradient" id="Gradient_shard"]
+offsets = PackedFloat32Array(0, 0.3, 1)
+colors = PackedColorArray(1, 1, 1, 1, 0.6, 0.85, 1, 1, 0.3, 0.55, 1, 0)
+
+[node name="FrostbiteExplosion" type="Node2D"]
+z_index = 2
+
+[node name="Flash" type="CPUParticles2D" parent="."]
+texture_filter = 2
+material = SubResource("CanvasItemMaterial_add")
+amount = 1
+texture = SubResource("GradientTexture2D_flash")
+lifetime = 0.3
+one_shot = true
+explosiveness = 1.0
+gravity = Vector2(0, 0)
+scale_amount_curve = SubResource("Curve_grow")
+color_ramp = SubResource("Gradient_flash_fade")
+
+[node name="Icicles" type="CPUParticles2D" parent="."]
+amount = 8
+texture = ExtResource("1_icicle")
+lifetime = 0.55
+one_shot = true
+explosiveness = 1.0
+randomness = 0.3
+particle_flag_align_y = true
+spread = 180.0
+gravity = Vector2(0, 40)
+initial_velocity_min = 45.0
+initial_velocity_max = 75.0
+damping_min = 110.0
+damping_max = 150.0
+color_ramp = SubResource("Gradient_icicle_fade")
+
+[node name="Shards" type="CPUParticles2D" parent="."]
+material = SubResource("CanvasItemMaterial_add")
+amount = 16
+lifetime = 0.4
+one_shot = true
+explosiveness = 1.0
+randomness = 0.5
+spread = 180.0
+gravity = Vector2(0, 30)
+initial_velocity_min = 20.0
+initial_velocity_max = 60.0
+damping_min = 80.0
+damping_max = 120.0
+scale_amount_min = 0.6
+scale_amount_max = 1.0
+color_ramp = SubResource("Gradient_shard")
+
+[node name="Timer" type="Timer" parent="."]
+wait_time = 0.8
+one_shot = true
+autostart = true
+
+[connection signal="timeout" from="Timer" to="." method="queue_free"]

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dp37pdgdse78n"
-path="res://.godot/imported/dust.png-b28ab40f7d7cfc38753ca7d8a0e9125b.ctex"
+uid="uid://doc8e5plit7qi"
+path="res://.godot/imported/icicle.png-c8271d9221666b98de3b1511f4fbd12d.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://vfx/dust/dust.png"
-dest_files=["res://.godot/imported/dust.png-b28ab40f7d7cfc38753ca7d8a0e9125b.ctex"]
+source_file="res://status_effects/frost/icicle.png"
+dest_files=["res://.godot/imported/icicle.png-c8271d9221666b98de3b1511f4fbd12d.ctex"]
 
 [params]
 

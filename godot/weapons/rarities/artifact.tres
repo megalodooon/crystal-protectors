@@ -15,12 +15,11 @@ core = 1.0
 tipGlow = 1.0
 streaks = 1.0
 chromaticAberration = 1.8
-dustAmount = 3
 orbAmount = 7
 hitSparkSize = 1.55
 hitSparkAmount = 22
 screenShake = 2.0
-hitStop = 0.08
+hitStop = 0.04
 
 [sub_resource type="Resource" id="Resource_enchantstyle"]
 script = ExtResource("3_enchantstyle")

@@ -11,7 +11,6 @@ class_name SlashStyleClass
 @export_range(0.0, 1.0) var tipGlow : float = 0.0
 @export_range(0.0, 1.0) var streaks : float = 0.0
 @export var chromaticAberration : float = 0.0
-@export var dustAmount : int = 1
 @export var orbAmount : int = 0
 @export var hitSparkSize : float = 1.0
 @export var hitSparkAmount : int = 4

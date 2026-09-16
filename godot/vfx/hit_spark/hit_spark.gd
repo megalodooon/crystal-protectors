@@ -9,13 +9,11 @@ class_name HitSparkClass
 @onready var flash : Sprite2D = $Flash
 @onready var sparks : CPUParticles2D = $Sparks
 @onready var orbs : CPUParticles2D = $Orbs
-@onready var dust : CPUParticles2D = $Dust
 
 var color : Color = Color.WHITE
 var strength : float = 1.0
 var sparkAmount : int = 6
 var orbAmount : int = 0
-var dustAmount : int = 0
 var angle : float = 0.0
 var elapsed : float = 0.0
 var spikes : Array[Vector3] = []
@@ -35,10 +33,6 @@ func _ready() -> void:
 		orbs.amount = orbAmount
 		orbs.color = color.lightened(0.3)
 		orbs.emitting = true
-	if dustAmount > 0:
-		dust.amount = dustAmount
-		dust.color = color
-		dust.emitting = true
 	get_tree().create_timer(maxf(duration, orbs.lifetime) + 0.1).timeout.connect(queue_free)
 
 func _process(delta : float) -> void:

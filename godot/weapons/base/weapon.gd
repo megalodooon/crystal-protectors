@@ -94,7 +94,7 @@ func attack() -> void:
 			child.perform()
 	for effect in activeEffects:
 		effect.on_attack(self)
-	get_tree().create_timer(attackCooldown).timeout.connect(end_cooldown)
+	get_tree().create_timer(attackCooldown, true, false, true).timeout.connect(end_cooldown)
 
 func end_cooldown() -> void:
 	canAttack = true

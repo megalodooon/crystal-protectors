@@ -14,7 +14,6 @@ core = 0.35
 tipGlow = 0.2
 streaks = 0.25
 chromaticAberration = 0.0
-dustAmount = 1
 orbAmount = 1
 hitSparkSize = 0.8
 hitSparkAmount = 5

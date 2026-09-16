@@ -100,6 +100,10 @@ Web build:      https://megalodooon.github.io/crystal-protectors/
 - The web build uses the Compatibility renderer (WebGL 2), not
   Mobile. Check new shaders/effects in the web build too.
 - Local web exports go to build/ (git ignored).
+- Physics interpolation is on (smooth movement on high refresh
+  screens). Cameras must use process_callback Physics or Godot warns.
+  Move things in _physics_process; teleports need
+  reset_physics_interpolation().
 - The developer usually has the editor open. After editing
   project.godot or moving files, tell them to use
   Project > Reload Current Project, and never save stale tabs.
@@ -180,7 +184,8 @@ Example: godot/weapons/base/weapon.gd
   status effects to its statusComponent (none = ignored).
 - StatusComponentClass (Node): active status effects on a target.
   Exports hurtbox (effects deal damage through it, so damage numbers
-  work) and visualParent (default: its parent). Many different effects
+  work), sprite (the target's main Sprite2D, used by overlay visuals
+  like frost) and visualParent (default: its parent). Many different effects
   at once, keyed by effectName; the same name again = refresh
   (longest duration, burn keeps highest damage). Visual particles
   stop emitting and are freed 1s after the effect ends.
@@ -289,10 +294,11 @@ Example: godot/weapons/base/weapon.gd
 - Style = styleOverride, else weapon.rarity.slashStyle.
 - SlashStyleClass (Resource): duration, sizeMultiplier, curveBonus,
   trail, glow, core, tipGlow, streaks, chromaticAberration,
-  dustAmount, orbAmount, hitSparkSize, hitSparkAmount,
+  orbAmount, hitSparkSize, hitSparkAmount,
   screenShake, hitStop.
-- screenShake is capped at epic (2.0): legendary+ use 2.0 too, more
-  felt like too much.
+- screenShake (2.0) and hitStop (0.04) are capped at epic: legendary+
+  use the same. More shake felt like too much, more hit stop froze
+  the game up to 20% of the time while attacking and felt laggy.
 - Look = ONE filled crescent (like Terraria Cooler Weapon Effects),
   drawn by slash.gdshader on a MeshInstance2D arc mesh built in code.
   The developer disliked stacked lines/echo arcs: never go back to
@@ -304,8 +310,9 @@ Example: godot/weapons/base/weapon.gd
 - Colors: taken automatically from the weapon's Visuals Sprite2D
   (dark/main/light by luminance, cached per texture), or from
   SlashAttack colorTexture if set (spear uses iron_sword.png).
-- Particles: none on the arc. Dust (dust.png, Nearest, scale 0.6-1.4)
-  and glowing orbs spawn only at the HIT location (hit_spark scene).
+- Particles: none on the arc. Glowing orbs spawn only at the HIT
+  location (hit_spark scene). No dust anywhere: the developer removed
+  it, it looked out of place.
 - Own HitboxComponent: sector polygon from radius/size/curve, mask
   Enemy Hurtbox, active first 60% of duration.
   On hit: hit spark, GameFeel hit stop + shake, register_hit.
@@ -320,9 +327,7 @@ Example: godot/weapons/base/weapon.gd
 [VFX]  godot/vfx/
 - hit_spark/: HitSparkClass star burst (drawn spikes + flash +
   spark particles + glowing orbs). Vars: color, strength,
-  sparkAmount, orbAmount, dustAmount, angle.
-- dust/dust.png: 5-frame 8x8 pixel dust puff (white/gray, tinted).
-  16x16 was too big.
+  sparkAmount, orbAmount, angle.
 
 [Status effects]  godot/status_effects/
 - StatusEffectClass (base/): Resource with effectName, duration,
@@ -343,8 +348,12 @@ Example: godot/weapons/base/weapon.gd
   burn.tres = 3s, tick 0.5s, burn_flames.tscn on the target.
   Removed (and blocks it) when Frost is applied; ice damage removes it.
 - Frost (frost/): FrostEffectClass build-up. Each hit = 1 stack
-  (particles fade in with stacks), at stacksToProc (4) = frostbite:
-  frostbiteDamage (20, ice = blue numbers) + frostbite_burst.tscn,
+  (frost_visual.tscn: FrostVisualClass copies status.sprite into an
+  Overlay with frost_overlay.gdshader that freezes the sprite from the
+  bottom up, fully frozen at stacksToProc - 1, + mist/snow), at
+  stacksToProc (4) = frostbite:
+  frostbiteDamage (20, ice = blue numbers) + frostbite_explosion.tscn
+  (flash, icicle.png particles, shards; Timer frees it),
   then removed. Build-up clears after duration (4s) without hits.
   Removed (and blocks it) when Burn is applied; fire damage removes it.
 - Targets need a StatusComponent (+ hurtbox statusComponent set) to
@@ -359,6 +368,8 @@ Example: godot/weapons/base/weapon.gd
 
 [GameFeel]  godot/autoload/game_feel.gd  (autoload "GameFeel")
 - hit_stop(seconds): Engine.time_scale = 0, restored by real time.
+  Weapon cooldown timers ignore time scale, so hit stop does not
+  slow the attack rhythm.
 - shake(strength): shakes the active Camera2D offset. Needs a camera.
 - Autoloads do not exist in --script test runs; test by running a
   harness scene normally instead.
@@ -403,3 +414,5 @@ Input actions: left, right, up, down (WASD), attack (left mouse).
             Frost scythe, frost build-up + frostbite, status
             interactions (fire and frost cancel), generic
             StatusOnHitEffect + WeaponAura.
+            Dust removed. Frost overlay shader + icicle frostbite
+            explosion. Hit stop capped at epic, physics interpolation.

@@ -100,7 +100,6 @@ func on_hit(hurtbox : HurtboxComponentClass, hitDamage : float) -> void:
 	hitSpark.strength = style.hitSparkSize
 	hitSpark.sparkAmount = style.hitSparkAmount
 	hitSpark.orbAmount = style.orbAmount
-	hitSpark.dustAmount = style.dustAmount
 	hitSpark.angle = (hurtbox.global_position - global_position).angle() + PI / 2.0 * swingDirection
 	get_tree().current_scene.add_child(hitSpark)
 	GameFeel.hit_stop(style.hitStop)

@@ -2,8 +2,8 @@
 
 [ext_resource type="Script" path="res://status_effects/frost/frost_effect.gd" id="1_frost"]
 [ext_resource type="Resource" path="res://damage/types/ice.tres" id="2_ice"]
-[ext_resource type="PackedScene" path="res://status_effects/frost/frost_particles.tscn" id="3_particles"]
-[ext_resource type="PackedScene" path="res://status_effects/frost/frostbite_burst.tscn" id="4_burst"]
+[ext_resource type="PackedScene" path="res://status_effects/frost/frost_visual.tscn" id="3_particles"]
+[ext_resource type="PackedScene" path="res://status_effects/frost/frostbite_explosion.tscn" id="4_burst"]
 [ext_resource type="Script" path="res://status_effects/interactions/remove_interaction.gd" id="5_remove"]
 [ext_resource type="Script" path="res://status_effects/base/status_interaction.gd" id="6_interaction"]
 [ext_resource type="Script" path="res://damage/base/damage_type.gd" id="7_damage_type"]

@@ -6,6 +6,7 @@ signal effect_added(effect : StatusEffectClass)
 signal effect_removed(effect : StatusEffectClass)
 
 @export var hurtbox : HurtboxComponentClass
+@export var sprite : Sprite2D
 @export var visualParent : Node2D
 
 var activeEffects : Dictionary[String, StatusEffectClass] = {}

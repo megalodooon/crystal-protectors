@@ -30,6 +30,7 @@ weapons = Array[PackedScene]([ExtResource("3_sword"), ExtResource("15_iron_sword
 rarities = Array[ExtResource("14_rarity")]([ExtResource("4_common"), ExtResource("5_uncommon"), ExtResource("6_rare"), ExtResource("7_epic"), ExtResource("8_legendary"), ExtResource("9_mythic"), ExtResource("10_artifact")])
 
 [node name="Camera2D" type="Camera2D" parent="."]
+process_callback = 0
 position = Vector2(96, 54)
 
 [node name="Player" parent="." instance=ExtResource("2_player")]
@@ -55,9 +56,10 @@ script = ExtResource("12_hurtbox")
 healthComponent = NodePath("../HealthComponent")
 statusComponent = NodePath("../StatusComponent")
 
-[node name="StatusComponent" type="Node" parent="DummyRight" node_paths=PackedStringArray("hurtbox")]
+[node name="StatusComponent" type="Node" parent="DummyRight" node_paths=PackedStringArray("hurtbox", "sprite")]
 script = ExtResource("18_status")
 hurtbox = NodePath("../HurtboxComponent")
+sprite = NodePath("../Sprite2D")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="DummyRight/HurtboxComponent"]
 shape = SubResource("CircleShape2D_dummy")
@@ -80,9 +82,10 @@ script = ExtResource("12_hurtbox")
 healthComponent = NodePath("../HealthComponent")
 statusComponent = NodePath("../StatusComponent")
 
-[node name="StatusComponent" type="Node" parent="DummyLeft" node_paths=PackedStringArray("hurtbox")]
+[node name="StatusComponent" type="Node" parent="DummyLeft" node_paths=PackedStringArray("hurtbox", "sprite")]
 script = ExtResource("18_status")
 hurtbox = NodePath("../HurtboxComponent")
+sprite = NodePath("../Sprite2D")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="DummyLeft/HurtboxComponent"]
 shape = SubResource("CircleShape2D_dummy")
