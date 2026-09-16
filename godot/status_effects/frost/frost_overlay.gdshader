@@ -32,6 +32,6 @@ void fragment() {
 	float sparkle = step(0.93, hash(pixel + floor(TIME * 4.0)));
 	vec3 body = mix(iceColor.rgb, frostColor.rgb, clamp(light * 0.8 + sparkle, 0.0, 1.0));
 	float crust = (1.0 - solid) * step(0.5, edge) * step(0.55, hash(pixel * 1.37 + 3.1));
-	vec3 color = mix(frostColor.rgb, body, solid);
-	COLOR = vec4(color, max(solid * opacity, crust) * frozen);
+	vec3 color = mix(iceColor.rgb, body, solid);
+	COLOR = vec4(color, max(solid, crust) * opacity * frozen);
 }
