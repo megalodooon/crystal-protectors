@@ -150,7 +150,7 @@ Example: godot/weapons/base/weapon.gd
 - HandPivot rotates to the mouse, so the hand circles the player.
   The hand never flips. The weapon mirrors vertically (scale.y -1)
   while pointing right (WeaponClass.update_flip), so sprite tip
-  slopes face down on both sides. Swings multiply by scale.y.
+  slopes face down on both sides.
 - Idle: weapon Visuals held upright (WeaponClass holdAngle, -100 =
   up tilted back, mirrored on the left; holdSpeed). Only visual:
   attacks still aim at the mouse. Attacks that move Visuals set
