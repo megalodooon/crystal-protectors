@@ -27,7 +27,6 @@ script = ExtResource("3_enchantstyle")
 glowStrength = 0.45
 glowSize = 2.0
 pulseSpeed = 1.0
-shimmer = 0.25
 particleAmount = 3
 
 [resource]

@@ -18,7 +18,6 @@ func _ready() -> void:
 	shader.set_shader_parameter("strength", style.glowStrength)
 	shader.set_shader_parameter("glowSize", style.glowSize)
 	shader.set_shader_parameter("pulseSpeed", style.pulseSpeed)
-	shader.set_shader_parameter("shimmer", style.shimmer)
 	if style.particleAmount > 0:
 		particles.color = color.lerp(Color.WHITE, 0.3)
 		particles.amount = style.particleAmount

@@ -6,7 +6,6 @@ uniform vec4 glowColor : source_color = vec4(1.0);
 uniform float strength = 0.5;
 uniform float glowSize = 2.0;
 uniform float pulseSpeed = 1.2;
-uniform float shimmer = 0.3;
 
 //------------------------//
 
@@ -33,7 +32,6 @@ void fragment() {
 	halo /= 24.0;
 	float inside = alpha_at(TEXTURE, UV);
 	float pulse = 0.6 + 0.4 * sin(TIME * pulseSpeed);
-	float band = pow(0.5 + 0.5 * sin((UV.x - UV.y) * 5.0 - TIME * 1.5), 12.0);
-	float glow = halo * (1.0 - inside) * pulse + inside * (0.15 * pulse + band * shimmer);
+	float glow = (halo * (1.0 - inside) + inside * 0.15) * pulse;
 	COLOR = vec4(glowColor.rgb, clamp(glow * strength, 0.0, 1.0));
 }

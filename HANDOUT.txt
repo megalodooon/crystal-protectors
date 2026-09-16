@@ -237,11 +237,12 @@ Example: godot/weapons/base/weapon.gd
 
 [Enchant]  godot/weapons/enchant/
 - RarityClass enchantStyle (EnchantStyleClass, embedded): glowStrength,
-  glowSize, pulseSpeed, shimmer, particleAmount. Empty = no enchant
+  glowSize, pulseSpeed, particleAmount. Empty = no enchant
   (common-epic). Legendary, mythic, artifact have one.
 - WeaponClass.add_enchant() puts enchant.tscn under the first
-  Visuals Sprite2D: Glow (enchant.gdshader: slow pulsing halo +
-  moving shimmer band, additive, Linear) and Particles (tiny
+  Visuals Sprite2D: Glow (enchant.gdshader: slow pulsing halo,
+  additive, Linear; no shimmer band, the developer disliked it) and
+  Particles (tiny, short-lived
   CPUParticles2D emitted from the sprite's opaque pixels, world
   coords so they trail). Color = rarity color.
 
