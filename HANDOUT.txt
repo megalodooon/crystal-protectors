@@ -25,6 +25,19 @@ Rarities: common > uncommon > rare > epic > legendary > mythic
 custom weapons with insane abilities, incredibly rare.
 Higher rarity = cooler attack effects.
 
+Weapon progression (agreed, like Dungeon Defenders 2):
+- Upgrade level 0 to 15. Levels raise damage and attributes.
+- At max level a weapon can upgrade its rarity ONCE (common
+  wooden sword -> uncommon). Costs coins + crafting materials
+  (not implemented yet).
+- Attributes: random from a pool. Slots = 1 on common, +1 per
+  rarity, max 5 regardless of rarity. Special attributes are never
+  random: they come from specific upgrade runes. (Not built yet.)
+- Combat level (separate from upgrade level): later islands drop
+  higher combat level gear and have stronger enemies. Old weapons
+  can have their combat level raised at the blacksmith.
+- Hub area: blacksmith, shops, NPCs and other systems (not built).
+
 The full vision belongs to the developer and is not written
 down yet. Fill in details here as they get decided. Do not
 invent design details that have not been agreed on.
@@ -67,8 +80,10 @@ coding style (section 5). Follow it exactly.
   (so base scripts go in a "base" folder next to content folders).
 - Exception: godot/test.tscn + test.gd sit in the project root on
   purpose. Main scene, used to test new stuff. Q cycles the test
-  weapons (weapons list), keys 1-7 switch rarity. Has a Camera2D
-  and two hit dummies.
+  weapons (weapons list), keys 1-7 = new item of that rarity
+  (level 0), E level up, R upgrade rarity, C combat level +1.
+  Has a Camera2D, two hit dummies and labels (UpgradeLabel shows
+  level, combat level, damage).
 
 [Other]
 - No comments in code unless the developer asks.
@@ -146,11 +161,14 @@ Example: godot/weapons/base/weapon.gd
 - Scene: Visuals/Sprite2D (body), HandPivot/Hand/Sprite2D (hand),
   AnimationPlayer, CollisionShape2D, components, StateMachine
   (MoveState, AttackState).
-- Exports: image, handImage, weaponScene, weaponRarity, flipSpeed,
+- Exports: image, handImage, weaponItem, flipSpeed,
   healthComponent, movementComponent. No image/handImage = placeholders.
-- weaponScene is spawned into HandPivot/Hand on _ready.
-  equip_weapon(scene, rarity = null) swaps weapons; rarity null =
-  keep the weapon scene's rarity. "weapon" = current weapon (var).
+- weaponItem (WeaponItemClass) is equipped on _ready.
+  equip_weapon(item) swaps items; spawn_weapon() respawns the
+  weapon node from the item into HandPivot/Hand. The player listens
+  to the item's changed signal and respawns only when its rarity
+  changed (level/combat level are read live).
+  "weapon" = current weapon node (var).
 - HandPivot rotates to the mouse, so the hand circles the player.
   The hand never flips. The weapon mirrors vertically (scale.y -1)
   while pointing right (WeaponClass.update_flip), so sprite tip
@@ -216,6 +234,11 @@ Example: godot/weapons/base/weapon.gd
   attack() runs perform() on EVERY child attack node, then waits
   attackCooldown. The hand rotates it, so child nodes aim too.
   wielder = the player holding it (set by equip_weapon).
+  item = the WeaponItemClass it was spawned from (null = none).
+  get_power_multiplier() = rarity x item level x combat level.
+  get_damage() = damage x get_power_multiplier().
+  A weapon scene is the TEMPLATE; its damage is the damage at
+  upgrade level 0, combat level 1, rarity multiplier 1.
 - Weapon scenes live by category: weapons/melee/slashing/
   (png + tscn together). Hammers etc. get their own category.
   Existing: wooden_sword, iron_sword, spear (360 spin), flame_sword
@@ -236,9 +259,12 @@ Example: godot/weapons/base/weapon.gd
 - ProjectileClass (projectiles/base/): script for projectile scenes
   (Area2D root). speed, lifetime. Destroyed on hit or on a wall.
 - RarityClass (rarities/): Resource with rarityName, color,
-  damageMultiplier, slashStyle (embedded), enchantStyle, effects.
+  damageMultiplier, nextRarity, slashStyle (embedded), enchantStyle,
+  effects. nextRarity = what a rarity upgrade turns it into
+  (common > ... > mythic; mythic and artifact have none).
   New rarity = duplicate a .tres (embedded style is copied too).
-  Final damage = weapon damage x rarity x attack damageMultiplier.
+  Final damage = weapon damage x rarity x upgrade level x combat
+  level x attack damageMultiplier.
 - Effects (effects/, base script in effects/base/): custom behavior
   for weapons AND rarities. WeaponEffectClass Resource with
   on_equip(weapon) (in _ready, for weapon visuals), on_attack(weapon)
@@ -251,7 +277,7 @@ Example: godot/weapons/base/weapon.gd
   "hit" is emitted deferred, so on_hit can safely spawn nodes.
 - Elemental weapon effects = StatusOnHitEffectClass .tres
   (effects/status_on_hit/): status (StatusEffect applied on hit,
-  scale_power(rarity damageMultiplier) if scaleWithRarity) and
+  scale_power(weapon.get_power_multiplier()) if scaleWithPower) and
   auraScene (spawned under the sprite on equip). Aura scenes use
   WeaponAuraClass: any Sprite2D child gets the weapon texture (glow via
   enchant.gdshader), any CPUParticles2D child emits from the blade
@@ -265,6 +291,34 @@ Example: godot/weapons/base/weapon.gd
   weapon.gd must not reference WeaponClass (preload cycle), so pass
   data in instead.
 - Totally different attacking: new attack type, or extend WeaponClass.
+
+[Weapon items + upgrades]  godot/weapons/base/weapon_item.gd,
+                           godot/weapons/upgrades/
+- WeaponItemClass (Resource) = ONE owned copy of a weapon: the
+  thing inventories, loot drops and saves will hold. Exports
+  weaponScene, rarity, level, combatLevel, rarityUpgraded.
+  Attributes and runes go on the item later.
+- create_weapon() instantiates weaponScene with item + rarity set.
+- level_up() (up to maxLevel), upgrade_rarity() (only at max level,
+  only once, needs rarity.nextRarity), upgrade_combat_level(amount).
+  can_level_up() / can_upgrade_rarity() hold the rules: add coin and
+  material checks there later. Every change calls emit_changed().
+- get_damage_multiplier() = upgrade level x combat level.
+  get_attribute_multiplier() = upgrade level only: attributes use it.
+- WeaponUpgradesClass (weapon_upgrades.tres, one shared file,
+  preloaded by the item as UPGRADES): maxLevel (15), damagePerLevel
+  (+5% each), attributesPerLevel (+5% each),
+  resetLevelOnRarityUpgrade (false = keep level 15 after upgrade).
+  Upgrade costs go here later.
+
+[Combat level]  godot/combat_level/
+- CombatScalingClass (combat_scaling.tres, preloaded by the item as
+  COMBAT_SCALING): growthPerLevel (0.1). get_multiplier(combatLevel)
+  = (1 + growth) ^ (combatLevel - 1), so combat level 1 = x1 and
+  every level is +10% on top of the last.
+- Enemies (not built) must scale health/damage with the SAME
+  get_multiplier(), so a weapon matching the island's combat level
+  always feels the same, and old low level weapons fall behind.
 
 [Enchant]  godot/weapons/enchant/
 - RarityClass enchantStyle (EnchantStyleClass, embedded): glowStrength,
@@ -418,3 +472,6 @@ Input actions: left, right, up, down (WASD), attack (left mouse).
             StatusOnHitEffect + WeaponAura.
             Dust removed. Frost overlay shader + icicle frostbite
             explosion. Hit stop capped at epic, physics interpolation.
+            Weapon items: upgrade level 0-15, one-time rarity
+            upgrade (nextRarity), combat level scaling. Player
+            equips items. Status effects scale with full weapon power.

@@ -19,6 +19,12 @@
 [ext_resource type="PackedScene" path="res://weapons/melee/slashing/flame_sword.tscn" id="17_flame_sword"]
 [ext_resource type="Script" uid="uid://0got7glne0r5" path="res://components/status/status_component.gd" id="18_status"]
 [ext_resource type="PackedScene" path="res://weapons/melee/slashing/frost_scythe.tscn" id="19_frost_scythe"]
+[ext_resource type="Script" uid="uid://cmv37ih5m3oc3" path="res://weapons/base/weapon_item.gd" id="20_weapon_item"]
+
+[sub_resource type="Resource" id="Resource_weapon_item"]
+script = ExtResource("20_weapon_item")
+weaponScene = ExtResource("3_sword")
+rarity = ExtResource("4_common")
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_dummy"]
 radius = 6.0
@@ -35,8 +41,7 @@ process_callback = 0
 
 [node name="Player" parent="." unique_id=1472814208 instance=ExtResource("2_player")]
 position = Vector2(96, 54)
-weaponScene = ExtResource("3_sword")
-weaponRarity = ExtResource("4_common")
+weaponItem = SubResource("Resource_weapon_item")
 
 [node name="DummyRight" type="Node2D" parent="." unique_id=441248857]
 position = Vector2(120, 54)
@@ -98,3 +103,12 @@ offset_top = 1.0
 offset_right = 190.0
 offset_bottom = 12.0
 theme_override_font_sizes/font_size = 8
+
+[node name="UpgradeLabel" type="Label" parent="CanvasLayer" unique_id=1738290461]
+offset_left = 3.0
+offset_top = 76.0
+offset_right = 190.0
+offset_bottom = 107.0
+grow_vertical = 0
+theme_override_font_sizes/font_size = 8
+vertical_alignment = 2

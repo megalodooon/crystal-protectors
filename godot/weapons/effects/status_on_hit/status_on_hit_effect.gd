@@ -4,7 +4,7 @@ class_name StatusOnHitEffectClass
 
 @export var status : StatusEffectClass
 @export var auraScene : PackedScene
-@export var scaleWithRarity : bool = true
+@export var scaleWithPower : bool = true
 
 #------------------------#
 
@@ -21,6 +21,6 @@ func on_hit(weapon : WeaponClass, hurtbox : HurtboxComponentClass, _damage : flo
 	if not status or not is_instance_valid(hurtbox):
 		return
 	var newStatus : StatusEffectClass = status.duplicate()
-	if scaleWithRarity and weapon.rarity:
-		newStatus.scale_power(weapon.rarity.damageMultiplier)
+	if scaleWithPower:
+		newStatus.scale_power(weapon.get_power_multiplier())
 	hurtbox.apply_status(newStatus)

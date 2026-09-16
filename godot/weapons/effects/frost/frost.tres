@@ -8,4 +8,4 @@
 script = ExtResource("1_effect")
 status = ExtResource("2_frost")
 auraScene = ExtResource("3_aura")
-scaleWithRarity = true
+scaleWithPower = true

@@ -17,6 +17,7 @@ const ENCHANT_SCENE := preload("res://weapons/enchant/enchant.tscn")
 @onready var visuals : Node2D = $Visuals
 
 var wielder : Node2D
+var item : WeaponItemClass
 var canAttack : bool = true
 var isSwinging : bool = false
 var swingRotation : float = 0.0
@@ -104,6 +105,12 @@ func register_hit(hurtbox : HurtboxComponentClass, hitDamage : float) -> void:
 		effect.on_hit(self, hurtbox, hitDamage)
 
 func get_damage() -> float:
+	return damage * get_power_multiplier()
+
+func get_power_multiplier() -> float:
+	var multiplier : float = 1.0
 	if rarity:
-		return damage * rarity.damageMultiplier
-	return damage
+		multiplier *= rarity.damageMultiplier
+	if item:
+		multiplier *= item.get_damage_multiplier()
+	return multiplier

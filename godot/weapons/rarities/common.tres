@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://b38xrlaoouxfl" path="res://weapons/rarities/rarity.gd" id="1_rarity"]
 [ext_resource type="Script" uid="uid://62usds3gqkdb" path="res://weapons/attacks/slash/slash_style.gd" id="2_slashstyle"]
+[ext_resource type="Resource" uid="uid://bd3ny53s6x1mp" path="res://weapons/rarities/uncommon.tres" id="3_next"]
 
 [sub_resource type="Resource" id="Resource_slashstyle"]
 script = ExtResource("2_slashstyle")
@@ -15,4 +16,5 @@ screenShake = 0.5
 script = ExtResource("1_rarity")
 rarityName = "Common"
 color = Color(0.8, 0.8, 0.8, 1)
+nextRarity = ExtResource("3_next")
 slashStyle = SubResource("Resource_slashstyle")
