@@ -5,7 +5,6 @@ class_name WeaponUpgradesClass
 @export var maxLevel : int = 15
 @export var damagePerLevel : float = 0.05
 @export var attributesPerLevel : float = 0.05
-@export var resetLevelOnRarityUpgrade : bool = false
 
 #------------------------#
 

@@ -40,8 +40,7 @@ func upgrade_rarity() -> void:
 		return
 	rarity = rarity.nextRarity
 	rarityUpgraded = true
-	if UPGRADES.resetLevelOnRarityUpgrade:
-		level = 0
+	level = 0
 	emit_changed()
 
 func upgrade_combat_level(amount : int = 1) -> void:

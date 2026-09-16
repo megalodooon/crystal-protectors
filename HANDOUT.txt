@@ -28,7 +28,8 @@ Higher rarity = cooler attack effects.
 Weapon progression (agreed, like Dungeon Defenders 2):
 - Upgrade level 0 to 15. Levels raise damage and attributes.
 - At max level a weapon can upgrade its rarity ONCE (common
-  wooden sword -> uncommon). Costs coins + crafting materials
+  wooden sword -> uncommon). Its level goes back to 0 and can be
+  leveled to 15 again. Costs coins + crafting materials
   (not implemented yet).
 - Attributes: random from a pool. Slots = 1 on common, +1 per
   rarity, max 5 regardless of rarity. Special attributes are never
@@ -300,15 +301,15 @@ Example: godot/weapons/base/weapon.gd
   Attributes and runes go on the item later.
 - create_weapon() instantiates weaponScene with item + rarity set.
 - level_up() (up to maxLevel), upgrade_rarity() (only at max level,
-  only once, needs rarity.nextRarity), upgrade_combat_level(amount).
+  only once, needs rarity.nextRarity, resets level to 0),
+  upgrade_combat_level(amount).
   can_level_up() / can_upgrade_rarity() hold the rules: add coin and
   material checks there later. Every change calls emit_changed().
 - get_damage_multiplier() = upgrade level x combat level.
   get_attribute_multiplier() = upgrade level only: attributes use it.
 - WeaponUpgradesClass (weapon_upgrades.tres, one shared file,
   preloaded by the item as UPGRADES): maxLevel (15), damagePerLevel
-  (+5% each), attributesPerLevel (+5% each),
-  resetLevelOnRarityUpgrade (false = keep level 15 after upgrade).
+  (+5% each), attributesPerLevel (+5% each).
   Upgrade costs go here later.
 
 [Combat level]  godot/combat_level/
@@ -420,7 +421,13 @@ Example: godot/weapons/base/weapon.gd
 - New damage type = new .tres in damage/types/ (physical, fire, ice,
   poison exist). Set it on a weapon (damageType).
 - vfx/damage_number/: DamageNumberClass pops, rises, fades. Crit =
-  bigger, critColor, "!" suffix.
+  bigger, critColor, "!" suffix. Text via NumberFormatClass.
+
+[Utils]  godot/utils/
+- NumberFormatClass.format(value) (static): whole number below
+  100000 ("99999"), above that max 2 decimals + suffix k/m/b/t/q
+  ("100k", "125.33k", "7.32m", "5b"). Use it for every big number
+  shown to the player (damage, later coins, stats).
 
 [GameFeel]  godot/autoload/game_feel.gd  (autoload "GameFeel")
 - hit_stop(seconds): Engine.time_scale = 0, restored by real time.
@@ -475,3 +482,5 @@ Input actions: left, right, up, down (WASD), attack (left mouse).
             Weapon items: upgrade level 0-15, one-time rarity
             upgrade (nextRarity), combat level scaling. Player
             equips items. Status effects scale with full weapon power.
+            Rarity upgrade resets level to 0. Short number format
+            (100k, 7.32m) for damage numbers.

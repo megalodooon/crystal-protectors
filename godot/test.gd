@@ -50,5 +50,5 @@ func update_labels() -> void:
 	elif item.rarityUpgraded or not item.rarity.nextRarity:
 		rarityText = "Rarity cannot upgrade"
 	upgradeLabel.text = "E Level " + str(item.level) + "/" + str(item.UPGRADES.maxLevel) + "  C Combat " + str(item.combatLevel)
-	upgradeLabel.text += "  Damage " + str(snappedf(player.weapon.get_damage(), 0.1))
+	upgradeLabel.text += "  Damage " + NumberFormatClass.format(player.weapon.get_damage())
 	upgradeLabel.text += "\n" + rarityText

@@ -17,7 +17,7 @@ var isCrit : bool = false
 #------------------------#
 
 func _ready() -> void:
-	label.text = str(roundi(amount))
+	label.text = NumberFormatClass.format(amount)
 	var color : Color = Color.WHITE
 	var popScale : float = 1.0
 	if damageType:
