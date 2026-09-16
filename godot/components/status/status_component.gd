@@ -19,6 +19,14 @@ func _process(delta : float) -> void:
 			remove_effect(effect)
 
 func apply_effect(effect : StatusEffectClass) -> void:
+	var blocked : bool = false
+	for active : StatusEffectClass in activeEffects.values():
+		for interaction : StatusInteractionClass in active.interactions:
+			if interaction.triggerEffects.has(effect.effectName):
+				interaction.trigger(active)
+				blocked = blocked or interaction.blockTriggerEffect
+	if blocked:
+		return
 	if activeEffects.has(effect.effectName):
 		activeEffects[effect.effectName].refresh(effect)
 		return
@@ -32,7 +40,17 @@ func apply_effect(effect : StatusEffectClass) -> void:
 	newEffect.on_apply()
 	effect_added.emit(newEffect)
 
+func on_damage_taken(damageType : DamageTypeClass) -> void:
+	if not damageType:
+		return
+	for active : StatusEffectClass in activeEffects.values():
+		for interaction : StatusInteractionClass in active.interactions:
+			if interaction.triggerDamageTypes.has(damageType):
+				interaction.trigger(active)
+
 func remove_effect(effect : StatusEffectClass) -> void:
+	if activeEffects.get(effect.effectName) != effect:
+		return
 	activeEffects.erase(effect.effectName)
 	effect.on_remove()
 	if effect.visual:

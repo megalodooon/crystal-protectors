@@ -3,6 +3,16 @@
 [ext_resource type="Script" path="res://status_effects/burn/burn_effect.gd" id="1_burn"]
 [ext_resource type="Resource" path="res://damage/types/fire.tres" id="2_fire"]
 [ext_resource type="PackedScene" path="res://status_effects/burn/burn_flames.tscn" id="3_flames"]
+[ext_resource type="Script" path="res://status_effects/interactions/remove_interaction.gd" id="4_remove"]
+[ext_resource type="Script" path="res://status_effects/base/status_interaction.gd" id="5_interaction"]
+[ext_resource type="Script" path="res://damage/base/damage_type.gd" id="6_damage_type"]
+[ext_resource type="Resource" path="res://damage/types/ice.tres" id="7_ice"]
+
+[sub_resource type="Resource" id="Resource_extinguished"]
+script = ExtResource("4_remove")
+triggerEffects = Array[String](["Frost"])
+triggerDamageTypes = Array[ExtResource("6_damage_type")]([ExtResource("7_ice")])
+blockTriggerEffect = true
 
 [resource]
 script = ExtResource("1_burn")
@@ -10,5 +20,6 @@ effectName = "Burn"
 duration = 3.0
 tickInterval = 0.5
 visualScene = ExtResource("3_flames")
+interactions = Array[ExtResource("5_interaction")]([SubResource("Resource_extinguished")])
 damagePerTick = 2.0
 damageType = ExtResource("2_fire")

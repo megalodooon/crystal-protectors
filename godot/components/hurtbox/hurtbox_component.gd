@@ -16,6 +16,8 @@ func apply_status(effect : StatusEffectClass) -> void:
 
 func take_damage(amount : float, damageType : DamageTypeClass = null, isCrit : bool = false) -> void:
 	healthComponent.take_damage(amount)
+	if statusComponent:
+		statusComponent.on_damage_taken(damageType)
 	if showDamageNumbers:
 		spawn_damage_number(amount, damageType, isCrit)
 

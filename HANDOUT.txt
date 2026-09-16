@@ -214,7 +214,8 @@ Example: godot/weapons/base/weapon.gd
 - Weapon scenes live by category: weapons/melee/slashing/
   (png + tscn together). Hammers etc. get their own category.
   Existing: wooden_sword, iron_sword, spear (360 spin), flame_sword
-  (physical hits + fire effect; only the burn deals fire damage).
+  (physical hits + fire effect; only the burn deals fire damage),
+  frost_scythe (physical hits + frost effect).
 - Attacks (attacks/<type>/): nodes placed inside the weapon scene.
   Node position = where the attack comes from.
   * AttackClass (base/): damageMultiplier, weapon. perform().
@@ -243,11 +244,15 @@ Example: godot/weapons/base/weapon.gd
   Set rarity before the weapon enters the tree (effects are
   collected in _ready).
   "hit" is emitted deferred, so on_hit can safely spawn nodes.
-- Fire (effects/fire/): add fire.tres to a weapon's effects. Hits apply
-  burn (status_effects/burn/burn.tres; damagePerTick x rarity
-  damageMultiplier if scaleWithRarity). on_equip adds weapon_flames.tscn
-  under the sprite (orange flicker glow reusing enchant.gdshader +
-  flame/ember particles from the blade pixels).
+- Elemental weapon effects = StatusOnHitEffectClass .tres
+  (effects/status_on_hit/): status (StatusEffect applied on hit,
+  scale_power(rarity damageMultiplier) if scaleWithRarity) and
+  auraScene (spawned under the sprite on equip). Aura scenes use
+  WeaponAuraClass: any Sprite2D child gets the weapon texture (glow via
+  enchant.gdshader), any CPUParticles2D child emits from the blade
+  pixels. effects/fire/fire.tres (burn + weapon_flames.tscn),
+  effects/frost/frost.tres (frost + weapon_frost.tscn). New element =
+  new aura scene + .tres, no code.
 - WeaponClass.get_sprite() = first Visuals Sprite2D.
   WeaponClass.get_pixel_points(texture, bladeOnly) = opaque pixel
   positions for particle emission (bladeOnly keeps the top-right half,
@@ -321,12 +326,27 @@ Example: godot/weapons/base/weapon.gd
 
 [Status effects]  godot/status_effects/
 - StatusEffectClass (base/): Resource with effectName, duration,
-  tickInterval, visualScene (spawned on the target while active).
-  on_apply(), on_tick(), on_remove(), refresh(newEffect). "status" =
-  the StatusComponentClass it is on. Applied copies are duplicated.
+  tickInterval, visualScene (spawned on the target while active),
+  interactions. on_apply(), on_tick(), on_remove(), refresh(newEffect),
+  scale_power(multiplier). "status" = the StatusComponentClass it is
+  on. Applied copies are duplicated.
   New effect = script extending it + a .tres in its own folder.
+- Interactions (expandable): StatusInteractionClass (base/) on an
+  effect's interactions list: triggerEffects (effect names being
+  applied), triggerDamageTypes (damage taken), blockTriggerEffect
+  (stop the incoming effect). trigger(effect) = what happens to the
+  effect that owns it. RemoveInteractionClass (interactions/) removes
+  it. New reaction (bonus damage, spread, ...) = script extending
+  StatusInteractionClass, add it in the .tres. The interaction lives
+  on the effect that gets affected.
 - Burn (burn/): BurnEffectClass damagePerTick, damageType (fire).
   burn.tres = 3s, tick 0.5s, burn_flames.tscn on the target.
+  Removed (and blocks it) when Frost is applied; ice damage removes it.
+- Frost (frost/): FrostEffectClass build-up. Each hit = 1 stack
+  (particles fade in with stacks), at stacksToProc (4) = frostbite:
+  frostbiteDamage (20, ice = blue numbers) + frostbite_burst.tscn,
+  then removed. Build-up clears after duration (4s) without hits.
+  Removed (and blocks it) when Burn is applied; fire damage removes it.
 - Targets need a StatusComponent (+ hurtbox statusComponent set) to
   receive effects. Test dummies have one.
 
@@ -380,3 +400,6 @@ Input actions: left, right, up, down (WASD), attack (left mouse).
             Enchant glow + particles on legendary and above.
             Status effect system, burn, fire weapon effect with
             weapon flames, flame sword.
+            Frost scythe, frost build-up + frostbite, status
+            interactions (fire and frost cancel), generic
+            StatusOnHitEffect + WeaponAura.

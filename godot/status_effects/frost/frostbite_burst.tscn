@@ -1,0 +1,47 @@
+[gd_scene format=3]
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_add"]
+blend_mode = 1
+
+[sub_resource type="Gradient" id="Gradient_shard"]
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_shard"]
+gradient = SubResource("Gradient_shard")
+width = 2
+height = 8
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 0)
+
+[sub_resource type="Curve" id="Curve_shrink"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Gradient" id="Gradient_ice"]
+offsets = PackedFloat32Array(0, 0.3, 1)
+colors = PackedColorArray(1, 1, 1, 1, 0.6, 0.85, 1, 1, 0.3, 0.55, 1, 0)
+
+[node name="FrostbiteBurst" type="CPUParticles2D"]
+z_index = 2
+texture_filter = 2
+material = SubResource("CanvasItemMaterial_add")
+amount = 14
+texture = SubResource("GradientTexture2D_shard")
+lifetime = 0.45
+one_shot = true
+explosiveness = 1.0
+randomness = 0.4
+particle_flag_align_y = true
+spread = 180.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 30.0
+initial_velocity_max = 60.0
+damping_min = 90.0
+damping_max = 130.0
+scale_amount_min = 0.6
+scale_amount_max = 1.0
+scale_amount_curve = SubResource("Curve_shrink")
+color_ramp = SubResource("Gradient_ice")
+
+[connection signal="finished" from="." to="." method="queue_free"]

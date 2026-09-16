@@ -16,3 +16,6 @@ func refresh(newEffect : StatusEffectClass) -> void:
 	var newBurn : BurnEffectClass = newEffect as BurnEffectClass
 	if newBurn:
 		damagePerTick = maxf(damagePerTick, newBurn.damagePerTick)
+
+func scale_power(multiplier : float) -> void:
+	damagePerTick *= multiplier

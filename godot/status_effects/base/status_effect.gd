@@ -6,6 +6,7 @@ class_name StatusEffectClass
 @export var duration : float = 3.0
 @export var tickInterval : float = 0.5
 @export var visualScene : PackedScene
+@export var interactions : Array[StatusInteractionClass]
 
 var status : StatusComponentClass
 var timeLeft : float = 0.0
@@ -25,6 +26,9 @@ func update(delta : float) -> void:
 
 func refresh(newEffect : StatusEffectClass) -> void:
 	timeLeft = maxf(timeLeft, newEffect.duration)
+
+func scale_power(_multiplier : float) -> void:
+	pass
 
 func on_apply() -> void:
 	pass

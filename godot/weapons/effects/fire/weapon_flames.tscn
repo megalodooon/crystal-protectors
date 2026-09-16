@@ -1,6 +1,6 @@
 [gd_scene format=3]
 
-[ext_resource type="Script" path="res://weapons/effects/fire/weapon_flames.gd" id="1_flames"]
+[ext_resource type="Script" path="res://weapons/effects/status_on_hit/weapon_aura.gd" id="1_flames"]
 [ext_resource type="Shader" path="res://weapons/enchant/enchant.gdshader" id="2_glow"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_glow"]
