@@ -24,5 +24,6 @@ texture = ExtResource("3_sprite")
 [node name="SlashAttack" type="Node2D" parent="."]
 script = ExtResource("4_slash")
 curve = 360.0
+maxTargets = 4
 raritySizeGrowth = 2.5
 colorTexture = ExtResource("6_color")

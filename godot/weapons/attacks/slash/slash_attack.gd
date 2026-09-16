@@ -3,10 +3,12 @@ class_name SlashAttackClass
 
 
 const SLASH_SCENE := preload("res://weapons/attacks/slash/slash.tscn")
+const ATTACK_TYPE := preload("res://weapons/attacks/types/slash.tres")
 
 @export var radius : float = 17.0
 @export var size : float = 14.0
 @export_range(10.0, 360.0, 1.0, "suffix:°") var curve : float = 160.0
+@export var maxTargets : int = 3
 @export var raritySizeGrowth : float = 1.0
 @export var colorTexture : Texture2D
 @export var styleOverride : SlashStyleClass
@@ -20,8 +22,8 @@ var swingTween : Tween
 
 func perform() -> void:
 	var style : SlashStyleClass = get_style()
-	var totalCurve : float = minf(curve + style.curveBonus, 360.0)
-	var sizeMultiplier : float = 1.0 + (style.sizeMultiplier - 1.0) * raritySizeGrowth
+	var totalCurve : float = minf(curve + style.curveBonus + weapon.get_stat(AttributeClass.Stat.ATTACK_ARC), 360.0)
+	var sizeMultiplier : float = (1.0 + (style.sizeMultiplier - 1.0) * raritySizeGrowth) * (1.0 + weapon.get_stat(AttributeClass.Stat.ATTACK_SIZE))
 	var centerAngle : float = 0.0
 	if totalCurve >= 360.0:
 		centerAngle = PI
@@ -32,6 +34,7 @@ func perform() -> void:
 	slash.radius = radius * sizeMultiplier
 	slash.size = size * sizeMultiplier
 	slash.curve = totalCurve
+	slash.maxTargets = maxTargets + roundi(weapon.get_stat(AttributeClass.Stat.EXTRA_TARGETS))
 	slash.swingDirection = swingDirection
 	slash.rotation = global_rotation - weapon.swingRotation + centerAngle
 	if weapon.wielder:
@@ -55,6 +58,12 @@ func swing_weapon(duration : float, totalCurve : float, centerAngle : float) -> 
 	swingTween.tween_property(weapon, "swingRotation", 0.0, 0.2).from(wrapf(endRotation, -PI, PI)).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	swingTween.parallel().tween_property(weapon.visuals, "rotation", weapon.get_hold_rotation(), 0.2).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	swingTween.tween_callback(func() -> void: weapon.isSwinging = false)
+
+func get_attack_type() -> AttackTypeClass:
+	return ATTACK_TYPE
+
+func get_color() -> Color:
+	return get_blade_colors()[1]
 
 func get_style() -> SlashStyleClass:
 	if styleOverride:

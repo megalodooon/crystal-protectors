@@ -27,7 +27,13 @@ func update(delta : float) -> void:
 func refresh(newEffect : StatusEffectClass) -> void:
 	timeLeft = maxf(timeLeft, newEffect.duration)
 
+func combine(other : StatusEffectClass) -> void:
+	duration = maxf(duration, other.duration)
+
 func scale_power(_multiplier : float) -> void:
+	pass
+
+func set_damage(_amount : float) -> void:
 	pass
 
 func on_apply() -> void:

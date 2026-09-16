@@ -2,6 +2,8 @@ extends AttackClass
 class_name ProjectileAttackClass
 
 
+const ATTACK_TYPE := preload("res://weapons/attacks/types/projectile.tres")
+
 @export var projectileScene : PackedScene
 @export var projectileCount : int = 1
 @export var spreadAngle : float = 0.0
@@ -14,8 +16,12 @@ func perform() -> void:
 		setup_hitbox(projectile)
 		projectile.global_position = global_position
 		projectile.rotation = global_rotation + get_spread_offset(i)
+		projectile.color = get_color()
 		projectile.hit.connect(register_hit)
 		get_tree().current_scene.add_child(projectile)
+
+func get_attack_type() -> AttackTypeClass:
+	return ATTACK_TYPE
 
 func get_spread_offset(index : int) -> float:
 	if projectileCount <= 1:

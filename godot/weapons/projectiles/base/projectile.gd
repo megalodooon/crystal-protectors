@@ -5,6 +5,8 @@ class_name ProjectileClass
 @export var speed : float = 150.0
 @export var lifetime : float = 2.0
 
+var color : Color = Color.WHITE
+
 #------------------------#
 
 func _ready() -> void:

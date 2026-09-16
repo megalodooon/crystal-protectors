@@ -14,6 +14,7 @@ var colors : Array[Color] = [Color.WHITE, Color.WHITE, Color.WHITE]
 var radius : float = 17.0
 var size : float = 14.0
 var curve : float = 160.0
+var maxTargets : int = 0
 var swingDirection : float = 1.0
 var elapsed : float = 0.0
 var hitFeelPlayed : bool = false
@@ -79,6 +80,7 @@ func setup_hitbox() -> void:
 		points.append(Vector2.ZERO)
 	hitboxShape.polygon = points
 	attack.setup_hitbox(hitbox)
+	hitbox.maxHits = maxTargets
 	hitbox.hit.connect(on_hit)
 	hitbox.set_deferred("monitoring", true)
 	get_tree().create_timer(style.duration * 0.6).timeout.connect(end_hitbox)

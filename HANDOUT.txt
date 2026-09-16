@@ -31,9 +31,17 @@ Weapon progression (agreed, like Dungeon Defenders 2):
   wooden sword -> uncommon). Its level goes back to 0 and can be
   leveled to 15 again. Costs coins + crafting materials
   (not implemented yet).
-- Attributes: random from a pool. Slots = 1 on common, +1 per
-  rarity, max 5 regardless of rarity. Special attributes are never
-  random: they come from specific upgrade runes. (Not built yet.)
+- Attributes: random from a pool, values roll too (quality 0-1).
+  Slots: common 1, uncommon 2, rare 3, epic 4, legendary+ 5 (max 5).
+  Special attributes (life steal, blade waves, burn...) only on
+  legendary+: legendary up to 1, mythic up to 2, artifact up to 2.
+  Artifacts = custom fixed attributes + rollable ones.
+  Rarity upgrade keeps all attributes and rolls the new slot.
+- Attribute level 0-30 = upgrade level, +15 once the rarity was
+  upgraded. Mythic/artifact (cannot upgrade) count as upgraded, so
+  they start at 15. Combat level does NOT affect attributes.
+  Some attributes step every few levels with a cap (blade waves:
+  +1 every 5 levels, max 3).
 - Combat level (separate from upgrade level): later islands drop
   higher combat level gear and have stronger enemies. Old weapons
   can have their combat level raised at the blacksmith.
@@ -82,8 +90,10 @@ coding style (section 5). Follow it exactly.
 - Exception: godot/test.tscn + test.gd sit in the project root on
   purpose. Main scene, used to test new stuff. Q cycles the test
   weapons (weapons list), keys 1-7 = new item of that rarity
-  (level 0), E level up, R upgrade rarity, C combat level +1,
-  G start next wave.
+  (level 0, random attributes), E level up, R upgrade rarity,
+  C combat level +1, G start next wave, V show/hide attribute panel
+  (gray number = roll quality, specials in rarity color),
+  X reroll attributes. The starting item rolls attributes on start.
   Has a Camera2D, two hit dummies (top right, out of the paths),
   labels (UpgradeLabel shows level, combat level, damage; WaveLabel),
   a PathNetwork (PathWest on; PathBranch + PathNorth turned on by
@@ -207,6 +217,7 @@ Example: godot/weapons/base/weapon.gd
   statusComponent, showDamageNumbers. take_damage(amount, damageType,
   isCrit) spawns a floating DamageNumber. apply_status(effect) passes
   status effects to its statusComponent (none = ignored).
+  knockback(impulse) adds to the parent CharacterBody2D velocity.
 - StatusComponentClass (Node): active status effects on a target.
   Exports hurtbox (effects deal damage through it, so damage numbers
   work), sprite (the target's main Sprite2D, used by overlay visuals
@@ -217,8 +228,13 @@ Example: godot/weapons/base/weapon.gd
   Signals: effect_added, effect_removed. has_effect(name).
 - HitboxComponentClass (Area2D): damages hurtboxes it touches.
   Exports damage, damageType, critChance, critMultiplier (crit is
-  rolled per hit). Attacks fill these via AttackClass.setup_hitbox().
-  Signal: hit(hurtbox, damage) (deferred).
+  rolled per hit), maxHits (0 = unlimited). Attacks fill these via
+  WeaponClass.setup_hitbox(). Hurtboxes entering in the same frame are
+  collected and hit nearest first (deferred), so maxHits picks the
+  closest enemies. damageModifier (Callable, set by the weapon) changes
+  damage per target before crit (first strike etc.). hitCount must be
+  reset when a hitbox is reused (MeleeAttack does).
+  Signal: hit(hurtbox, damage) (emitted in the deferred resolve).
 
 [State machine]  godot/components/state_machine/
 - StateMachineClass node: children are states. initialState export.
@@ -237,13 +253,25 @@ Example: godot/weapons/base/weapon.gd
   child Node2D "Visuals" with the Sprite2D (attacks may rotate
   Visuals to swing). Grip at (0,0), weapon points right (+x).
   Exports rarity, damage, attackCooldown, damageType, critChance,
-  critMultiplier, effects.
-  attack() runs perform() on EVERY child attack node, then waits
-  attackCooldown. The hand rotates it, so child nodes aim too.
+  critMultiplier, knockback, effects, fixedAttributes (always on the
+  item, for artifacts).
+  attack() stores aimRotation, runs perform() on EVERY child attack
+  (get_attacks()), then effects and attributes on_attack, then waits
+  get_attack_cooldown(). The hand rotates it, so child nodes aim too.
   wielder = the player holding it (set by equip_weapon).
   item = the WeaponItemClass it was spawned from (null = none).
-  get_power_multiplier() = rarity x item level x combat level.
-  get_damage() = damage x get_power_multiplier().
+  attributes = the item's AttributeRollClass list (copied on create).
+  get_power_multiplier() = rarity x item level x combat level x
+  (1 + Damage attribute). get_damage() = damage x power.
+  Stat getters (base export + attributes): get_crit_chance(),
+  get_crit_multiplier(), get_attack_cooldown(), get_knockback(),
+  get_status_power() (power x (1 + Status Damage)), get_stat(stat).
+  setup_hitbox(hitbox, damageMultiplier) fills any hitbox/projectile.
+  register_hit: effects on_hit, attributes on_hit, knockback, then
+  applies the statuses collected with add_hit_status(status): the same
+  effectName from several sources is combined into ONE application
+  (fire sword burn + Burn attribute = one stronger burn).
+  get_color() = first attack's color (slash = blade color).
   A weapon scene is the TEMPLATE; its damage is the damage at
   upgrade level 0, combat level 1, rarity multiplier 1.
 - Weapon scenes live by category: weapons/melee/slashing/
@@ -253,22 +281,34 @@ Example: godot/weapons/base/weapon.gd
   frost_scythe (physical hits + frost effect).
 - Attacks (attacks/<type>/): nodes placed inside the weapon scene.
   Node position = where the attack comes from.
-  * AttackClass (base/): damageMultiplier, weapon. perform().
+  * AttackClass (base/): damageMultiplier, weapon. perform(),
+    get_attack_type(), get_color().
     Hits must be passed to register_hit(hurtbox, damage) so
     effects hear about them (connect hitbox/projectile "hit").
   * MeleeAttackClass (melee/): plain hitbox attack, no visuals.
   * ProjectileAttackClass (projectile/): projectileScene,
     projectileCount, spreadAngle.
   * SlashAttackClass (slash/): see [Slash] below.
-  New attack type = script extending AttackClass, override perform().
+  Attack types = AttackTypeClass .tres in attacks/types/ (slash,
+  melee, projectile). Each attack script returns its type from
+  get_attack_type() (const ATTACK_TYPE preload). Attributes use them.
+  New attack type = script extending AttackClass, override perform()
+  and get_attack_type(), + a new .tres in attacks/types/.
   Each attack type with visuals (hammer smash etc.) gets its own
   style resource on RarityClass, like slashStyle.
 - ProjectileClass (projectiles/base/): script for projectile scenes
-  (Area2D root). speed, lifetime. Destroyed on hit or on a wall.
+  (Area2D root, extends HitboxComponentClass). speed, lifetime, color
+  (set by the spawner). Destroyed on hit or on a wall.
+  projectiles/slash_wave/: SlashWaveClass, glowing crescent drawn in
+  _draw + trail, hit spark on hit, fades out, maxHits 1.
 - RarityClass (rarities/): Resource with rarityName, color,
-  damageMultiplier, nextRarity, slashStyle (embedded), enchantStyle,
-  effects. nextRarity = what a rarity upgrade turns it into
-  (common > ... > mythic; mythic and artifact have none).
+  damageMultiplier, attributeSlots, maxSpecialAttributes, nextRarity,
+  slashStyle (embedded), enchantStyle, effects. nextRarity = what a
+  rarity upgrade turns it into (common > ... > mythic; mythic and
+  artifact have none).
+  Rarity slash range bonuses were reduced (felt op): sizeMultiplier
+  1 / 1.02 / 1.04 / 1.06 / 1.08 / 1.11 / 1.15, curveBonus epic 5,
+  legendary 10, mythic 15, artifact 25.
   New rarity = duplicate a .tres (embedded style is copied too).
   Final damage = weapon damage x rarity x upgrade level x combat
   level x attack damageMultiplier.
@@ -283,14 +323,16 @@ Example: godot/weapons/base/weapon.gd
   collected in _ready).
   "hit" is emitted deferred, so on_hit can safely spawn nodes.
 - Elemental weapon effects = StatusOnHitEffectClass .tres
-  (effects/status_on_hit/): status (StatusEffect applied on hit,
-  scale_power(weapon.get_power_multiplier()) if scaleWithPower) and
+  (effects/status_on_hit/): status (StatusEffect added on hit with
+  weapon.add_hit_status, scale_power(weapon.get_status_power()) if
+  scaleWithPower) and
   auraScene (spawned under the sprite on equip). Aura scenes use
   WeaponAuraClass: any Sprite2D child gets the weapon texture (glow via
   enchant.gdshader), any CPUParticles2D child emits from the blade
   pixels. effects/fire/fire.tres (burn + weapon_flames.tscn),
-  effects/frost/frost.tres (frost + weapon_frost.tscn). New element =
-  new aura scene + .tres, no code.
+  effects/frost/frost.tres (frost + weapon_frost.tscn),
+  effects/poison/poison.tres (poison + weapon_poison.tscn, no weapon
+  uses it by default yet). New element = new aura scene + .tres.
 - WeaponClass.get_sprite() = first Visuals Sprite2D.
   WeaponClass.get_pixel_points(texture, bladeOnly) = opaque pixel
   positions for particle emission (bladeOnly keeps the top-right half,
@@ -303,20 +345,86 @@ Example: godot/weapons/base/weapon.gd
                            godot/weapons/upgrades/
 - WeaponItemClass (Resource) = ONE owned copy of a weapon: the
   thing inventories, loot drops and saves will hold. Exports
-  weaponScene, rarity, level, combatLevel, rarityUpgraded.
-  Attributes and runes go on the item later.
-- create_weapon() instantiates weaponScene with item + rarity set.
+  weaponScene, rarity, level, combatLevel, rarityUpgraded, attributes
+  (Array[AttributeRollClass]). Runes go on the item later.
+- create_weapon() instantiates weaponScene with item, attributes and
+  rarity set.
 - level_up() (up to maxLevel), upgrade_rarity() (only at max level,
-  only once, needs rarity.nextRarity, resets level to 0),
-  upgrade_combat_level(amount).
+  only once, needs rarity.nextRarity, resets level to 0, keeps
+  attributes and rolls the new slot), upgrade_combat_level(amount),
+  randomize_attributes() (fixed + fresh random rolls).
   can_level_up() / can_upgrade_rarity() hold the rules: add coin and
   material checks there later. Every change calls emit_changed().
+  The player respawns the weapon when rarity or attributes change.
 - get_damage_multiplier() = upgrade level x combat level.
-  get_attribute_multiplier() = upgrade level only: attributes use it.
+  get_attribute_level() = level (+ maxLevel if rarityUpgraded or the
+  rarity has no nextRarity), max get_max_attribute_level() = 30.
 - WeaponUpgradesClass (weapon_upgrades.tres, one shared file,
   preloaded by the item as UPGRADES): maxLevel (15), damagePerLevel
-  (+5% each), attributesPerLevel (+5% each).
-  Upgrade costs go here later.
+  (+5% each). Upgrade costs go here later.
+
+[Attributes]  godot/weapons/attributes/
+- AttributeClass (base/attribute.gd) = one attribute definition, a
+  .tres in normal/ or special/. Exports attributeName, description
+  ("{value}" and other placeholders, % and ° written in the text),
+  stat, scaling, attackTypes, special, weight (roll chance weight;
+  specials use 0.6, Elemental Power 0.7).
+- attackTypes = AttackTypeClass list where it can roll. Empty = every
+  attack type. ONE attribute works for many attack types: add the
+  type to its list instead of making a copy (e.g. Slash Size is
+  [slash]; a future smash just gets added and reads the same stat).
+- stat (enum AttributeClass.Stat): NONE, DAMAGE, CRIT_CHANCE,
+  CRIT_DAMAGE, ATTACK_SPEED, KNOCKBACK, ATTACK_SIZE, ATTACK_ARC,
+  EXTRA_TARGETS, STATUS_DAMAGE. Plain stat attributes need no script:
+  code reads weapon.get_stat(stat) where the stat matters (slash reads
+  ATTACK_SIZE, ATTACK_ARC, EXTRA_TARGETS). Only ADD new stats at the
+  end of the enum (.tres files store the number).
+- AttributeScalingClass (base/, embedded in the .tres): minBase,
+  maxBase (value at attribute level 0 for the worst/best roll),
+  perStep added every levelsPerStep levels, maxValue (0 = no cap),
+  percent (0.1 shown as 10), wholeNumber. Rolled bases snap to 0.1%
+  (percent), whole numbers or 0.1.
+- AttributeRollClass (base/) = one rolled attribute on an item:
+  attribute + quality (0-1). get_value(level), get_description(level).
+- Behavior hooks (override in a script extending AttributeClass):
+  can_roll(weapon, chosen), on_equip(weapon, roll), on_attack(weapon,
+  roll), on_hit(weapon, roll, hurtbox, damage), modify_hit_damage(
+  weapon, roll, hurtbox, damage), get_description_values(quality,
+  level). Definitions are shared: keep no state in them.
+  behaviors/: HealthDamageAttributeClass (bonus damage when target
+  health is between minHealth and maxHealth), StatusBoostAttributeClass
+  (only rolls if the weapon applies a status), StatusAttributeClass
+  (element = a StatusOnHitEffect .tres: status damage = weapon damage
+  x status power x value, adds the element aura unless the weapon
+  already has it, never rolls with a status that cancels another one:
+  burn vs frost), LifeStealAttributeClass (heals wielder
+  healthComponent), AreaDamageAttributeClass (radius, damages other
+  hurtboxes on the same layer + vfx/shockwave), ProjectileAttributeClass
+  (projectileScene, countScaling, spreadAngle, fires at aimRotation),
+  DoubleStrikeAttributeClass (chance to perform matching attacks again
+  after delay).
+- AttributePoolClass (pool/attribute_pool.tres, preloaded by the item
+  as ATTRIBUTE_POOL): attributes (every rollable attribute),
+  maxAttributes (5). roll_attributes(item, kept): weapon
+  fixedAttributes first (copied), then kept ones, then random picks
+  (weighted, no duplicates, can_roll, specials only up to
+  rarity.maxSpecialAttributes; fixed specials count too).
+  New attribute = .tres (+ behavior script if it does something new)
+  and add it to attribute_pool.tres.
+- Normal (all attack types unless noted), level 0 worst..best, +step:
+  Damage 5-8% +0.5%/lvl, Crit Chance 3-5% +1%/3 lvls, Crit Damage
+  15-25% +2%/lvl, Attack Speed 4-6% +0.5%/lvl, Knockback 40-60
+  +2/lvl, First Strike (full health) 20-30% +1.5%/lvl, Executioner
+  (below 35%) 15-25% +1%/lvl, Elemental Power (status damage, needs a
+  status) 10-15% +1%/lvl, Slash Size [slash] 5-8% +0.5%/lvl, Slash Arc
+  [slash] 8-12° +1°/lvl, Cleave [slash] +1 target, +1 every 10 lvls,
+  max 3.
+- Special: Life Steal 1.5-2.5% +0.1%/lvl, Area Damage 25-35%
+  +1%/lvl (radius 20), Blade Waves [slash] 30-40% damage +1%/lvl,
+  count 1 +1 every 5 lvls max 3, Burn 8-12% damage per tick
+  +0.5%/lvl, Frostbite 50-70% +2.5%/lvl, Poison 3-4% per stack
+  +0.15%/lvl, Double Strike [slash] 12-18% chance +0.5%/lvl.
+- SlashAttack maxTargets (3, spear 4) + Cleave = enemies per slash.
 
 [Combat level]  godot/combat_level/
 - CombatScalingClass (combat_scaling.tres, preloaded by the item as
@@ -343,13 +451,15 @@ Example: godot/weapons/base/weapon.gd
 [Slash]  godot/weapons/attacks/slash/
 - SlashAttackClass node in a weapon: radius (middle of the swept
   band, from wielder center), size (band thickness), curve (arc
-  degrees), raritySizeGrowth, styleOverride (custom style, e.g.
-  artifacts).
+  degrees), maxTargets, raritySizeGrowth, styleOverride (custom style,
+  e.g. artifacts).
   Each attack: spawns ONE slash.tscn as child of the wielder, swings
   weapon Visuals over 70% of duration, alternates swing direction.
-- Size = 1 + (style.sizeMultiplier - 1) x raritySizeGrowth.
-  raritySizeGrowth 1 = normal, higher = grows more per rarity
-  (spear uses 2.5).
+- Size = (1 + (style.sizeMultiplier - 1) x raritySizeGrowth) x
+  (1 + Slash Size attribute). raritySizeGrowth 1 = normal, higher =
+  grows more per rarity (spear uses 2.5).
+  Curve = curve + style.curveBonus + Slash Arc (max 360).
+  Targets = maxTargets + Cleave (hitbox maxHits, nearest first).
 - Curve 360 = full spin: slash and weapon start and end at the aim
   direction, hitbox is a full circle.
 - Style = styleOverride, else weapon.rarity.slashStyle.
@@ -390,13 +500,18 @@ Example: godot/weapons/base/weapon.gd
 - hit_spark/: HitSparkClass star burst (drawn spikes + flash +
   spark particles + glowing orbs). Vars: color, strength,
   sparkAmount, orbAmount, angle.
+- shockwave/: ShockwaveClass expanding ring + soft flash (radius,
+  color), used by Area Damage. Kept subtle: several at once must not
+  blow out to white.
 
 [Status effects]  godot/status_effects/
 - StatusEffectClass (base/): Resource with effectName, duration,
   tickInterval, visualScene (spawned on the target while active),
   interactions. on_apply(), on_tick(), on_remove(), refresh(newEffect),
-  scale_power(multiplier). "status" = the StatusComponentClass it is
-  on. Applied copies are duplicated.
+  combine(other) (merge two of the same effect from ONE hit, e.g. add
+  damage), scale_power(multiplier), set_damage(amount) (used by
+  status attributes). "status" = the StatusComponentClass it is on.
+  Applied copies are duplicated (only exported vars are copied).
   New effect = script extending it + a .tres in its own folder.
 - Interactions (expandable): StatusInteractionClass (base/) on an
   effect's interactions list: triggerEffects (effect names being
@@ -419,6 +534,10 @@ Example: godot/weapons/base/weapon.gd
   blue shards in normal blend; Timer frees it),
   then removed. Build-up clears after duration (4s) without hits.
   Removed (and blocks it) when Burn is applied; fire damage removes it.
+- Poison (poison/): PoisonEffectClass damagePerStack, maxStacks (5),
+  damageType (poison). Every hit adds a stack and refreshes (4s,
+  tick 0.5s); tick damage = damagePerStack x stacks.
+  poison_bubbles.tscn on the target. No interactions.
 - Targets need a StatusComponent (+ hurtbox statusComponent set) to
   receive effects. Test dummies have one.
 
@@ -469,7 +588,9 @@ Example: godot/weapons/base/weapon.gd
   (MeshInstance2D, strip mesh built in code, path_pulse.gdshader
   additive), head halos drawn in _draw (headTexture), StartDot and
   EndDot (path_dot.tscn: glow, core, ring pop; shown when the pulse
-  reaches them). Dots on connection points use connectionDotSize.
+  reaches them). Only spawn starts and final ends get a dot: dots on
+  connection points (branch starts, merge ends) are removed, the
+  developer thought they looked off.
   Mesh inner width is limited around bends so it never folds (the
   developer saw spiky artifacts before that).
 - Draw layer: path pulse is z_index -5 (absolute). Ground/tilesets
@@ -561,3 +682,10 @@ Input actions: left, right, up, down (WASD), attack (left mouse).
             Enemy base + regular/big/small enemies, path follow
             component, wave manager/waves/spawn groups. Test scene
             paths + 3 waves (G), dummies moved top right.
+            Connection dots removed from paths.
+            Attribute system: 18 attributes (11 normal, 7 special),
+            rolled values, attack types, attribute level 0-30, rarity
+            slots/special caps, fixed artifact attributes, stacking
+            status sources, poison status, blade waves, area damage
+            shockwave, slash max targets. Rarity slash ranges reduced.
+            Test scene: V attribute panel, X reroll.

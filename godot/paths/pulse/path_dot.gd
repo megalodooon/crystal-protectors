@@ -8,7 +8,6 @@ class_name PathDotClass
 @onready var core : Sprite2D = $Core
 @onready var ring : Sprite2D = $Ring
 
-var size : float = 1.0
 var glowColor : Color = Color.WHITE
 var coreColor : Color = Color.WHITE
 var ringScale : Vector2
@@ -33,7 +32,7 @@ func update_dot(age : float, opacity : float, gray : float, style : PathPulseSty
 		return
 	var pop : float = minf(age / style.dotPopTime, 1.0)
 	var ringProgress : float = minf(age / style.dotRingTime, 1.0)
-	scale = Vector2.ONE * size * Tween.interpolate_value(0.0, 1.0, pop, 1.0, Tween.TRANS_BACK, Tween.EASE_OUT)
+	scale = Vector2.ONE * Tween.interpolate_value(0.0, 1.0, pop, 1.0, Tween.TRANS_BACK, Tween.EASE_OUT)
 	modulate.a = opacity
 	glow.self_modulate = get_gray_color(glowColor, gray)
 	ring.self_modulate = get_gray_color(glowColor.lightened(0.4), gray)

@@ -7,7 +7,7 @@
 [sub_resource type="Resource" id="Resource_slashstyle"]
 script = ExtResource("2_slashstyle")
 duration = 0.23
-sizeMultiplier = 1.1
+sizeMultiplier = 1.04
 trail = 0.55
 glow = 0.45
 core = 0.55
@@ -24,5 +24,6 @@ script = ExtResource("1_rarity")
 rarityName = "Rare"
 color = Color(0.3, 0.55, 1, 1)
 damageMultiplier = 1.5
+attributeSlots = 3
 nextRarity = ExtResource("3_next")
 slashStyle = SubResource("Resource_slashstyle")

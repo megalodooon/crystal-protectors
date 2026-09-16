@@ -24,8 +24,17 @@ func refresh(newEffect : StatusEffectClass) -> void:
 		frostbiteDamage = maxf(frostbiteDamage, newFrost.frostbiteDamage)
 	add_stack()
 
+func combine(other : StatusEffectClass) -> void:
+	super(other)
+	var otherFrost : FrostEffectClass = other as FrostEffectClass
+	if otherFrost:
+		frostbiteDamage += otherFrost.frostbiteDamage
+
 func scale_power(multiplier : float) -> void:
 	frostbiteDamage *= multiplier
+
+func set_damage(amount : float) -> void:
+	frostbiteDamage = amount
 
 func on_remove() -> void:
 	var frostVisual : FrostVisualClass = get_frost_visual()

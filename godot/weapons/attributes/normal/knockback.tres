@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="AttributeClass" format=3]
+
+[ext_resource type="Script" path="res://weapons/attributes/base/attribute.gd" id="1_attribute"]
+[ext_resource type="Script" path="res://weapons/attributes/base/attribute_scaling.gd" id="2_scaling"]
+
+[sub_resource type="Resource" id="Resource_scaling"]
+script = ExtResource("2_scaling")
+minBase = 40.0
+maxBase = 60.0
+perStep = 2.0
+wholeNumber = true
+
+[resource]
+script = ExtResource("1_attribute")
+attributeName = "Knockback"
+description = "+{value} Knockback"
+stat = 5
+scaling = SubResource("Resource_scaling")

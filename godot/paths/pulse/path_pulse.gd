@@ -58,9 +58,11 @@ func build(path : EnemyPathClass, pulseStyle : PathPulseStyleClass) -> void:
 	startDot.set_colors(style.color, style.coreColor)
 	endDot.set_colors(style.color, style.coreColor)
 	if path.branchFrom:
-		startDot.size = style.connectionDotSize
+		startDot.queue_free()
+		startDot = null
 	if path.mergeInto:
-		endDot.size = style.connectionDotSize
+		endDot.queue_free()
+		endDot = null
 
 func build_mesh(halfWidth : float) -> void:
 	if length < BEND_SPAN:
@@ -128,6 +130,8 @@ func update_pulse(time : float, newOpacity : float, newGray : float) -> void:
 	shader.set_shader_parameter("pulseCount", headCount)
 	shader.set_shader_parameter("opacity", opacity)
 	shader.set_shader_parameter("gray", gray)
-	startDot.update_dot(time - startReachTime, opacity, gray, style)
-	endDot.update_dot(time - endReachTime, opacity, gray, style)
+	if startDot:
+		startDot.update_dot(time - startReachTime, opacity, gray, style)
+	if endDot:
+		endDot.update_dot(time - endReachTime, opacity, gray, style)
 	queue_redraw()

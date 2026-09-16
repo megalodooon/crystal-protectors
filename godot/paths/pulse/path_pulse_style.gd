@@ -18,7 +18,6 @@ class_name PathPulseStyleClass
 @export var pauseTime : float = 0.25
 @export var stopFadeTime : float = 0.35
 @export_range(0.0, 1.0) var waveOpacity : float = 0.4
-@export_range(0.0, 1.0) var connectionDotSize : float = 0.6
 @export var dotPopTime : float = 0.3
 @export var dotRingTime : float = 0.5
 

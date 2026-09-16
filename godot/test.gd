@@ -11,12 +11,15 @@ extends Node2D
 @onready var rarityLabel : Label = $CanvasLayer/RarityLabel
 @onready var upgradeLabel : Label = $CanvasLayer/UpgradeLabel
 @onready var waveLabel : Label = $CanvasLayer/WaveLabel
+@onready var attributePanel : PanelContainer = $CanvasLayer/AttributePanel
+@onready var attributeText : RichTextLabel = $CanvasLayer/AttributePanel/AttributeText
 
 var weaponIndex : int = 0
 
 #------------------------#
 
 func _ready() -> void:
+	player.weaponItem.randomize_attributes()
 	update_labels()
 
 func _process(_delta : float) -> void:
@@ -37,12 +40,17 @@ func _unhandled_input(event : InputEvent) -> void:
 			item.upgrade_combat_level()
 		if event.keycode == KEY_G:
 			waveManager.start_next_wave()
+		if event.keycode == KEY_V:
+			attributePanel.visible = not attributePanel.visible
+		if event.keycode == KEY_X:
+			item.randomize_attributes()
 		var index : int = event.keycode - KEY_1
 		if index >= 0 and index < rarities.size():
 			var newItem : WeaponItemClass = WeaponItemClass.new()
 			newItem.weaponScene = item.weaponScene
 			newItem.rarity = rarities[index]
 			newItem.combatLevel = item.combatLevel
+			newItem.randomize_attributes()
 			player.equip_weapon(newItem)
 		update_labels()
 
@@ -68,7 +76,21 @@ func update_labels() -> void:
 		rarityText = "Rarity cannot upgrade"
 	upgradeLabel.text = "E Level " + str(item.level) + "/" + str(item.UPGRADES.maxLevel) + "  C Combat " + str(item.combatLevel)
 	upgradeLabel.text += "  Damage " + NumberFormatClass.format(player.weapon.get_damage())
-	upgradeLabel.text += "\n" + rarityText
+	upgradeLabel.text += "\n" + rarityText + "  V Attributes"
+	update_attribute_panel()
+
+func update_attribute_panel() -> void:
+	var item : WeaponItemClass = player.weaponItem
+	var level : int = item.get_attribute_level()
+	var panelStyle : StyleBoxFlat = attributePanel.get_theme_stylebox("panel")
+	panelStyle.border_color = item.rarity.color
+	var text : String = "[color=#%s]%s Attributes[/color]  Lv %d/%d  X Reroll" % [item.rarity.color.to_html(false), item.rarity.rarityName, level, item.get_max_attribute_level()]
+	for roll in item.attributes:
+		var color : Color = Color.WHITE
+		if roll.attribute.special:
+			color = item.rarity.color
+		text += "\n[color=#777777]%d%%[/color] [color=#%s]%s[/color]" % [roundi(roll.quality * 100.0), color.to_html(false), roll.get_description(level)]
+	attributeText.text = text
 
 func update_wave_label() -> void:
 	var waveText : String = str(waveManager.waveIndex + 1) + "/" + str(waveManager.waves.size())

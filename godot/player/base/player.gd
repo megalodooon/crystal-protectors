@@ -58,7 +58,7 @@ func spawn_weapon() -> void:
 	hand.move_child(weapon, 0)
 
 func on_weapon_item_changed() -> void:
-	if weaponItem.rarity and weapon.rarity != weaponItem.rarity:
+	if (weaponItem.rarity and weapon.rarity != weaponItem.rarity) or weapon.attributes != weaponItem.attributes:
 		spawn_weapon()
 
 func update_facing(targetPosition : Vector2, delta : float) -> void:

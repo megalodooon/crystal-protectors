@@ -1,0 +1,77 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://weapons/projectiles/slash_wave/slash_wave.gd" id="1_wave"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_wave"]
+radius = 4.0
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_add"]
+blend_mode = 1
+
+[sub_resource type="Gradient" id="Gradient_soft"]
+offsets = PackedFloat32Array(0, 0.3, 1)
+colors = PackedColorArray(1, 1, 1, 0.9, 1, 1, 1, 0.45, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_glow"]
+gradient = SubResource("Gradient_soft")
+width = 32
+height = 32
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 0)
+
+[sub_resource type="Gradient" id="Gradient_dot"]
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_dot"]
+gradient = SubResource("Gradient_dot")
+width = 8
+height = 8
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 0)
+
+[sub_resource type="Curve" id="Curve_shrink"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Gradient" id="Gradient_trail"]
+offsets = PackedFloat32Array(0, 1)
+colors = PackedColorArray(1, 1, 1, 0.7, 1, 1, 1, 0)
+
+[node name="SlashWave" type="Area2D"]
+texture_filter = 2
+z_index = 1
+material = SubResource("CanvasItemMaterial_add")
+collision_layer = 0
+collision_mask = 17
+monitorable = false
+script = ExtResource("1_wave")
+maxHits = 1
+speed = 170.0
+lifetime = 0.45
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_wave")
+
+[node name="Trail" type="CPUParticles2D" parent="."]
+show_behind_parent = true
+material = SubResource("CanvasItemMaterial_add")
+emitting = false
+amount = 18
+texture = SubResource("GradientTexture2D_dot")
+lifetime = 0.2
+local_coords = false
+emission_shape = 3
+emission_rect_extents = Vector2(1, 4)
+gravity = Vector2(0, 0)
+scale_amount_min = 0.4
+scale_amount_max = 0.7
+scale_amount_curve = SubResource("Curve_shrink")
+color_ramp = SubResource("Gradient_trail")
+
+[node name="Glow" type="Sprite2D" parent="."]
+show_behind_parent = true
+material = SubResource("CanvasItemMaterial_add")
+scale = Vector2(0.45, 0.6)
+texture = SubResource("GradientTexture2D_glow")

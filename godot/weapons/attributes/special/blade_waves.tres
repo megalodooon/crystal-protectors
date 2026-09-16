@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="ProjectileAttributeClass" format=3]
+
+[ext_resource type="Script" path="res://weapons/attributes/behaviors/projectile_attribute.gd" id="1_attribute"]
+[ext_resource type="Script" path="res://weapons/attributes/base/attribute_scaling.gd" id="2_scaling"]
+[ext_resource type="Script" path="res://weapons/attacks/base/attack_type.gd" id="3_attack_type"]
+[ext_resource type="Resource" path="res://weapons/attacks/types/slash.tres" id="4_slash"]
+[ext_resource type="PackedScene" path="res://weapons/projectiles/slash_wave/slash_wave.tscn" id="5_projectile"]
+
+[sub_resource type="Resource" id="Resource_scaling"]
+script = ExtResource("2_scaling")
+minBase = 0.3
+maxBase = 0.4
+perStep = 0.01
+percent = true
+
+[sub_resource type="Resource" id="Resource_count"]
+script = ExtResource("2_scaling")
+minBase = 1.0
+maxBase = 1.0
+perStep = 1.0
+levelsPerStep = 5
+maxValue = 3.0
+wholeNumber = true
+
+[resource]
+script = ExtResource("1_attribute")
+projectileScene = ExtResource("5_projectile")
+attributeName = "Blade Waves"
+description = "Blade Waves x{count}: {value}% damage"
+scaling = SubResource("Resource_scaling")
+countScaling = SubResource("Resource_count")
+attackTypes = Array[ExtResource("3_attack_type")]([ExtResource("4_slash")])
+special = true
+weight = 0.6

@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="AttributePoolClass" format=3]
+
+[ext_resource type="Script" path="res://weapons/attributes/pool/attribute_pool.gd" id="1_pool"]
+[ext_resource type="Script" path="res://weapons/attributes/base/attribute.gd" id="2_attribute"]
+[ext_resource type="Resource" path="res://weapons/attributes/normal/damage.tres" id="3_damage"]
+[ext_resource type="Resource" path="res://weapons/attributes/normal/crit_chance.tres" id="4_crit_chance"]
+[ext_resource type="Resource" path="res://weapons/attributes/normal/crit_damage.tres" id="5_crit_damage"]
+[ext_resource type="Resource" path="res://weapons/attributes/normal/attack_speed.tres" id="6_attack_speed"]
+[ext_resource type="Resource" path="res://weapons/attributes/normal/knockback.tres" id="7_knockback"]
+[ext_resource type="Resource" path="res://weapons/attributes/normal/first_strike.tres" id="8_first_strike"]
+[ext_resource type="Resource" path="res://weapons/attributes/normal/executioner.tres" id="9_executioner"]
+[ext_resource type="Resource" path="res://weapons/attributes/normal/elemental_power.tres" id="10_elemental_power"]
+[ext_resource type="Resource" path="res://weapons/attributes/normal/slash_size.tres" id="11_slash_size"]
+[ext_resource type="Resource" path="res://weapons/attributes/normal/slash_arc.tres" id="12_slash_arc"]
+[ext_resource type="Resource" path="res://weapons/attributes/normal/cleave.tres" id="13_cleave"]
+[ext_resource type="Resource" path="res://weapons/attributes/special/life_steal.tres" id="14_life_steal"]
+[ext_resource type="Resource" path="res://weapons/attributes/special/area_damage.tres" id="15_area_damage"]
+[ext_resource type="Resource" path="res://weapons/attributes/special/blade_waves.tres" id="16_blade_waves"]
+[ext_resource type="Resource" path="res://weapons/attributes/special/burn.tres" id="17_burn"]
+[ext_resource type="Resource" path="res://weapons/attributes/special/frostbite.tres" id="18_frostbite"]
+[ext_resource type="Resource" path="res://weapons/attributes/special/poison.tres" id="19_poison"]
+[ext_resource type="Resource" path="res://weapons/attributes/special/double_strike.tres" id="20_double_strike"]
+
+[resource]
+script = ExtResource("1_pool")
+attributes = Array[ExtResource("2_attribute")]([ExtResource("3_damage"), ExtResource("4_crit_chance"), ExtResource("5_crit_damage"), ExtResource("6_attack_speed"), ExtResource("7_knockback"), ExtResource("8_first_strike"), ExtResource("9_executioner"), ExtResource("10_elemental_power"), ExtResource("11_slash_size"), ExtResource("12_slash_arc"), ExtResource("13_cleave"), ExtResource("14_life_steal"), ExtResource("15_area_damage"), ExtResource("16_blade_waves"), ExtResource("17_burn"), ExtResource("18_frostbite"), ExtResource("19_poison"), ExtResource("20_double_strike")])

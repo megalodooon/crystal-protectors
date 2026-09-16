@@ -17,10 +17,10 @@ func on_equip(weapon : WeaponClass) -> void:
 	aura.points = WeaponClass.get_pixel_points(sprite.texture, true)
 	sprite.add_child(aura)
 
-func on_hit(weapon : WeaponClass, hurtbox : HurtboxComponentClass, _damage : float) -> void:
-	if not status or not is_instance_valid(hurtbox):
+func on_hit(weapon : WeaponClass, _hurtbox : HurtboxComponentClass, _damage : float) -> void:
+	if not status:
 		return
 	var newStatus : StatusEffectClass = status.duplicate()
 	if scaleWithPower:
-		newStatus.scale_power(weapon.get_power_multiplier())
-	hurtbox.apply_status(newStatus)
+		newStatus.scale_power(weapon.get_status_power())
+	weapon.add_hit_status(newStatus)

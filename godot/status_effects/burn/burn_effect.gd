@@ -17,5 +17,14 @@ func refresh(newEffect : StatusEffectClass) -> void:
 	if newBurn:
 		damagePerTick = maxf(damagePerTick, newBurn.damagePerTick)
 
+func combine(other : StatusEffectClass) -> void:
+	super(other)
+	var otherBurn : BurnEffectClass = other as BurnEffectClass
+	if otherBurn:
+		damagePerTick += otherBurn.damagePerTick
+
 func scale_power(multiplier : float) -> void:
 	damagePerTick *= multiplier
+
+func set_damage(amount : float) -> void:
+	damagePerTick = amount

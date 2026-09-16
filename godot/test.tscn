@@ -37,6 +37,21 @@ rarity = ExtResource("4_common")
 [sub_resource type="CircleShape2D" id="CircleShape2D_dummy"]
 radius = 6.0
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_attributes"]
+content_margin_left = 4.0
+content_margin_top = 2.0
+content_margin_right = 4.0
+content_margin_bottom = 3.0
+bg_color = Color(0.05, 0.04, 0.08, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
 [sub_resource type="Curve2D" id="Curve2D_west"]
 _data = {
 "points": PackedVector2Array(0, 0, 0, 0, 4, 76, 0, 0, 0, 0, 150, 76, 0, 0, 0, 0, 150, 46, 0, 0, 0, 0, 188, 46)
@@ -251,5 +266,22 @@ offset_top = 11.0
 offset_right = 190.0
 offset_bottom = 22.0
 theme_override_font_sizes/font_size = 8
+
+[node name="AttributePanel" type="PanelContainer" parent="CanvasLayer"]
+visible = false
+offset_left = 4.0
+offset_top = 23.0
+offset_right = 12.0
+offset_bottom = 31.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_attributes")
+
+[node name="AttributeText" type="RichTextLabel" parent="CanvasLayer/AttributePanel"]
+layout_mode = 2
+theme_override_constants/line_separation = -1
+theme_override_font_sizes/normal_font_size = 8
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+autowrap_mode = 0
 
 [connection signal="enemy_spawned" from="WaveManager" to="." method="on_enemy_spawned"]

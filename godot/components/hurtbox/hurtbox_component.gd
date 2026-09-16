@@ -21,6 +21,11 @@ func take_damage(amount : float, damageType : DamageTypeClass = null, isCrit : b
 	if showDamageNumbers:
 		spawn_damage_number(amount, damageType, isCrit)
 
+func knockback(impulse : Vector2) -> void:
+	var body : CharacterBody2D = get_parent() as CharacterBody2D
+	if body:
+		body.velocity += impulse
+
 func spawn_damage_number(amount : float, damageType : DamageTypeClass, isCrit : bool) -> void:
 	var damageNumber : DamageNumberClass = DAMAGE_NUMBER_SCENE.instantiate()
 	damageNumber.amount = amount
