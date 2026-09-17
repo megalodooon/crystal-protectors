@@ -14,15 +14,18 @@ func get_description_values(quality : float, level : int) -> Dictionary:
 	values["count"] = countScaling.format_value(countScaling.get_value(quality, level))
 	return values
 
-func on_attack(weapon : WeaponClass, roll : AttributeRollClass) -> void:
+func on_proc(weapon : WeaponClass, roll : AttributeRollClass, hurtbox : HurtboxComponentClass, _damage : float) -> void:
 	var level : int = weapon.get_attribute_level()
 	var count : int = roundi(countScaling.get_value(roll.quality, level))
-	var origin : Vector2 = weapon.global_position
-	if weapon.wielder:
-		origin = weapon.wielder.global_position
+	var origin : Vector2 = weapon.get_origin()
+	var burstAngle : float = randf() * TAU
+	if hurtbox:
+		origin = hurtbox.global_position
 	for i in count:
 		var angle : float = weapon.aimRotation
-		if count > 1:
+		if hurtbox:
+			angle = burstAngle + TAU * i / count
+		elif count > 1:
 			angle += deg_to_rad(lerpf(-spreadAngle / 2.0, spreadAngle / 2.0, float(i) / (count - 1)))
 		var projectile : ProjectileClass = projectileScene.instantiate()
 		weapon.setup_hitbox(projectile, roll.get_value(level))

@@ -1,4 +1,4 @@
-extends StatusBoostAttributeClass
+extends StatBoostAttributeClass
 class_name StatusTargetDamageAttributeClass
 
 

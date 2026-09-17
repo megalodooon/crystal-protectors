@@ -10,5 +10,8 @@ class_name AttributeRollClass
 func get_value(level : int) -> float:
 	return attribute.get_value(quality, level)
 
+func get_chance(level : int) -> float:
+	return attribute.get_chance(quality, level)
+
 func get_description(level : int) -> String:
 	return attribute.get_description(quality, level)

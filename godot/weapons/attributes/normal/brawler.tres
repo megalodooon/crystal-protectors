@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="NearbyEnemiesDamageAttributeClass" format=3]
+
+[ext_resource type="Script" path="res://weapons/attributes/behaviors/nearby_enemies_damage_attribute.gd" id="1_attribute"]
+[ext_resource type="Script" path="res://weapons/attributes/base/attribute_scaling.gd" id="2_scaling"]
+
+[sub_resource type="Resource" id="Resource_scaling"]
+script = ExtResource("2_scaling")
+minBase = 0.02
+maxBase = 0.03
+perStep = 0.002
+percent = true
+
+[resource]
+script = ExtResource("1_attribute")
+mode = 1
+radius = 32.0
+maxEnemies = 5
+attributeName = "Brawler"
+description = "+{value}% Dmg per nearby enemy (x{max})"
+scaling = SubResource("Resource_scaling")

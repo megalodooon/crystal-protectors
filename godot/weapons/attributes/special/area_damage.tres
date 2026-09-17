@@ -5,15 +5,26 @@
 
 [sub_resource type="Resource" id="Resource_scaling"]
 script = ExtResource("2_scaling")
-minBase = 0.15
-maxBase = 0.2
-perStep = 0.01
+minBase = 0.3
+maxBase = 0.35
+perStep = 0.005
+percent = true
+
+[sub_resource type="Resource" id="Resource_chance"]
+script = ExtResource("2_scaling")
+minBase = 0.2
+maxBase = 0.25
+perStep = 0.005
 percent = true
 
 [resource]
 script = ExtResource("1_attribute")
+radius = 20.0
 attributeName = "Area Damage"
-description = "{value}% Area Damage"
+description = "{chance}% Area Damage: {value}%"
 scaling = SubResource("Resource_scaling")
+trigger = 2
+chanceScaling = SubResource("Resource_chance")
 special = true
+inRandomPool = true
 weight = 0.6

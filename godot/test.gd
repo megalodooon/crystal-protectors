@@ -89,8 +89,12 @@ func update_attribute_panel() -> void:
 		var color : Color = Color.WHITE
 		if roll.attribute.special:
 			color = item.rarity.color
-		text += "\n[color=#777777]%d%%[/color] [color=#%s]%s[/color]" % [roundi(roll.quality * 100.0), color.to_html(false), roll.get_description(level)]
+		text += "\n%s [color=#%s]%s[/color]" % [get_quality_bar(roll.quality), color.to_html(false), roll.get_description(level)]
 	attributeText.text = text
+
+func get_quality_bar(quality : float) -> String:
+	var filled : int = roundi(quality * 5.0)
+	return "[color=#bbbbbb]%s[/color][color=#444444]%s[/color]" % ["|".repeat(filled), "|".repeat(5 - filled)]
 
 func update_wave_label() -> void:
 	var waveText : String = str(waveManager.waveIndex + 1) + "/" + str(waveManager.waves.size())

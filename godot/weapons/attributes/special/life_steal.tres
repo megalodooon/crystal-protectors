@@ -15,5 +15,7 @@ script = ExtResource("1_attribute")
 attributeName = "Life Steal"
 description = "{value}% Life Steal"
 scaling = SubResource("Resource_scaling")
+trigger = 2
 special = true
+inRandomPool = true
 weight = 0.6

@@ -12,12 +12,13 @@ percent = true
 
 [resource]
 script = ExtResource("1_attribute")
-trigger = 1
 buffStat = 1
 duration = 5.0
 maxStacks = 5
 attributeName = "Bloodlust"
 description = "Kills: +{value}% Damage for {duration}s (x{stacks})"
 scaling = SubResource("Resource_scaling")
+trigger = 4
 special = true
+inRandomPool = true
 weight = 0.6

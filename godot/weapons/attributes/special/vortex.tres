@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="KnockbackAreaAttributeClass" format=3]
+
+[ext_resource type="Script" path="res://weapons/attributes/behaviors/knockback_area_attribute.gd" id="1_attribute"]
+[ext_resource type="Script" path="res://weapons/attributes/base/attribute_scaling.gd" id="2_scaling"]
+
+[sub_resource type="Resource" id="Resource_chance"]
+script = ExtResource("2_scaling")
+minBase = 0.08
+maxBase = 0.12
+perStep = 0.003
+percent = true
+
+[resource]
+script = ExtResource("1_attribute")
+radius = 36.0
+force = 120.0
+pull = true
+color = Color(0.65, 0.45, 1, 1)
+attributeName = "Vortex"
+description = "{chance}% on hit: pull enemies in"
+trigger = 2
+chanceScaling = SubResource("Resource_chance")
+special = true
+inRandomPool = true
+weight = 0.6

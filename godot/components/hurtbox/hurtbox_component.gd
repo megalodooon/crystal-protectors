@@ -8,6 +8,9 @@ const DAMAGE_NUMBER_SCENE := preload("res://vfx/damage_number/damage_number.tscn
 @export var statusComponent : StatusComponentClass
 @export var showDamageNumbers : bool = true
 
+var lastHitKilled : bool = false
+var lastHitCrit : bool = false
+
 #------------------------#
 
 func apply_status(effect : StatusEffectClass) -> void:
@@ -17,7 +20,10 @@ func apply_status(effect : StatusEffectClass) -> void:
 func take_damage(amount : float, damageType : DamageTypeClass = null, isCrit : bool = false) -> void:
 	if statusComponent:
 		amount *= statusComponent.get_damage_taken_multiplier()
+	var wasAlive : bool = not is_dead()
 	healthComponent.take_damage(amount)
+	lastHitKilled = wasAlive and is_dead()
+	lastHitCrit = isCrit
 	if statusComponent:
 		statusComponent.on_damage_taken(damageType)
 	if showDamageNumbers:

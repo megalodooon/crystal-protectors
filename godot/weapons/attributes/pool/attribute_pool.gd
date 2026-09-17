@@ -46,7 +46,7 @@ func pick_attribute(weapon : WeaponClass, rarity : RarityClass, rolls : Array[At
 	var candidates : Array[AttributeClass] = []
 	var totalWeight : float = 0.0
 	for attribute in attributes:
-		if chosen.has(attribute) or attribute.weight <= 0.0:
+		if not attribute.inRandomPool or chosen.has(attribute) or attribute.weight <= 0.0:
 			continue
 		if attribute.special and specials >= rarity.maxSpecialAttributes:
 			continue

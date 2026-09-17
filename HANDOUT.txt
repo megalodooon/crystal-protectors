@@ -92,7 +92,7 @@ coding style (section 5). Follow it exactly.
   weapons (weapons list), keys 1-7 = new item of that rarity
   (level 0, random attributes), E level up, R upgrade rarity,
   C combat level +1, G start next wave, V show/hide attribute panel
-  (gray number = roll quality, specials in rarity color),
+  (5 bars in front = roll quality, specials in rarity color),
   X reroll attributes. The starting item rolls attributes on start.
   Has a Camera2D, two hit dummies (top right, out of the paths),
   labels (UpgradeLabel shows level, combat level, damage; WaveLabel),
@@ -225,7 +225,8 @@ Example: godot/weapons/base/weapon.gd
   and spawns a floating DamageNumber. apply_status(effect) passes
   status effects to its statusComponent (none = ignored).
   knockback(impulse) adds to the parent CharacterBody2D velocity.
-  is_dead() = health at 0.
+  is_dead() = health at 0. take_damage records lastHitKilled (this
+  damage brought it to 0) and lastHitCrit, read by register_hit.
 - StatusComponentClass (Node): active status effects on a target.
   Exports hurtbox (effects deal damage through it, so damage numbers
   work), sprite (the target's main Sprite2D, used by overlay visuals
@@ -243,9 +244,10 @@ Example: godot/weapons/base/weapon.gd
   collected and hit nearest first (deferred), so maxHits picks the
   closest enemies. damageModifier (Callable, set by the weapon) changes
   damage per target before crit (first strike etc.). hitCount must be
-  reset when a hitbox is reused (MeleeAttack does). Dead hurtboxes
-  (is_dead) are skipped, so a hit on a dead enemy never happens and
-  every kill is registered exactly once.
+  reset when a hitbox is reused (MeleeAttack does). Hurtboxes at 0 HP
+  are still hit (test dummies reach 0 at high damage; skipping them
+  made the slash stop hitting). Kills are counted once via
+  lastHitKilled instead.
   Signal: hit(hurtbox, damage) (emitted in the deferred resolve).
 
 [State machine]  godot/components/state_machine/
@@ -270,7 +272,13 @@ Example: godot/weapons/base/weapon.gd
   attack() counts attackCount (+1, first attack = 1), stores
   aimRotation, runs perform() on EVERY child attack (get_attacks()),
   then effects and attributes on_attack, then waits
-  get_attack_cooldown(). The hand rotates it, so child nodes aim too.
+  get_attack_cooldown() (cooldownId: reset_cooldown() makes the weapon
+  ready now and ignores the old timer). The hand rotates it, so child
+  nodes aim too. get_origin() = wielder position (or the weapon's).
+  get_all_effects() = effects + rarity effects (the templates).
+  roll_chance(chance) = randf() < chance x (1 + Effect Chance stat):
+  use it for EVERY chance based effect.
+  get_area_multiplier() = 1 + Effect Area stat.
   wielder = the player holding it (set by equip_weapon).
   item = the WeaponItemClass it was spawned from (null = none).
   attributes = the item's AttributeRollClass list (copied on create).
@@ -282,11 +290,12 @@ Example: godot/weapons/base/weapon.gd
   (attribute stats + active buffs).
   setup_hitbox(hitbox, damageMultiplier) fills any hitbox/projectile;
   damage goes through every attribute's modify_attack_damage.
-  register_hit: effects on_hit, attributes on_hit, attributes on_kill
-  (only when this hit killed it), knockback, then applies the statuses
-  collected with add_hit_status(status), their duration x (1 + Status
-  Duration): the same effectName from several sources is combined into
-  ONE application (fire sword burn + Burn attribute = one stronger burn).
+  register_hit: effects on_hit, attributes on_hit, on_crit (if the hit
+  crit), on_kill (if this hit killed it), knockback, then applies the
+  statuses collected with add_hit_status(status) through
+  apply_status(hurtbox, status) (duration x (1 + Status Duration)):
+  the same effectName from several sources is combined into ONE
+  application (fire sword burn + Burn attribute = one stronger burn).
   Buffs (timed stat bonuses from attributes): add_buff(roll, stat,
   duration, maxStacks) adds a stack and resets the timer, one buff per
   roll (AttributeBuffClass in attributes/base/: roll, stat, stacks,
@@ -321,6 +330,9 @@ Example: godot/weapons/base/weapon.gd
   (set by the spawner). Destroyed on hit or on a wall.
   projectiles/slash_wave/: SlashWaveClass, glowing crescent drawn in
   _draw + trail, hit spark on hit, fades out, maxHits 1.
+  projectiles/spirit_orb/: SpiritOrbClass homing orb (turnSpeed,
+  seekRange: turns toward the nearest hurtbox on its mask), glow +
+  core + trail, hit spark, fades out.
 - RarityClass (rarities/): Resource with rarityName, color,
   damageMultiplier, attributeSlots, maxSpecialAttributes, nextRarity,
   slashStyle (embedded), enchantStyle, effects. nextRarity = what a
@@ -334,8 +346,9 @@ Example: godot/weapons/base/weapon.gd
   level x attack damageMultiplier.
 - Effects (effects/, base script in effects/base/): custom behavior
   for weapons AND rarities. WeaponEffectClass Resource with
-  on_equip(weapon) (in _ready, for weapon visuals), on_attack(weapon)
-  and on_hit(weapon, hurtbox, damage). New behavior = script extending
+  on_equip(weapon) (in _ready, for weapon visuals), on_attack(weapon),
+  on_hit(weapon, hurtbox, damage) and uses_stat(stat) (lets boost
+  attributes like Elemental Power know the weapon benefits). New behavior = script extending
   WeaponEffectClass, add it to a weapon's or rarity's effects list.
   A weapon uses its own effects + its rarity's effects.
   Each weapon gets its own copies, so effects may keep variables.
@@ -345,7 +358,8 @@ Example: godot/weapons/base/weapon.gd
 - Elemental weapon effects = StatusOnHitEffectClass .tres
   (effects/status_on_hit/): status (StatusEffect added on hit with
   weapon.add_hit_status, scale_power(weapon.get_status_power()) if
-  scaleWithPower) and
+  scaleWithPower), chance (per hit; fire/frost/poison use 0.5, the
+  developer wants effects to be a chance, never a guarantee) and
   auraScene (spawned under the sprite on equip). Aura scenes use
   WeaponAuraClass: any Sprite2D child gets the weapon texture (glow via
   enchant.gdshader), any CPUParticles2D child emits from the blade
@@ -386,21 +400,39 @@ Example: godot/weapons/base/weapon.gd
 [Attributes]  godot/weapons/attributes/
 - AttributeClass (base/attribute.gd) = one attribute definition, a
   .tres in normal/ or special/. Exports attributeName, description
-  ("{value}" and other placeholders, % and ° written in the text),
-  stat, scaling, attackTypes, special, weight (roll chance weight;
-  specials use 0.6, attributes that need a status 0.7).
+  ("{value}", "{chance}" and other placeholders, % and ° written in
+  the text), stat, scaling, trigger, chanceScaling, attackTypes,
+  special, inRandomPool, weight (roll chance weight; specials use 0.6,
+  attributes that need something else on the weapon 0.7-0.8).
+- inRandomPool = ON/OFF switch: off = never picked by random rolls
+  (still usable as a fixed artifact attribute). Every special .tres
+  writes it out explicitly. For now EVERY attribute is on (testing).
+- EFFECTS = trigger + chance (developer: effects are a chance, never a
+  guarantee). trigger (enum AttributeClass.Trigger): NONE, ATTACK,
+  HIT, CRIT, KILL. chanceScaling = chance per trigger (scales with
+  quality/level like scaling; empty = always). The base class turns
+  on_attack/on_hit/on_crit/on_kill into on_proc(weapon, roll, hurtbox,
+  damage) when the trigger matches and weapon.roll_chance() succeeds.
+  ATTACK procs get hurtbox null, damage 0. Kill/crit buffs (Frenzy,
+  Bloodlust, Adrenaline, Precision, Wind Up) have no chance: they are
+  conditional stat bonuses, not effects.
 - attackTypes = AttackTypeClass list where it can roll. Empty = every
   attack type. ONE attribute works for many attack types: add the
   type to its list instead of making a copy (e.g. Slash Size is
   [slash]; a future smash just gets added and reads the same stat).
 - stat (enum AttributeClass.Stat): NONE, DAMAGE, CRIT_CHANCE,
   CRIT_DAMAGE, ATTACK_SPEED, KNOCKBACK, ATTACK_SIZE, ATTACK_ARC,
-  EXTRA_TARGETS, STATUS_DAMAGE, MOVE_SPEED (10), STATUS_DURATION (11).
+  EXTRA_TARGETS, STATUS_DAMAGE, MOVE_SPEED (10), STATUS_DURATION (11),
+  EFFECT_CHANCE (12), EFFECT_AREA (13).
   Plain stat attributes need no script: code reads
   weapon.get_stat(stat) where the stat matters (slash reads
   ATTACK_SIZE, ATTACK_ARC, EXTRA_TARGETS; player reads MOVE_SPEED;
-  register_hit reads STATUS_DURATION). Only ADD new stats at the
+  apply_status reads STATUS_DURATION; roll_chance reads EFFECT_CHANCE;
+  area effects read EFFECT_AREA). Only ADD new stats/triggers at the
   end of the enum (.tres files store the number).
+  get_stat asks every attribute get_stat_bonus(stat, quality, level)
+  (default: value if stat matches), so one attribute can give several
+  stats (TradeoffAttributeClass).
 - AttributeScalingClass (base/, embedded in the .tres): minBase,
   maxBase (value at attribute level 0 for the worst/best roll),
   perStep added every levelsPerStep levels, maxValue (0 = no cap),
@@ -408,48 +440,71 @@ Example: godot/weapons/base/weapon.gd
   (percent), whole numbers or 0.1. format_number(value) (static) =
   max 1 decimal, used for {duration} placeholders.
 - AttributeRollClass (base/) = one rolled attribute on an item:
-  attribute + quality (0-1). get_value(level), get_description(level).
+  attribute + quality (0-1). get_value(level), get_chance(level),
+  get_description(level).
 - Behavior hooks (override in a script extending AttributeClass):
-  can_roll(weapon, chosen), on_equip(weapon, roll), on_attack(weapon,
-  roll), on_hit(weapon, roll, hurtbox, damage), on_kill(weapon, roll,
-  hurtbox, damage) (the hit killed it; area/lightning/status kills do
-  not count), modify_attack_damage(weapon, roll, damage) (whole attack,
-  in setup_hitbox), modify_hit_damage(weapon, roll, hurtbox, damage)
-  (per target), get_description_values(quality, level). Definitions
-  are shared: keep no state in them (timed state = weapon buffs).
-  Helper: get_hurtboxes_in_radius(weapon, center, radius, layer)
-  (living hurtboxes only).
-  behaviors/: HealthDamageAttributeClass (bonus damage when target
-  health is between minHealth and maxHealth), StatusBoostAttributeClass
-  (only rolls if the weapon applies a status; includeDebuffs = a
-  DebuffAttribute also counts), StatusTargetDamageAttributeClass
-  (extends StatusBoost, bonus damage to targets with any active
-  status), StatusAttributeClass
-  (element = a StatusOnHitEffect .tres: status damage = weapon damage
-  x status power x value, adds the element aura unless the weapon
-  already has it, never rolls with a status that cancels another one:
-  burn vs frost), DebuffAttributeClass (status .tres applied on hit:
-  value = set_strength(value), or valueIsChance = value is the chance
-  and the .tres strength is used; {duration} = status duration),
-  LifeStealAttributeClass (heals wielder healthComponent),
-  AreaDamageAttributeClass (radius, damages other hurtboxes on the
-  same layer + vfx/shockwave; onKill = only when the hit kills),
-  ProjectileAttributeClass (projectileScene, countScaling,
-  spreadAngle, fires at aimRotation), DoubleStrikeAttributeClass
-  (chance to perform matching attacks again after delay),
-  AttackCountDamageAttributeClass (everyAttacks: bonus damage when
-  attackCount is a multiple), CullAttributeClass (hit that leaves the
-  target below value% health deals its remaining health),
-  BuffAttributeClass (trigger HIT or KILL adds a weapon buff:
-  buffStat, duration, maxStacks; {duration} {stacks}),
-  ChainLightningAttributeClass (chance, countScaling jumps to the
-  nearest new enemy within jumpRange, damage = hit damage x value,
-  damageType lightning, vfx/lightning; {chance} {count}).
+  can_roll(weapon, chosen), uses_stat(stat) (true = this attribute
+  benefits from that stat, e.g. area effects use EFFECT_AREA; default:
+  EFFECT_CHANCE if it has a chanceScaling), on_equip(weapon, roll),
+  on_proc(weapon, roll, hurtbox, damage) (the effect, see EFFECTS),
+  on_attack/on_hit/on_crit/on_kill (raw events; only override for
+  non-chance logic), modify_attack_damage(weapon, roll, damage) (whole
+  attack, in setup_hitbox), modify_hit_damage(weapon, roll, hurtbox,
+  damage) (per target), get_stat_bonus(stat, quality, level),
+  get_description_values(quality, level). Definitions are shared:
+  keep no state in them (timed state = weapon buffs).
+  Kills = the hit brought the target to 0 (area/lightning/status
+  kills do not count).
+  Helpers: get_hurtboxes_in_radius(weapon, center, radius, layer),
+  spawn_shockwave(weapon, center, radius, color, shrink),
+  static is_stat_used(weapon, chosen, stat) (weapon effects or chosen
+  attributes use that stat).
+  behaviors/:
+  * StatBoostAttributeClass: only rolls when is_stat_used(its stat,
+    or requiredStat if set) (Elemental Power, Lingering, Lucky, Wide
+    Impact). StatusTargetDamageAttributeClass extends it (bonus damage
+    to targets with any status; Opportunist, requiredStat
+    STATUS_DURATION = anything that applies a status).
+  * HealthDamageAttributeClass (bonus damage when target health is
+    between minHealth and maxHealth), CullAttributeClass (hit that
+    leaves the target below value% health deals its remaining health),
+    AttackCountDamageAttributeClass (everyAttacks), MovementDamage
+    AttributeClass (whileMoving true/false: wielder velocity above
+    minSpeed), NearbyEnemiesDamageAttributeClass (mode ISOLATED = bonus
+    when no other enemy within radius, PER_ENEMY = bonus per enemy up
+    to maxEnemies; {max}), TradeoffAttributeClass (secondStat +
+    secondScaling, usually negative; {second}).
+  * StatusAttributeClass (element = a StatusOnHitEffect .tres: status
+    damage = weapon damage x status power x value, adds the element aura
+    unless the weapon already has it, never rolls with a status that
+    cancels another one: burn vs frost).
+  * DebuffAttributeClass (status .tres; value = set_strength(value),
+    damageFromHit = set_damage(hit damage x value x (1 + Status
+    Damage)), no scaling = status used as is; radius 0 = the hit target,
+    radius > 0 = everyone around the target + shockwave in color;
+    {duration} = status duration).
+  * AreaDamageAttributeClass (radius, includeTarget, damageType (empty
+    = weapon's), useWeaponColor/color, skyLightning; damage = hit
+    damage x value, or weapon damage x value around the wielder for
+    ATTACK triggers, targetLayer then used).
+  * ProjectileAttributeClass (projectileScene, countScaling,
+    spreadAngle, spawnDistance; ATTACK = fired from the wielder at
+    aimRotation, HIT/KILL = burst in all directions from the target).
+  * KnockbackAreaAttributeClass (radius, force, pull; everyone around
+    the target, shrinking ring when pulling), ContagionAttributeClass
+    (copies the target's active statuses to everyone within radius;
+    only rolls with a status source), CooldownResetAttributeClass
+    (weapon.reset_cooldown()), BuffAttributeClass (adds a weapon buff:
+    buffStat, duration, maxStacks; {duration} {stacks}),
+    ChainLightningAttributeClass (countScaling jumps to the nearest new
+    enemy within jumpRange, damage = hit damage x value; {count}),
+    DoubleStrikeAttributeClass (performs matching attacks again after
+    delay), LifeStealAttributeClass (heals wielder healthComponent).
 - AttributePoolClass (pool/attribute_pool.tres, preloaded by the item
   as ATTRIBUTE_POOL): attributes (every rollable attribute),
   maxAttributes (5). roll_attributes(item, kept): weapon
   fixedAttributes first (copied), then kept ones, then random picks
-  (weighted, no duplicates, can_roll, specials only up to
+  (weighted, no duplicates, inRandomPool, can_roll, specials only up to
   rarity.maxSpecialAttributes; fixed specials count too).
   New attribute = .tres (+ behavior script if it does something new)
   and add it to attribute_pool.tres.
@@ -457,35 +512,54 @@ Example: godot/weapons/base/weapon.gd
   percent values reach about 50% only at attribute level 30 with a
   perfect roll; level 0 values are small (old values like 70-80% at
   low levels felt insane). Plain Damage/Attack Speed stay near 20%.
-- Normal (all attack types unless noted), level 0 worst..best, +step,
-  (best at level 30):
-  Damage 3-5% +0.5%/lvl (20%), Crit Chance 2-4% +1%/3 lvls (14%),
-  Crit Damage 10-15% +1%/lvl (45%), Attack Speed 3-5% +0.4%/lvl (17%),
-  Knockback 20-30 +1/lvl (60), First Strike (full health) 15-20%
-  +1%/lvl (50%), Executioner (below 35%) 10-15% +1%/lvl (45%),
-  Elemental Power (status damage, needs an element) 8-12% +1%/lvl
-  (42%), Slash Size [slash] 3-5% +0.4%/lvl (17%), Slash Arc [slash]
-  4-6° +1°/2 lvls (21°), Cleave [slash] +1 target, +1 every 15 lvls
-  (3), Heavy Strike (every 4th attack) 15-20% +1%/lvl (50%),
-  Opportunist (damage to targets with a status, needs a status or
-  debuff) 8-12% +0.8%/lvl (36%), Lingering (status duration, needs a
-  status or debuff) 10-15% +1%/lvl (45%), Swiftness (move speed)
-  3-5% +0.3%/lvl (14%), Crippling Blows (hits slow 1.5s) 8-12%
-  +0.5%/lvl (27%), Adrenaline (kills: move speed 3s) 8-12% +0.5%/lvl
-  (27%).
-- Special: Life Steal 1-2% +0.1%/lvl (5%), Area Damage 15-20% +1%/lvl
-  (50%, radius 20), Blade Waves [slash] 20-25% damage +0.8%/lvl (49%),
-  count 1 +1 every 10 lvls max 3, Burn 5-8% damage per tick +0.4%/lvl
-  (20%), Frostbite 30-35% +0.5%/lvl (50%), Poison 1.5-2% per stack
-  +0.1%/lvl (5%), Double Strike [slash] 8-12% chance +0.4%/lvl (24%),
-  Chain Lightning (25% chance per hit) 25-30% damage +0.6%/lvl (48%),
-  jumps 2 +1 every 15 lvls max 4, range 36, Sunder (targets take more
-  damage 3s) 6-8% +0.3%/lvl (17%), Culling (kill below x% health)
-  4-6% +0.1%/lvl (9%), Detonation (kills explode, radius 24) 25-30%
-  +0.6%/lvl (48%), Frenzy (kills: attack speed 3s) 10-15% +0.5%/lvl
-  (30%), Bloodlust (kills: damage 5s, stacks x5) 2-3% +0.1%/lvl (6%
-  per stack), Concussive Blows (stun chance, 0.6s) 4-6% +0.2%/lvl
-  (12%).
+- 56 attributes (31 normal, 25 special). Exact numbers live in the
+  .tres files.
+  Value = level 0 worst-best (best at level 30); chance the same way.
+- Normal (all attack types unless noted):
+  Damage 3-5% (20%), Crit Chance 2-4% (14%), Crit Damage 10-15% (45%),
+  Attack Speed 3-5% (17%), Knockback 20-30 (60), First Strike (full
+  health) 15-20% (50%), Executioner (below 35%) 10-15% (45%), Elemental
+  Power (status damage) 8-12% (42%), Slash Size [slash] 3-5% (17%),
+  Slash Arc [slash] 4-6° (21°), Cleave [slash] +1 (3), Heavy Strike
+  (every 4th attack) 15-20% (50%), Opportunist (vs afflicted) 8-12%
+  (36%), Lingering (status duration) 10-15% (45%), Swiftness (move
+  speed) 3-5% (14%), Crippling Blows (HIT 20-25% (40%): slow 8-12%
+  (27%) 1.5s), Adrenaline (kills: move speed 3s) 8-12% (27%), Lucky
+  (effect chance) 5-8% (23%), Wide Impact (effect area) 6-10% (28%),
+  Momentum (damage while moving) / Steadfast (standing still) 8-12%
+  (36%), Duelist (lone enemies, radius 28) 10-15% (45%), Brawler (per
+  enemy within 32, x5) 2-3% (9%), Wind Up (attacks: attack speed 1.5s
+  x8) 1-1.5% (4.5%), Precision (crits: crit chance 3s x5) 1-1.5%
+  (4.5%), Lacerate (HIT 20-25% (40%): bleed 20-25% (49%) of the hit
+  over 3s), Relentless (KILL 15-20% (35%): reset attack), Heavy Blade
+  (+15-20% (44%) damage, -12..-8% attack speed), Featherweight
+  (+10-13% (28%) attack speed, -10..-6% damage), Reckless (+20-25%
+  (49%) crit damage, -4..-2% crit chance), Colossus [slash] (+8-12%
+  (27%) slash size, -10..-6% attack speed).
+- Special:
+  Life Steal 1-2% (5%), Area Damage (HIT 20-25% (40%): 30-35% (50%),
+  radius 20), Blade Waves [slash] (ATTACK 25-30% (45%): 30-35% (50%),
+  count 1 +1/10 lvls max 3), Burn (HIT 30-35% (50%): 5-8% (20%) per
+  tick), Frostbite (HIT 40-45% (60%): 30-35% (50%)), Poison (HIT 30-35%
+  (50%): 1.5-2% (5%) per stack), Double Strike [slash] (ATTACK 8-12%
+  (24%)), Chain Lightning (HIT 15-20% (29%): 25-30% (48%), jumps 2
+  +1/15 lvls max 4), Sunder (HIT 20-25% (40%): +6-8% (17%) damage
+  taken 3s), Culling (below 4-6% (9%) health), Detonation (KILL 40-50%
+  (65%): 25-30% (48%), radius 24), Frenzy (kills: attack speed 3s)
+  10-15% (30%), Bloodlust (kills: damage 5s x5) 2-3% (6%), Concussive
+  Blows (HIT 4-6% (12%): stun 0.6s), Smite (HIT 12-15% (21%): sky
+  lightning 30-35% (50%) lightning area damage incl. target, radius
+  16), Nova (ATTACK 15-20% (29%): 30-35% (50%) weapon damage around
+  you, radius 30), Critical Burst (CRIT 40-50% (65%): explode 25-30%
+  (48%), radius 20), Contagion (KILL 40-50% (80%): spread the
+  target's statuses, radius 32), Shrapnel (KILL 30-35% (50%): 3 (+1/15
+  lvls, max 5) slash wave shards 25-30% (48%) in all directions),
+  Vortex (HIT 8-12% (21%): pull enemies within 36 toward the target),
+  Repulse (HIT 8-12% (21%): push enemies within 28 away), Terrify (HIT
+  5-8% (14%): fear 1s), Thunderclap (KILL 25-35% (50%): stun everyone
+  within 28), Time Warp (KILL 30-40% (55%): slow everyone within 32 by
+  25-30% (45%)), Spirit Orbs (ATTACK 20-25% (40%): 1 (+1/10 lvls, max
+  3) homing orbs 25-30% (48%)).
 - SlashAttack maxTargets (3, spear 4) + Cleave = enemies per slash.
 
 [Combat level]  godot/combat_level/
@@ -563,12 +637,13 @@ Example: godot/weapons/base/weapon.gd
   spark particles + glowing orbs). Vars: color, strength,
   sparkAmount, orbAmount, angle.
 - shockwave/: ShockwaveClass expanding ring + soft flash (radius,
-  color), used by Area Damage. Kept subtle: several at once must not
-  blow out to white.
+  color, shrink = ring closes inward, used by Vortex), used by area
+  attributes. Kept subtle: several at once must not blow out to white.
 - lightning/: LightningClass jagged bolt between points (global
   positions, node sits at the scene origin), drawn with draw_polyline
   (glow + colored + white core, additive), re-jagged every flickerTime,
-  fades over duration. Vars: points, color. Used by Chain Lightning.
+  fades over duration. Vars: points, color. Used by Chain Lightning
+  and Smite (bolt from above the target).
 
 [Status effects]  godot/status_effects/
 - StatusEffectClass (base/): Resource with effectName, duration,
@@ -616,13 +691,20 @@ Example: godot/weapons/base/weapon.gd
 - Sunder (sunder/): SunderEffectClass damageTakenBonus (target takes
   x (1 + bonus) damage from everything; refresh keeps highest, combine
   adds). sunder.tres 3s, sunder_shards.tscn (red glow + shards).
+- Fear (fear/): FearEffectClass fleeSpeed (speed multiplier =
+  -fleeSpeed: enemies walk backwards along their path, then return).
+  fear.tres 1s, fear_wisps.tscn (purple wisps above the head).
+- Bleed (bleed/): BleedEffectClass totalDamage dealt spread over the
+  remaining ticks (refresh adds the new damage to what is left, combine
+  adds), damageType bleed (red). bleed.tres 3s, tick 0.5s,
+  bleed_drops.tscn (red pixel drops).
 - Targets need a StatusComponent (+ hurtbox statusComponent set) to
   receive effects. Test dummies have one.
 
 [Damage types]  godot/damage/
 - DamageTypeClass (base/damage_type.gd): typeName, color, critColor.
 - New damage type = new .tres in damage/types/ (physical, fire, ice,
-  poison, lightning exist). Set it on a weapon (damageType).
+  poison, lightning, bleed exist). Set it on a weapon (damageType).
 - vfx/damage_number/: DamageNumberClass pops, rises, fades. Crit =
   bigger, critColor, "!" suffix. Text via NumberFormatClass.
 
@@ -781,3 +863,10 @@ Input actions: left, right, up, down (WASD), attack (left mouse).
             no longer get hit. Path preview only shows routes the
             next wave's enemies walk; test scene lower-left branch
             removed.
+            Fix: slash stopped hitting 0 HP dummies (dead skip removed,
+            kills tracked with lastHitKilled). Effects are now trigger
+            + chance (ATTACK/HIT/CRIT/KILL, chanceScaling, Effect
+            Chance stat), element weapons 50%. inRandomPool switch.
+            25 new attributes (56 total), fear + bleed statuses, spirit
+            orb homing projectile, tradeoff attributes. Test panel
+            shows roll quality as bars.

@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="DebuffAttributeClass" format=3]
+
+[ext_resource type="Script" path="res://weapons/attributes/behaviors/debuff_attribute.gd" id="1_attribute"]
+[ext_resource type="Script" path="res://weapons/attributes/base/attribute_scaling.gd" id="2_scaling"]
+[ext_resource type="Resource" path="res://status_effects/fear/fear.tres" id="3_status"]
+
+[sub_resource type="Resource" id="Resource_chance"]
+script = ExtResource("2_scaling")
+minBase = 0.05
+maxBase = 0.08
+perStep = 0.002
+percent = true
+
+[resource]
+script = ExtResource("1_attribute")
+status = ExtResource("3_status")
+attributeName = "Terrify"
+description = "{chance}% Fear: enemies flee {duration}s"
+trigger = 2
+chanceScaling = SubResource("Resource_chance")
+special = true
+inRandomPool = true
+weight = 0.6

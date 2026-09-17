@@ -1,6 +1,6 @@
-[gd_resource type="Resource" script_class="StatusBoostAttributeClass" format=3]
+[gd_resource type="Resource" script_class="StatBoostAttributeClass" format=3]
 
-[ext_resource type="Script" path="res://weapons/attributes/behaviors/status_boost_attribute.gd" id="1_attribute"]
+[ext_resource type="Script" path="res://weapons/attributes/behaviors/stat_boost_attribute.gd" id="1_attribute"]
 [ext_resource type="Script" path="res://weapons/attributes/base/attribute_scaling.gd" id="2_scaling"]
 
 [sub_resource type="Resource" id="Resource_scaling"]
@@ -12,7 +12,6 @@ percent = true
 
 [resource]
 script = ExtResource("1_attribute")
-includeDebuffs = true
 attributeName = "Lingering"
 description = "+{value}% Status Duration"
 stat = 11

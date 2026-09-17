@@ -29,17 +29,15 @@ var activeEffects : Array[WeaponEffectClass]
 var hitStatuses : Dictionary[String, StatusEffectClass] = {}
 var buffs : Dictionary[AttributeRollClass, AttributeBuffClass] = {}
 var attackCount : int = 0
+var cooldownId : int = 0
 
 #------------------------#
 
 func _ready() -> void:
 	for attackNode in get_attacks():
 		attackNode.weapon = self
-	for effect in effects:
+	for effect in get_all_effects():
 		activeEffects.append(effect.duplicate())
-	if rarity:
-		for effect in rarity.effects:
-			activeEffects.append(effect.duplicate())
 	update_flip()
 	visuals.rotation = get_hold_rotation()
 	add_enchant()
@@ -90,6 +88,17 @@ func get_attacks() -> Array[AttackClass]:
 			attacks.append(child)
 	return attacks
 
+func get_all_effects() -> Array[WeaponEffectClass]:
+	var allEffects : Array[WeaponEffectClass] = effects.duplicate()
+	if rarity:
+		allEffects.append_array(rarity.effects)
+	return allEffects
+
+func get_origin() -> Vector2:
+	if wielder:
+		return wielder.global_position
+	return global_position
+
 func get_color() -> Color:
 	var attacks : Array[AttackClass] = get_attacks()
 	if not attacks.is_empty():
@@ -122,10 +131,19 @@ func attack() -> void:
 		effect.on_attack(self)
 	for roll in attributes:
 		roll.attribute.on_attack(self, roll)
-	get_tree().create_timer(get_attack_cooldown(), true, false, true).timeout.connect(end_cooldown)
+	cooldownId += 1
+	get_tree().create_timer(get_attack_cooldown(), true, false, true).timeout.connect(end_cooldown.bind(cooldownId))
 
-func end_cooldown() -> void:
+func end_cooldown(id : int) -> void:
+	if id == cooldownId:
+		canAttack = true
+
+func reset_cooldown() -> void:
+	cooldownId += 1
 	canAttack = true
+
+func roll_chance(chance : float) -> bool:
+	return randf() < chance * (1.0 + get_stat(AttributeClass.Stat.EFFECT_CHANCE))
 
 func setup_hitbox(hitbox : HitboxComponentClass, damageMultiplier : float = 1.0) -> void:
 	var attackDamage : float = get_damage() * damageMultiplier
@@ -145,20 +163,26 @@ func modify_hit_damage(hurtbox : HurtboxComponentClass, hitDamage : float) -> fl
 func register_hit(hurtbox : HurtboxComponentClass, hitDamage : float) -> void:
 	if not is_instance_valid(hurtbox):
 		return
-	var killed : bool = hurtbox.is_dead()
+	var killed : bool = hurtbox.lastHitKilled
+	var crit : bool = hurtbox.lastHitCrit
 	for effect in activeEffects:
 		effect.on_hit(self, hurtbox, hitDamage)
 	for roll in attributes:
 		roll.attribute.on_hit(self, roll, hurtbox, hitDamage)
+	if crit:
+		for roll in attributes:
+			roll.attribute.on_crit(self, roll, hurtbox, hitDamage)
 	if killed:
 		for roll in attributes:
 			roll.attribute.on_kill(self, roll, hurtbox, hitDamage)
 	apply_knockback(hurtbox)
-	var durationMultiplier : float = 1.0 + get_stat(AttributeClass.Stat.STATUS_DURATION)
 	for status : StatusEffectClass in hitStatuses.values():
-		status.duration *= durationMultiplier
-		hurtbox.apply_status(status)
+		apply_status(hurtbox, status)
 	hitStatuses.clear()
+
+func apply_status(hurtbox : HurtboxComponentClass, status : StatusEffectClass) -> void:
+	status.duration *= 1.0 + get_stat(AttributeClass.Stat.STATUS_DURATION)
+	hurtbox.apply_status(status)
 
 func add_hit_status(status : StatusEffectClass) -> void:
 	if hitStatuses.has(status.effectName):
@@ -197,8 +221,7 @@ func get_stat(stat : AttributeClass.Stat) -> float:
 	var total : float = 0.0
 	var level : int = get_attribute_level()
 	for roll in attributes:
-		if roll.attribute.stat == stat:
-			total += roll.get_value(level)
+		total += roll.attribute.get_stat_bonus(stat, roll.quality, level)
 	for buff : AttributeBuffClass in buffs.values():
 		if buff.stat == stat:
 			total += buff.get_value(level)
@@ -229,3 +252,6 @@ func get_attack_cooldown() -> float:
 
 func get_knockback() -> float:
 	return knockback + get_stat(AttributeClass.Stat.KNOCKBACK)
+
+func get_area_multiplier() -> float:
+	return 1.0 + get_stat(AttributeClass.Stat.EFFECT_AREA)

@@ -10,12 +10,21 @@ maxBase = 0.3
 perStep = 0.006
 percent = true
 
+[sub_resource type="Resource" id="Resource_chance"]
+script = ExtResource("2_scaling")
+minBase = 0.4
+maxBase = 0.5
+perStep = 0.005
+percent = true
+
 [resource]
 script = ExtResource("1_attribute")
 radius = 24.0
-onKill = true
 attributeName = "Detonation"
-description = "Kills explode for {value}% damage"
+description = "{chance}% on kill: explode {value}%"
 scaling = SubResource("Resource_scaling")
+trigger = 4
+chanceScaling = SubResource("Resource_chance")
 special = true
+inRandomPool = true
 weight = 0.6

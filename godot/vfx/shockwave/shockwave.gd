@@ -9,6 +9,7 @@ class_name ShockwaveClass
 
 var radius : float = 20.0
 var color : Color = Color.WHITE
+var shrink : bool = false
 var elapsed : float = 0.0
 
 #------------------------#
@@ -28,7 +29,10 @@ func _process(delta : float) -> void:
 func update_shockwave() -> void:
 	var progress : float = elapsed / duration
 	var grow : float = 1.0 - pow(1.0 - progress, 3.0)
-	ring.scale = Vector2.ONE * radius / (ring.texture.get_width() * 0.5 * 0.85) * lerpf(0.25, 1.0, grow)
+	var ringSize : float = lerpf(0.25, 1.0, grow)
+	if shrink:
+		ringSize = lerpf(1.0, 0.2, grow)
+	ring.scale = Vector2.ONE * radius / (ring.texture.get_width() * 0.5 * 0.85) * ringSize
 	ring.modulate.a = 1.0 - progress
 	flash.scale = Vector2.ONE * radius / (flash.texture.get_width() * 0.5) * lerpf(0.3, 0.6, grow)
 	flash.modulate.a = pow(1.0 - progress, 2.0)

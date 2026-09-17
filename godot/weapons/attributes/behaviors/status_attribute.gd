@@ -8,10 +8,7 @@ class_name StatusAttributeClass
 
 static func get_statuses(weapon : WeaponClass, chosen : Array[AttributeClass]) -> Array[StatusEffectClass]:
 	var statuses : Array[StatusEffectClass] = []
-	var weaponEffects : Array[WeaponEffectClass] = weapon.effects.duplicate()
-	if weapon.rarity:
-		weaponEffects.append_array(weapon.rarity.effects)
-	for effect in weaponEffects:
+	for effect in weapon.get_all_effects():
 		var statusEffect : StatusOnHitEffectClass = effect as StatusOnHitEffectClass
 		if statusEffect and statusEffect.status:
 			statuses.append(statusEffect.status)
@@ -35,6 +32,9 @@ func can_roll(weapon : WeaponClass, chosen : Array[AttributeClass]) -> bool:
 			return false
 	return true
 
+func uses_stat(usedStat : Stat) -> bool:
+	return usedStat == Stat.STATUS_DAMAGE or usedStat == Stat.STATUS_DURATION or super(usedStat)
+
 func on_equip(weapon : WeaponClass, _roll : AttributeRollClass) -> void:
 	for effect in weapon.activeEffects:
 		var statusEffect : StatusOnHitEffectClass = effect as StatusOnHitEffectClass
@@ -42,7 +42,7 @@ func on_equip(weapon : WeaponClass, _roll : AttributeRollClass) -> void:
 			return
 	element.on_equip(weapon)
 
-func on_hit(weapon : WeaponClass, roll : AttributeRollClass, _hurtbox : HurtboxComponentClass, _damage : float) -> void:
+func on_proc(weapon : WeaponClass, roll : AttributeRollClass, _hurtbox : HurtboxComponentClass, _damage : float) -> void:
 	var status : StatusEffectClass = element.status.duplicate()
 	status.set_damage(weapon.damage * weapon.get_status_power() * roll.get_value(weapon.get_attribute_level()))
 	weapon.add_hit_status(status)

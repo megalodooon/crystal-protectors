@@ -32,7 +32,7 @@ func resolve_hits() -> void:
 	for hurtbox in pendingHurtboxes:
 		if maxHits > 0 and hitCount >= maxHits:
 			break
-		if is_instance_valid(hurtbox) and not hurtbox.is_dead():
+		if is_instance_valid(hurtbox):
 			hit_hurtbox(hurtbox)
 	pendingHurtboxes.clear()
 

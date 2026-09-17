@@ -4,7 +4,7 @@ class_name LifeStealAttributeClass
 
 #------------------------#
 
-func on_hit(weapon : WeaponClass, roll : AttributeRollClass, _hurtbox : HurtboxComponentClass, damage : float) -> void:
+func on_proc(weapon : WeaponClass, roll : AttributeRollClass, _hurtbox : HurtboxComponentClass, damage : float) -> void:
 	if not weapon.wielder:
 		return
 	var health : HealthComponentClass = weapon.wielder.get("healthComponent") as HealthComponentClass

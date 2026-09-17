@@ -8,9 +8,16 @@
 
 [sub_resource type="Resource" id="Resource_scaling"]
 script = ExtResource("2_scaling")
-minBase = 0.2
-maxBase = 0.25
-perStep = 0.008
+minBase = 0.3
+maxBase = 0.35
+perStep = 0.005
+percent = true
+
+[sub_resource type="Resource" id="Resource_chance"]
+script = ExtResource("2_scaling")
+minBase = 0.25
+maxBase = 0.3
+perStep = 0.005
 percent = true
 
 [sub_resource type="Resource" id="Resource_count"]
@@ -25,10 +32,13 @@ wholeNumber = true
 [resource]
 script = ExtResource("1_attribute")
 projectileScene = ExtResource("5_projectile")
-attributeName = "Blade Waves"
-description = "Blade Waves x{count}: {value}% damage"
-scaling = SubResource("Resource_scaling")
 countScaling = SubResource("Resource_count")
+attributeName = "Blade Waves"
+description = "{chance}% Blade Waves x{count}: {value}%"
+scaling = SubResource("Resource_scaling")
+trigger = 1
+chanceScaling = SubResource("Resource_chance")
 attackTypes = Array[ExtResource("3_attack_type")]([ExtResource("4_slash")])
 special = true
+inRandomPool = true
 weight = 0.6

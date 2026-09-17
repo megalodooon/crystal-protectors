@@ -1,0 +1,64 @@
+[gd_scene format=3]
+
+[sub_resource type="Gradient" id="Gradient_soft"]
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_soft"]
+gradient = SubResource("Gradient_soft")
+width = 6
+height = 6
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 0)
+
+[sub_resource type="Gradient" id="Gradient_wisp_color"]
+offsets = PackedFloat32Array(0, 0.3, 1)
+colors = PackedColorArray(0.55, 0.25, 0.8, 0, 0.55, 0.25, 0.8, 0.9, 0.2, 0.05, 0.35, 0)
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_add"]
+blend_mode = 1
+
+[sub_resource type="Gradient" id="Gradient_spark_color"]
+offsets = PackedFloat32Array(0, 0.2, 1)
+colors = PackedColorArray(0.9, 0.75, 1, 0, 0.9, 0.75, 1, 1, 0.7, 0.4, 1, 0)
+
+[node name="FearWisps" type="Node2D"]
+z_index = 1
+
+[node name="Wisps" type="CPUParticles2D" parent="."]
+texture_filter = 2
+position = Vector2(0, -6)
+amount = 6
+texture = SubResource("GradientTexture2D_soft")
+lifetime = 0.7
+randomness = 0.4
+local_coords = false
+emission_shape = 3
+emission_rect_extents = Vector2(5, 2)
+direction = Vector2(0, -1)
+spread = 30.0
+gravity = Vector2(0, -10)
+initial_velocity_min = 4.0
+initial_velocity_max = 8.0
+scale_amount_min = 0.7
+scale_amount_max = 1.1
+color_ramp = SubResource("Gradient_wisp_color")
+
+[node name="Sparks" type="CPUParticles2D" parent="."]
+texture_filter = 2
+material = SubResource("CanvasItemMaterial_add")
+position = Vector2(0, -10)
+amount = 3
+texture = SubResource("GradientTexture2D_soft")
+lifetime = 0.5
+randomness = 0.5
+emission_shape = 3
+emission_rect_extents = Vector2(4, 1)
+direction = Vector2(0, -1)
+spread = 60.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 6.0
+initial_velocity_max = 10.0
+scale_amount_min = 0.4
+scale_amount_max = 0.6
+color_ramp = SubResource("Gradient_spark_color")

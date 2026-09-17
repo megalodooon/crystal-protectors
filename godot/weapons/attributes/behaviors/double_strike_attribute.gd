@@ -6,9 +6,7 @@ class_name DoubleStrikeAttributeClass
 
 #------------------------#
 
-func on_attack(weapon : WeaponClass, roll : AttributeRollClass) -> void:
-	if randf() >= roll.get_value(weapon.get_attribute_level()):
-		return
+func on_proc(weapon : WeaponClass, _roll : AttributeRollClass, _hurtbox : HurtboxComponentClass, _damage : float) -> void:
 	weapon.get_tree().create_timer(delay).timeout.connect(strike_again.bind(weakref(weapon)))
 
 func strike_again(weaponRef : WeakRef) -> void:

@@ -11,9 +11,18 @@ maxBase = 0.12
 perStep = 0.005
 percent = true
 
+[sub_resource type="Resource" id="Resource_chance"]
+script = ExtResource("2_scaling")
+minBase = 0.2
+maxBase = 0.25
+perStep = 0.005
+percent = true
+
 [resource]
 script = ExtResource("1_attribute")
 status = ExtResource("3_status")
 attributeName = "Crippling Blows"
-description = "Hits: {value}% Slow for {duration}s"
+description = "{chance}% Slow: {value}% for {duration}s"
 scaling = SubResource("Resource_scaling")
+trigger = 2
+chanceScaling = SubResource("Resource_chance")

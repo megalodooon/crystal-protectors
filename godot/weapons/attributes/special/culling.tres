@@ -16,4 +16,5 @@ attributeName = "Culling"
 description = "Cull enemies below {value}% health"
 scaling = SubResource("Resource_scaling")
 special = true
+inRandomPool = true
 weight = 0.6

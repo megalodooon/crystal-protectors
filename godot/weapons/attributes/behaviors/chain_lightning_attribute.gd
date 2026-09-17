@@ -4,7 +4,6 @@ class_name ChainLightningAttributeClass
 
 const LIGHTNING_SCENE := preload("res://vfx/lightning/lightning.tscn")
 
-@export_range(0.0, 1.0) var chance : float = 0.25
 @export var countScaling : AttributeScalingClass
 @export var jumpRange : float = 36.0
 @export var damageType : DamageTypeClass
@@ -15,11 +14,10 @@ const LIGHTNING_SCENE := preload("res://vfx/lightning/lightning.tscn")
 func get_description_values(quality : float, level : int) -> Dictionary:
 	var values : Dictionary = super(quality, level)
 	values["count"] = countScaling.format_value(countScaling.get_value(quality, level))
-	values["chance"] = str(roundi(chance * 100.0))
 	return values
 
-func on_hit(weapon : WeaponClass, roll : AttributeRollClass, hurtbox : HurtboxComponentClass, damage : float) -> void:
-	if randf() >= chance:
+func on_proc(weapon : WeaponClass, roll : AttributeRollClass, hurtbox : HurtboxComponentClass, damage : float) -> void:
+	if not hurtbox:
 		return
 	var level : int = weapon.get_attribute_level()
 	var chainDamage : float = damage * roll.get_value(level)
