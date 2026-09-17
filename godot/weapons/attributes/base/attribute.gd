@@ -2,7 +2,7 @@ extends Resource
 class_name AttributeClass
 
 
-enum Stat { NONE, DAMAGE, CRIT_CHANCE, CRIT_DAMAGE, ATTACK_SPEED, KNOCKBACK, ATTACK_SIZE, ATTACK_ARC, EXTRA_TARGETS, STATUS_DAMAGE }
+enum Stat { NONE, DAMAGE, CRIT_CHANCE, CRIT_DAMAGE, ATTACK_SPEED, KNOCKBACK, ATTACK_SIZE, ATTACK_ARC, EXTRA_TARGETS, STATUS_DAMAGE, MOVE_SPEED, STATUS_DURATION }
 
 @export var attributeName : String
 @export var description : String = "+{value} {name}"
@@ -46,5 +46,27 @@ func on_attack(_weapon : WeaponClass, _roll : AttributeRollClass) -> void:
 func on_hit(_weapon : WeaponClass, _roll : AttributeRollClass, _hurtbox : HurtboxComponentClass, _damage : float) -> void:
 	pass
 
+func on_kill(_weapon : WeaponClass, _roll : AttributeRollClass, _hurtbox : HurtboxComponentClass, _damage : float) -> void:
+	pass
+
+func modify_attack_damage(_weapon : WeaponClass, _roll : AttributeRollClass, damage : float) -> float:
+	return damage
+
 func modify_hit_damage(_weapon : WeaponClass, _roll : AttributeRollClass, _hurtbox : HurtboxComponentClass, damage : float) -> float:
 	return damage
+
+func get_hurtboxes_in_radius(weapon : WeaponClass, center : Vector2, radius : float, layer : int) -> Array[HurtboxComponentClass]:
+	var shape : CircleShape2D = CircleShape2D.new()
+	shape.radius = radius
+	var query : PhysicsShapeQueryParameters2D = PhysicsShapeQueryParameters2D.new()
+	query.shape = shape
+	query.transform = Transform2D(0.0, center)
+	query.collide_with_areas = true
+	query.collide_with_bodies = false
+	query.collision_mask = layer
+	var hurtboxes : Array[HurtboxComponentClass] = []
+	for result : Dictionary in weapon.get_world_2d().direct_space_state.intersect_shape(query):
+		var hurtbox : HurtboxComponentClass = result["collider"] as HurtboxComponentClass
+		if hurtbox and not hurtbox.is_dead():
+			hurtboxes.append(hurtbox)
+	return hurtboxes

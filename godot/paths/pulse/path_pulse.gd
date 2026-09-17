@@ -15,6 +15,7 @@ const BEND_SPAN : float = 2.0
 var style : PathPulseStyleClass
 var route : Curve2D
 var sources : Array[Vector2]
+var isSpawn : bool = false
 var heads : PackedVector2Array = []
 var headCount : int = 0
 var length : float = 0.0
@@ -57,9 +58,6 @@ func build(path : EnemyPathClass, pulseStyle : PathPulseStyleClass) -> void:
 	endDot.position = route.sample_baked(length)
 	startDot.set_colors(style.color, style.coreColor)
 	endDot.set_colors(style.color, style.coreColor)
-	if path.branchFrom:
-		startDot.queue_free()
-		startDot = null
 	if path.mergeInto:
 		endDot.queue_free()
 		endDot = null
@@ -118,10 +116,10 @@ func update_pulse(time : float, newOpacity : float, newGray : float) -> void:
 	gray = newGray
 	headCount = 0
 	var startReachTime : float = INF
+	if isSpawn:
+		startReachTime = 0.0
 	var endReachTime : float = INF
 	for source in sources:
-		if source.x <= 0.0:
-			startReachTime = minf(startReachTime, source.y)
 		endReachTime = minf(endReachTime, source.y + (length - source.x) / style.speed)
 		if time >= source.y:
 			heads[headCount] = Vector2(source.x, source.x + (time - source.y) * style.speed)
@@ -130,8 +128,7 @@ func update_pulse(time : float, newOpacity : float, newGray : float) -> void:
 	shader.set_shader_parameter("pulseCount", headCount)
 	shader.set_shader_parameter("opacity", opacity)
 	shader.set_shader_parameter("gray", gray)
-	if startDot:
-		startDot.update_dot(time - startReachTime, opacity, gray, style)
+	startDot.update_dot(time - startReachTime, opacity, gray, style)
 	if endDot:
 		endDot.update_dot(time - endReachTime, opacity, gray, style)
 	queue_redraw()

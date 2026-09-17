@@ -27,6 +27,8 @@ var swingRotation : float = 0.0
 var aimRotation : float = 0.0
 var activeEffects : Array[WeaponEffectClass]
 var hitStatuses : Dictionary[String, StatusEffectClass] = {}
+var buffs : Dictionary[AttributeRollClass, AttributeBuffClass] = {}
+var attackCount : int = 0
 
 #------------------------#
 
@@ -47,6 +49,7 @@ func _ready() -> void:
 		roll.attribute.on_equip(self, roll)
 
 func _process(delta : float) -> void:
+	update_buffs(delta)
 	if not isSwinging:
 		update_flip()
 		visuals.rotation = lerp_angle(visuals.rotation, get_hold_rotation(), minf(holdSpeed * delta, 1.0))
@@ -111,6 +114,7 @@ func attack() -> void:
 	if not canAttack:
 		return
 	canAttack = false
+	attackCount += 1
 	aimRotation = global_rotation - swingRotation
 	for attackNode in get_attacks():
 		attackNode.perform()
@@ -124,7 +128,10 @@ func end_cooldown() -> void:
 	canAttack = true
 
 func setup_hitbox(hitbox : HitboxComponentClass, damageMultiplier : float = 1.0) -> void:
-	hitbox.damage = get_damage() * damageMultiplier
+	var attackDamage : float = get_damage() * damageMultiplier
+	for roll in attributes:
+		attackDamage = roll.attribute.modify_attack_damage(self, roll, attackDamage)
+	hitbox.damage = attackDamage
 	hitbox.damageType = damageType
 	hitbox.critChance = get_crit_chance()
 	hitbox.critMultiplier = get_crit_multiplier()
@@ -138,12 +145,18 @@ func modify_hit_damage(hurtbox : HurtboxComponentClass, hitDamage : float) -> fl
 func register_hit(hurtbox : HurtboxComponentClass, hitDamage : float) -> void:
 	if not is_instance_valid(hurtbox):
 		return
+	var killed : bool = hurtbox.is_dead()
 	for effect in activeEffects:
 		effect.on_hit(self, hurtbox, hitDamage)
 	for roll in attributes:
 		roll.attribute.on_hit(self, roll, hurtbox, hitDamage)
+	if killed:
+		for roll in attributes:
+			roll.attribute.on_kill(self, roll, hurtbox, hitDamage)
 	apply_knockback(hurtbox)
+	var durationMultiplier : float = 1.0 + get_stat(AttributeClass.Stat.STATUS_DURATION)
 	for status : StatusEffectClass in hitStatuses.values():
+		status.duration *= durationMultiplier
 		hurtbox.apply_status(status)
 	hitStatuses.clear()
 
@@ -152,6 +165,22 @@ func add_hit_status(status : StatusEffectClass) -> void:
 		hitStatuses[status.effectName].combine(status)
 	else:
 		hitStatuses[status.effectName] = status
+
+func add_buff(roll : AttributeRollClass, stat : AttributeClass.Stat, duration : float, maxStacks : int) -> void:
+	if not buffs.has(roll):
+		var newBuff : AttributeBuffClass = AttributeBuffClass.new()
+		newBuff.roll = roll
+		buffs[roll] = newBuff
+	var buff : AttributeBuffClass = buffs[roll]
+	buff.stat = stat
+	buff.stacks = mini(buff.stacks + 1, maxi(maxStacks, 1))
+	buff.timeLeft = duration
+
+func update_buffs(delta : float) -> void:
+	for roll : AttributeRollClass in buffs.keys():
+		buffs[roll].timeLeft -= delta
+		if buffs[roll].timeLeft <= 0.0:
+			buffs.erase(roll)
 
 func apply_knockback(hurtbox : HurtboxComponentClass) -> void:
 	var force : float = get_knockback()
@@ -170,6 +199,9 @@ func get_stat(stat : AttributeClass.Stat) -> float:
 	for roll in attributes:
 		if roll.attribute.stat == stat:
 			total += roll.get_value(level)
+	for buff : AttributeBuffClass in buffs.values():
+		if buff.stat == stat:
+			total += buff.get_value(level)
 	return total
 
 func get_damage() -> float:

@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="BuffAttributeClass" format=3]
+
+[ext_resource type="Script" path="res://weapons/attributes/behaviors/buff_attribute.gd" id="1_attribute"]
+[ext_resource type="Script" path="res://weapons/attributes/base/attribute_scaling.gd" id="2_scaling"]
+
+[sub_resource type="Resource" id="Resource_scaling"]
+script = ExtResource("2_scaling")
+minBase = 0.08
+maxBase = 0.12
+perStep = 0.005
+percent = true
+
+[resource]
+script = ExtResource("1_attribute")
+trigger = 1
+buffStat = 10
+duration = 3.0
+maxStacks = 1
+attributeName = "Adrenaline"
+description = "Kills: +{value}% Move Speed for {duration}s"
+scaling = SubResource("Resource_scaling")

@@ -64,6 +64,18 @@ func remove_effect(effect : StatusEffectClass) -> void:
 func has_effect(effectName : String) -> bool:
 	return activeEffects.has(effectName)
 
+func get_damage_taken_multiplier() -> float:
+	var multiplier : float = 1.0
+	for effect : StatusEffectClass in activeEffects.values():
+		multiplier *= effect.get_damage_taken_multiplier()
+	return multiplier
+
+func get_speed_multiplier() -> float:
+	var multiplier : float = 1.0
+	for effect : StatusEffectClass in activeEffects.values():
+		multiplier *= effect.get_speed_multiplier()
+	return multiplier
+
 func get_visual_parent() -> Node2D:
 	if visualParent:
 		return visualParent

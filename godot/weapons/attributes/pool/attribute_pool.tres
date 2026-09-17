@@ -20,7 +20,20 @@
 [ext_resource type="Resource" path="res://weapons/attributes/special/frostbite.tres" id="18_frostbite"]
 [ext_resource type="Resource" path="res://weapons/attributes/special/poison.tres" id="19_poison"]
 [ext_resource type="Resource" path="res://weapons/attributes/special/double_strike.tres" id="20_double_strike"]
+[ext_resource type="Resource" path="res://weapons/attributes/normal/heavy_strike.tres" id="21_heavy_strike"]
+[ext_resource type="Resource" path="res://weapons/attributes/normal/opportunist.tres" id="22_opportunist"]
+[ext_resource type="Resource" path="res://weapons/attributes/normal/lingering.tres" id="23_lingering"]
+[ext_resource type="Resource" path="res://weapons/attributes/normal/swiftness.tres" id="24_swiftness"]
+[ext_resource type="Resource" path="res://weapons/attributes/normal/crippling_blows.tres" id="25_crippling_blows"]
+[ext_resource type="Resource" path="res://weapons/attributes/normal/adrenaline.tres" id="26_adrenaline"]
+[ext_resource type="Resource" path="res://weapons/attributes/special/chain_lightning.tres" id="27_chain_lightning"]
+[ext_resource type="Resource" path="res://weapons/attributes/special/sunder.tres" id="28_sunder"]
+[ext_resource type="Resource" path="res://weapons/attributes/special/culling.tres" id="29_culling"]
+[ext_resource type="Resource" path="res://weapons/attributes/special/detonation.tres" id="30_detonation"]
+[ext_resource type="Resource" path="res://weapons/attributes/special/frenzy.tres" id="31_frenzy"]
+[ext_resource type="Resource" path="res://weapons/attributes/special/bloodlust.tres" id="32_bloodlust"]
+[ext_resource type="Resource" path="res://weapons/attributes/special/concussive_blows.tres" id="33_concussive_blows"]
 
 [resource]
 script = ExtResource("1_pool")
-attributes = Array[ExtResource("2_attribute")]([ExtResource("3_damage"), ExtResource("4_crit_chance"), ExtResource("5_crit_damage"), ExtResource("6_attack_speed"), ExtResource("7_knockback"), ExtResource("8_first_strike"), ExtResource("9_executioner"), ExtResource("10_elemental_power"), ExtResource("11_slash_size"), ExtResource("12_slash_arc"), ExtResource("13_cleave"), ExtResource("14_life_steal"), ExtResource("15_area_damage"), ExtResource("16_blade_waves"), ExtResource("17_burn"), ExtResource("18_frostbite"), ExtResource("19_poison"), ExtResource("20_double_strike")])
+attributes = Array[ExtResource("2_attribute")]([ExtResource("3_damage"), ExtResource("4_crit_chance"), ExtResource("5_crit_damage"), ExtResource("6_attack_speed"), ExtResource("7_knockback"), ExtResource("8_first_strike"), ExtResource("9_executioner"), ExtResource("10_elemental_power"), ExtResource("11_slash_size"), ExtResource("12_slash_arc"), ExtResource("13_cleave"), ExtResource("21_heavy_strike"), ExtResource("22_opportunist"), ExtResource("23_lingering"), ExtResource("24_swiftness"), ExtResource("25_crippling_blows"), ExtResource("26_adrenaline"), ExtResource("14_life_steal"), ExtResource("15_area_damage"), ExtResource("16_blade_waves"), ExtResource("17_burn"), ExtResource("18_frostbite"), ExtResource("19_poison"), ExtResource("20_double_strike"), ExtResource("27_chain_lightning"), ExtResource("28_sunder"), ExtResource("29_culling"), ExtResource("30_detonation"), ExtResource("31_frenzy"), ExtResource("32_bloodlust"), ExtResource("33_concussive_blows")])

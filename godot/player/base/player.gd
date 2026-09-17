@@ -40,6 +40,7 @@ func _physics_process(delta : float) -> void:
 	handPivot.look_at(mousePosition)
 	if weapon:
 		handPivot.rotation += weapon.swingRotation
+		movementComponent.speedMultiplier = 1.0 + weapon.get_stat(AttributeClass.Stat.MOVE_SPEED)
 	update_facing(mousePosition, delta)
 
 func equip_weapon(newWeaponItem : WeaponItemClass) -> void:

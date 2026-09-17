@@ -10,7 +10,7 @@ script = ExtResource("2_scaling")
 minBase = 1.0
 maxBase = 1.0
 perStep = 1.0
-levelsPerStep = 10
+levelsPerStep = 15
 maxValue = 3.0
 wholeNumber = true
 

@@ -1,0 +1,55 @@
+[gd_scene format=3]
+
+[sub_resource type="Gradient" id="Gradient_soft"]
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_soft"]
+gradient = SubResource("Gradient_soft")
+width = 6
+height = 6
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 0)
+
+[sub_resource type="Gradient" id="Gradient_weight_color"]
+offsets = PackedFloat32Array(0, 0.25, 1)
+colors = PackedColorArray(0.65, 0.5, 1, 0, 0.65, 0.5, 1, 1, 0.4, 0.3, 0.8, 0)
+
+[sub_resource type="Gradient" id="Gradient_ground_color"]
+offsets = PackedFloat32Array(0, 0.3, 1)
+colors = PackedColorArray(0.35, 0.25, 0.7, 0, 0.35, 0.25, 0.7, 0.7, 0.25, 0.15, 0.5, 0)
+
+[node name="SlowWeights" type="Node2D"]
+z_index = 1
+
+[node name="Ground" type="CPUParticles2D" parent="."]
+texture_filter = 2
+position = Vector2(0, 7)
+amount = 3
+texture = SubResource("GradientTexture2D_soft")
+lifetime = 0.8
+randomness = 0.3
+emission_shape = 3
+emission_rect_extents = Vector2(4, 1)
+gravity = Vector2(0, 0)
+scale_amount_min = 1.5
+scale_amount_max = 2.0
+color_ramp = SubResource("Gradient_ground_color")
+
+[node name="Weights" type="CPUParticles2D" parent="."]
+texture_filter = 2
+amount = 6
+texture = SubResource("GradientTexture2D_soft")
+lifetime = 0.7
+randomness = 0.4
+local_coords = false
+emission_shape = 3
+emission_rect_extents = Vector2(5, 4)
+direction = Vector2(0, 1)
+spread = 10.0
+gravity = Vector2(0, 18)
+initial_velocity_min = 2.0
+initial_velocity_max = 5.0
+scale_amount_min = 0.7
+scale_amount_max = 1.0
+color_ramp = SubResource("Gradient_weight_color")

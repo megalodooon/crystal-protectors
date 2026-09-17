@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="ChainLightningAttributeClass" format=3]
+
+[ext_resource type="Script" path="res://weapons/attributes/behaviors/chain_lightning_attribute.gd" id="1_attribute"]
+[ext_resource type="Script" path="res://weapons/attributes/base/attribute_scaling.gd" id="2_scaling"]
+[ext_resource type="Resource" path="res://damage/types/lightning.tres" id="3_lightning"]
+
+[sub_resource type="Resource" id="Resource_scaling"]
+script = ExtResource("2_scaling")
+minBase = 0.25
+maxBase = 0.3
+perStep = 0.006
+percent = true
+
+[sub_resource type="Resource" id="Resource_count"]
+script = ExtResource("2_scaling")
+minBase = 2.0
+maxBase = 2.0
+perStep = 1.0
+levelsPerStep = 15
+maxValue = 4.0
+wholeNumber = true
+
+[resource]
+script = ExtResource("1_attribute")
+chance = 0.25
+countScaling = SubResource("Resource_count")
+jumpRange = 36.0
+damageType = ExtResource("3_lightning")
+color = Color(1, 0.9, 0.4, 1)
+attributeName = "Chain Lightning"
+description = "{chance}% Lightning x{count}: {value}% damage"
+scaling = SubResource("Resource_scaling")
+special = true
+weight = 0.6

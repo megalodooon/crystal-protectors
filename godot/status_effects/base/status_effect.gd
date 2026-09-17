@@ -36,6 +36,15 @@ func scale_power(_multiplier : float) -> void:
 func set_damage(_amount : float) -> void:
 	pass
 
+func set_strength(_amount : float) -> void:
+	pass
+
+func get_damage_taken_multiplier() -> float:
+	return 1.0
+
+func get_speed_multiplier() -> float:
+	return 1.0
+
 func on_apply() -> void:
 	pass
 

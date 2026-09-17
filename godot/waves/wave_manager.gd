@@ -32,6 +32,7 @@ func prepare_wave() -> void:
 		return
 	waves[waveIndex].activate_paths()
 	if pathNetwork:
+		pathNetwork.set_spawn_paths(waves[waveIndex].get_spawn_paths())
 		pathNetwork.play_preview()
 
 func start_next_wave() -> void:

@@ -31,4 +31,7 @@ func format_value(value : float) -> String:
 		return str(roundi(value))
 	if percent:
 		value *= 100.0
+	return format_number(value)
+
+static func format_number(value : float) -> String:
 	return String.num(snappedf(value, 0.1), 1).trim_suffix(".0")

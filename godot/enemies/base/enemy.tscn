@@ -63,10 +63,11 @@ autoplay = &"walk"
 [node name="HealthComponent" type="Node" parent="."]
 script = ExtResource("3_health")
 
-[node name="MovementComponent" type="Node" parent="."]
+[node name="MovementComponent" type="Node" parent="." node_paths=PackedStringArray("statusComponent")]
 script = ExtResource("4_movement")
 acceleration = 300.0
 deceleration = 300.0
+statusComponent = NodePath("../StatusComponent")
 
 [node name="PathFollowComponent" type="Node" parent="."]
 script = ExtResource("5_path_follow")

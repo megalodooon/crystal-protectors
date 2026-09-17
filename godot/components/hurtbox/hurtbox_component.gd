@@ -15,11 +15,16 @@ func apply_status(effect : StatusEffectClass) -> void:
 		statusComponent.apply_effect(effect)
 
 func take_damage(amount : float, damageType : DamageTypeClass = null, isCrit : bool = false) -> void:
+	if statusComponent:
+		amount *= statusComponent.get_damage_taken_multiplier()
 	healthComponent.take_damage(amount)
 	if statusComponent:
 		statusComponent.on_damage_taken(damageType)
 	if showDamageNumbers:
 		spawn_damage_number(amount, damageType, isCrit)
+
+func is_dead() -> bool:
+	return healthComponent.currentHealth <= 0.0
 
 func knockback(impulse : Vector2) -> void:
 	var body : CharacterBody2D = get_parent() as CharacterBody2D

@@ -9,6 +9,7 @@ const MAX_CHAIN : int = 8
 @export var playOnStart : bool = true
 
 var paths : Array[EnemyPathClass]
+var spawnPaths : Array[EnemyPathClass]
 var isPlaying : bool = false
 var needsRebuild : bool = true
 var time : float = 0.0
@@ -45,8 +46,8 @@ func _process(delta : float) -> void:
 		time = minf(time + delta, travelTime + style.trailLength / style.speed)
 	var opacity : float = lerpf(1.0, style.waveOpacity, gray) * cycleFade
 	for path in paths:
-		path.pulse.visible = path.active
-		if path.active:
+		path.pulse.visible = not path.pulse.sources.is_empty()
+		if path.pulse.visible:
 			path.pulse.update_pulse(time, opacity, gray)
 
 func play_preview() -> void:
@@ -57,6 +58,11 @@ func play_preview() -> void:
 func stop_preview() -> void:
 	isPlaying = false
 
+func set_spawn_paths(newSpawnPaths : Array[EnemyPathClass]) -> void:
+	spawnPaths = newSpawnPaths
+	needsRebuild = true
+	time = 0.0
+
 func on_path_active_changed() -> void:
 	needsRebuild = true
 	time = 0.0
@@ -66,9 +72,17 @@ func rebuild_pulses() -> void:
 	travelTime = 0.0
 	for path in paths:
 		path.pulse.sources.clear()
+		path.pulse.isSpawn = is_spawn(path)
 	for path in paths:
-		if path.active and not path.is_fed():
+		if path.pulse.isSpawn:
 			add_pulse(path, 0.0, 0.0, 0)
+
+func is_spawn(path : EnemyPathClass) -> bool:
+	if not path.active:
+		return false
+	if spawnPaths.is_empty():
+		return not path.is_fed()
+	return spawnPaths.has(path)
 
 func add_pulse(path : EnemyPathClass, fromDistance : float, startTime : float, chain : int) -> void:
 	if chain >= MAX_CHAIN or path.pulse.sources.size() >= PathPulseClass.MAX_PULSES:

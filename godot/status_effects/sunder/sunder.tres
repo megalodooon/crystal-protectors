@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="SunderEffectClass" format=3]
+
+[ext_resource type="Script" path="res://status_effects/sunder/sunder_effect.gd" id="1_sunder"]
+[ext_resource type="PackedScene" path="res://status_effects/sunder/sunder_shards.tscn" id="2_shards"]
+
+[resource]
+script = ExtResource("1_sunder")
+effectName = "Sunder"
+tickInterval = 0.0
+visualScene = ExtResource("2_shards")

@@ -5,22 +5,21 @@ class_name AreaDamageAttributeClass
 const SHOCKWAVE_SCENE := preload("res://vfx/shockwave/shockwave.tscn")
 
 @export var radius : float = 20.0
+@export var onKill : bool = false
 
 #------------------------#
 
 func on_hit(weapon : WeaponClass, roll : AttributeRollClass, hurtbox : HurtboxComponentClass, damage : float) -> void:
-	var areaDamage : float = damage * roll.get_value(weapon.get_attribute_level())
-	var shape : CircleShape2D = CircleShape2D.new()
-	shape.radius = radius
-	var query : PhysicsShapeQueryParameters2D = PhysicsShapeQueryParameters2D.new()
-	query.shape = shape
-	query.transform = Transform2D(0.0, hurtbox.global_position)
-	query.collide_with_areas = true
-	query.collide_with_bodies = false
-	query.collision_mask = hurtbox.collision_layer
-	for result : Dictionary in weapon.get_world_2d().direct_space_state.intersect_shape(query):
-		var target : HurtboxComponentClass = result["collider"] as HurtboxComponentClass
-		if target and target != hurtbox:
+	if not onKill:
+		explode(weapon, hurtbox, damage * roll.get_value(weapon.get_attribute_level()))
+
+func on_kill(weapon : WeaponClass, roll : AttributeRollClass, hurtbox : HurtboxComponentClass, damage : float) -> void:
+	if onKill:
+		explode(weapon, hurtbox, damage * roll.get_value(weapon.get_attribute_level()))
+
+func explode(weapon : WeaponClass, hurtbox : HurtboxComponentClass, areaDamage : float) -> void:
+	for target in get_hurtboxes_in_radius(weapon, hurtbox.global_position, radius, hurtbox.collision_layer):
+		if target != hurtbox:
 			target.take_damage(areaDamage, weapon.damageType)
 	var shockwave : ShockwaveClass = SHOCKWAVE_SCENE.instantiate()
 	shockwave.position = hurtbox.global_position

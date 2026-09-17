@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="SlowEffectClass" format=3]
+
+[ext_resource type="Script" path="res://status_effects/slow/slow_effect.gd" id="1_slow"]
+[ext_resource type="PackedScene" path="res://status_effects/stun/stun_stars.tscn" id="2_stars"]
+
+[resource]
+script = ExtResource("1_slow")
+slowAmount = 1.0
+effectName = "Stun"
+duration = 0.6
+tickInterval = 0.0
+visualScene = ExtResource("2_stars")
