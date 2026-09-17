@@ -1,0 +1,95 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://vfx/base/vfx_effect.gd" id="1_effect"]
+[ext_resource type="Material" path="res://vfx/shared/add_material.tres" id="2_add"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_glow.tres" id="3_glow"]
+[ext_resource type="Texture2D" path="res://vfx/shared/flash_glow.tres" id="4_flash"]
+[ext_resource type="Texture2D" path="res://vfx/shared/streak.tres" id="5_streak"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_dot.tres" id="6_dot"]
+[ext_resource type="Curve" path="res://vfx/shared/shrink_curve.tres" id="7_shrink"]
+[ext_resource type="Script" path="res://vfx/base/vfx_flash.gd" id="8_flash"]
+[ext_resource type="Script" path="res://vfx/base/vfx_spikes.gd" id="10_spikes"]
+
+[sub_resource type="Gradient" id="Gradient_fade"]
+offsets = PackedFloat32Array(0, 0.2, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0)
+
+[node name="Splash" type="Node2D" node_paths=PackedStringArray("tinted")]
+z_index = 2
+script = ExtResource("1_effect")
+baseRadius = 20.0
+lifetime = 0.8
+tinted = [NodePath("Glow"), NodePath("Spikes"), NodePath("Sparks"), NodePath("Debris")]
+
+[node name="Glow" type="Sprite2D" parent="."]
+texture_filter = 2
+material = ExtResource("2_add")
+scale = Vector2(1.4, 1.4)
+texture = ExtResource("3_glow")
+script = ExtResource("8_flash")
+duration = 0.35
+startScale = 0.3
+endScale = 1.0
+startAlpha = 0.7
+
+[node name="Core" type="Sprite2D" parent="."]
+texture_filter = 2
+material = ExtResource("2_add")
+scale = Vector2(0.9, 0.9)
+texture = ExtResource("4_flash")
+script = ExtResource("8_flash")
+duration = 0.16
+startScale = 0.3
+endScale = 1.0
+
+[node name="Spikes" type="Node2D" parent="."]
+texture_filter = 2
+material = ExtResource("2_add")
+script = ExtResource("10_spikes")
+count = 9
+length = 17.0
+width = 1.5
+duration = 0.24
+
+[node name="Sparks" type="CPUParticles2D" parent="."]
+texture_filter = 2
+material = ExtResource("2_add")
+amount = 14
+texture = ExtResource("5_streak")
+lifetime = 0.35
+one_shot = true
+explosiveness = 1.0
+randomness = 0.4
+local_coords = true
+particle_flag_align_y = true
+spread = 180.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 70.0
+initial_velocity_max = 130.0
+damping_min = 220.0
+damping_max = 300.0
+scale_amount_min = 0.45
+scale_amount_max = 0.8
+scale_amount_curve = ExtResource("7_shrink")
+color_ramp = SubResource("Gradient_fade")
+
+[node name="Debris" type="CPUParticles2D" parent="."]
+texture_filter = 2
+material = ExtResource("2_add")
+amount = 9
+texture = ExtResource("6_dot")
+lifetime = 0.55
+one_shot = true
+explosiveness = 0.95
+randomness = 0.5
+local_coords = true
+spread = 180.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 20.0
+initial_velocity_max = 55.0
+damping_min = 50.0
+damping_max = 80.0
+scale_amount_min = 0.4
+scale_amount_max = 0.9
+scale_amount_curve = ExtResource("7_shrink")
+color_ramp = SubResource("Gradient_fade")

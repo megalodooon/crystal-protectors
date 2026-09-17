@@ -2,20 +2,24 @@
 
 [ext_resource type="Script" path="res://weapons/attributes/behaviors/life_steal_attribute.gd" id="1_attribute"]
 [ext_resource type="Script" path="res://weapons/attributes/base/attribute_scaling.gd" id="2_scaling"]
+[ext_resource type="PackedScene" path="res://vfx/life_orb/life_orb.tscn" id="3_orb"]
+[ext_resource type="PackedScene" path="res://weapons/auras/blood/weapon_blood.tscn" id="4_aura"]
 
 [sub_resource type="Resource" id="Resource_scaling"]
 script = ExtResource("2_scaling")
-minBase = 0.01
-maxBase = 0.02
-perStep = 0.001
+minBase = 0.008
+maxBase = 0.012
+perStep = 0.0006
 percent = true
 
 [resource]
 script = ExtResource("1_attribute")
+orbScene = ExtResource("3_orb")
 attributeName = "Life Steal"
 description = "{value}% Life Steal"
 scaling = SubResource("Resource_scaling")
 trigger = 2
+auraScene = ExtResource("4_aura")
 special = true
 inRandomPool = true
 weight = 0.6

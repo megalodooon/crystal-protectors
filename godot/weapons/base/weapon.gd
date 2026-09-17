@@ -30,6 +30,9 @@ var hitStatuses : Dictionary[String, StatusEffectClass] = {}
 var buffs : Dictionary[AttributeRollClass, AttributeBuffClass] = {}
 var attackCount : int = 0
 var cooldownId : int = 0
+var lastAttackTime : int = -100000
+var attackIdleTime : float = 100.0
+var auraScenes : Array[PackedScene] = []
 
 #------------------------#
 
@@ -45,6 +48,12 @@ func _ready() -> void:
 		effect.on_equip(self)
 	for roll in attributes:
 		roll.attribute.on_equip(self, roll)
+
+func _exit_tree() -> void:
+	for buff : AttributeBuffClass in buffs.values():
+		if is_instance_valid(buff.visual):
+			buff.visual.stop()
+	buffs.clear()
 
 func _process(delta : float) -> void:
 	update_buffs(delta)
@@ -124,6 +133,9 @@ func attack() -> void:
 		return
 	canAttack = false
 	attackCount += 1
+	var now : int = Time.get_ticks_msec()
+	attackIdleTime = (now - lastAttackTime) / 1000.0
+	lastAttackTime = now
 	aimRotation = global_rotation - swingRotation
 	for attackNode in get_attacks():
 		attackNode.perform()
@@ -190,21 +202,44 @@ func add_hit_status(status : StatusEffectClass) -> void:
 	else:
 		hitStatuses[status.effectName] = status
 
-func add_buff(roll : AttributeRollClass, stat : AttributeClass.Stat, duration : float, maxStacks : int) -> void:
+func add_buff(roll : AttributeRollClass, stat : AttributeClass.Stat, duration : float, maxStacks : int, visualScene : PackedScene = null) -> void:
 	if not buffs.has(roll):
 		var newBuff : AttributeBuffClass = AttributeBuffClass.new()
 		newBuff.roll = roll
 		buffs[roll] = newBuff
+		if visualScene:
+			newBuff.visual = visualScene.instantiate()
+			get_visual_holder().add_child(newBuff.visual)
 	var buff : AttributeBuffClass = buffs[roll]
 	buff.stat = stat
 	buff.stacks = mini(buff.stacks + 1, maxi(maxStacks, 1))
 	buff.timeLeft = duration
+	if is_instance_valid(buff.visual):
+		buff.visual.set_stacks(buff.stacks, maxStacks)
 
 func update_buffs(delta : float) -> void:
 	for roll : AttributeRollClass in buffs.keys():
-		buffs[roll].timeLeft -= delta
-		if buffs[roll].timeLeft <= 0.0:
+		var buff : AttributeBuffClass = buffs[roll]
+		buff.timeLeft -= delta
+		if buff.timeLeft <= 0.0:
+			if is_instance_valid(buff.visual):
+				buff.visual.stop()
 			buffs.erase(roll)
+
+func add_aura(scene : PackedScene) -> void:
+	var sprite : Sprite2D = get_sprite()
+	if not scene or not sprite or auraScenes.has(scene):
+		return
+	auraScenes.append(scene)
+	var aura : WeaponAuraClass = scene.instantiate()
+	aura.texture = sprite.texture
+	aura.points = get_pixel_points(sprite.texture, true)
+	sprite.add_child(aura)
+
+func get_visual_holder() -> Node2D:
+	if wielder:
+		return wielder
+	return self
 
 func apply_knockback(hurtbox : HurtboxComponentClass) -> void:
 	var force : float = get_knockback()
@@ -255,3 +290,6 @@ func get_knockback() -> float:
 
 func get_area_multiplier() -> float:
 	return 1.0 + get_stat(AttributeClass.Stat.EFFECT_AREA)
+
+func get_effect_damage_multiplier() -> float:
+	return 1.0 + get_stat(AttributeClass.Stat.EFFECT_DAMAGE)

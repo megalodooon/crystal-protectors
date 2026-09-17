@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="ZoneAttributeClass" format=3]
+
+[ext_resource type="Script" path="res://weapons/attributes/behaviors/zone_attribute.gd" id="1_attribute"]
+[ext_resource type="Script" path="res://weapons/attributes/base/attribute_scaling.gd" id="2_scaling"]
+[ext_resource type="PackedScene" path="res://weapons/spawns/plague_cloud/plague_cloud.tscn" id="3_zone"]
+[ext_resource type="Resource" path="res://status_effects/poison/poison.tres" id="4_poison"]
+[ext_resource type="PackedScene" path="res://weapons/effects/poison/weapon_poison.tscn" id="5_aura"]
+
+[sub_resource type="Resource" id="Resource_scaling"]
+script = ExtResource("2_scaling")
+minBase = 0.013
+maxBase = 0.016
+perStep = 0.0006
+percent = true
+
+[sub_resource type="Resource" id="Resource_chance"]
+script = ExtResource("2_scaling")
+minBase = 0.2
+maxBase = 0.25
+perStep = 0.004
+percent = true
+
+[resource]
+script = ExtResource("1_attribute")
+zoneScene = ExtResource("3_zone")
+status = ExtResource("4_poison")
+radius = 28.0
+attributeName = "Plague Cloud"
+description = "{chance}% on kill: Plague Cloud {value}%"
+scaling = SubResource("Resource_scaling")
+trigger = 4
+chanceScaling = SubResource("Resource_chance")
+auraScene = ExtResource("5_aura")
+special = true
+inRandomPool = true
+weight = 0.6

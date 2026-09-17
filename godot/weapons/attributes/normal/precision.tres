@@ -2,19 +2,21 @@
 
 [ext_resource type="Script" path="res://weapons/attributes/behaviors/buff_attribute.gd" id="1_attribute"]
 [ext_resource type="Script" path="res://weapons/attributes/base/attribute_scaling.gd" id="2_scaling"]
+[ext_resource type="PackedScene" path="res://vfx/buffs/precision/precision_buff.tscn" id="3_buff"]
 
 [sub_resource type="Resource" id="Resource_scaling"]
 script = ExtResource("2_scaling")
-minBase = 0.01
-maxBase = 0.015
-perStep = 0.001
+minBase = 0.008
+maxBase = 0.01
+perStep = 0.0007
 percent = true
 
 [resource]
 script = ExtResource("1_attribute")
 buffStat = 2
 duration = 3.0
-maxStacks = 5
+maxStacks = 4
+buffScene = ExtResource("3_buff")
 attributeName = "Precision"
 description = "Crits: +{value}% Crit Chance (x{stacks})"
 scaling = SubResource("Resource_scaling")

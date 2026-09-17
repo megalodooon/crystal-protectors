@@ -1,0 +1,71 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://status_effects/base/status_visual.gd" id="1_visual"]
+[ext_resource type="Material" path="res://vfx/shared/add_material.tres" id="2_add"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_dot.tres" id="3_dot"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_glow.tres" id="4_glow"]
+[ext_resource type="Script" path="res://vfx/base/vfx_reticle.gd" id="5_reticle"]
+[ext_resource type="Script" path="res://vfx/base/vfx_flash.gd" id="6_flash"]
+[ext_resource type="Curve" path="res://vfx/shared/twinkle_curve.tres" id="7_twinkle"]
+
+[sub_resource type="Gradient" id="Gradient_mote"]
+offsets = PackedFloat32Array(0, 0.3, 1)
+colors = PackedColorArray(1, 0.5, 0.5, 0, 1, 0.2, 0.25, 1, 0.7, 0.05, 0.1, 0)
+
+[node name="MarkVisual" type="Node2D"]
+z_index = 2
+script = ExtResource("1_visual")
+
+[node name="Loop" type="Node2D" parent="."]
+
+[node name="Glow" type="Sprite2D" parent="Loop"]
+z_index = -2
+texture_filter = 2
+material = ExtResource("2_add")
+scale = Vector2(0.6, 0.6)
+modulate = Color(1, 0.1, 0.18, 0.35)
+texture = ExtResource("4_glow")
+script = ExtResource("6_flash")
+duration = 0.6
+startScale = 0.85
+endScale = 1.1
+loop = true
+
+[node name="Reticle" type="Node2D" parent="Loop"]
+texture_filter = 2
+material = ExtResource("2_add")
+script = ExtResource("5_reticle")
+radius = 8.5
+
+[node name="Motes" type="CPUParticles2D" parent="Loop"]
+texture_filter = 2
+material = ExtResource("2_add")
+amount = 6
+texture = ExtResource("3_dot")
+lifetime = 0.7
+randomness = 0.4
+local_coords = true
+emission_shape = 2
+emission_sphere_radius = 11.0
+gravity = Vector2(0, 0)
+radial_accel_min = -30.0
+radial_accel_max = -20.0
+orbit_velocity_min = 0.4
+orbit_velocity_max = 0.6
+scale_amount_min = 0.3
+scale_amount_max = 0.5
+scale_amount_curve = ExtResource("7_twinkle")
+color_ramp = SubResource("Gradient_mote")
+
+[node name="Burst" type="Node2D" parent="."]
+
+[node name="Flash" type="Sprite2D" parent="Burst"]
+texture_filter = 2
+material = ExtResource("2_add")
+scale = Vector2(0.6, 0.6)
+modulate = Color(1, 0.3, 0.35, 1)
+texture = ExtResource("4_glow")
+script = ExtResource("6_flash")
+duration = 0.3
+startScale = 1.4
+endScale = 0.6

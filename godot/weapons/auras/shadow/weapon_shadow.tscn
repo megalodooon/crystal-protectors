@@ -1,0 +1,68 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://weapons/effects/status_on_hit/weapon_aura.gd" id="1_aura"]
+[ext_resource type="Shader" path="res://weapons/enchant/enchant.gdshader" id="2_glow"]
+[ext_resource type="Material" path="res://vfx/shared/add_material.tres" id="3_add"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_dot.tres" id="4_dot"]
+[ext_resource type="Curve" path="res://vfx/shared/puff_curve.tres" id="5_puff"]
+[ext_resource type="Curve" path="res://vfx/shared/shrink_curve.tres" id="6_shrink"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_glow"]
+shader = ExtResource("2_glow")
+shader_parameter/glowColor = Color(0.6, 0.25, 1, 1)
+shader_parameter/strength = 0.5
+shader_parameter/glowSize = 2.0
+shader_parameter/pulseSpeed = 2.0
+
+[sub_resource type="Gradient" id="Gradient_smoke"]
+offsets = PackedFloat32Array(0, 0.3, 1)
+colors = PackedColorArray(0.1, 0.02, 0.18, 0, 0.12, 0.03, 0.22, 0.65, 0.05, 0.01, 0.1, 0)
+
+[sub_resource type="Gradient" id="Gradient_wisp"]
+offsets = PackedFloat32Array(0, 0.3, 1)
+colors = PackedColorArray(0.85, 0.6, 1, 0, 0.65, 0.3, 1, 0.9, 0.35, 0.1, 0.8, 0)
+
+[node name="WeaponShadow" type="Node2D"]
+z_index = 1
+script = ExtResource("1_aura")
+
+[node name="Glow" type="Sprite2D" parent="."]
+texture_filter = 2
+material = SubResource("ShaderMaterial_glow")
+
+[node name="Smoke" type="CPUParticles2D" parent="."]
+texture_filter = 2
+emitting = false
+amount = 8
+texture = ExtResource("4_dot")
+lifetime = 0.7
+randomness = 0.4
+local_coords = false
+emission_shape = 4
+spread = 180.0
+gravity = Vector2(0, -10)
+initial_velocity_min = 0.5
+initial_velocity_max = 2.0
+scale_amount_min = 0.5
+scale_amount_max = 0.8
+scale_amount_curve = ExtResource("5_puff")
+color_ramp = SubResource("Gradient_smoke")
+
+[node name="Wisps" type="CPUParticles2D" parent="."]
+texture_filter = 2
+material = ExtResource("3_add")
+emitting = false
+amount = 5
+texture = ExtResource("4_dot")
+lifetime = 0.55
+randomness = 0.5
+local_coords = false
+emission_shape = 4
+spread = 180.0
+gravity = Vector2(0, -14)
+initial_velocity_min = 1.0
+initial_velocity_max = 4.0
+scale_amount_min = 0.2
+scale_amount_max = 0.35
+scale_amount_curve = ExtResource("6_shrink")
+color_ramp = SubResource("Gradient_wisp")

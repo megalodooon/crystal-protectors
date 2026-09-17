@@ -18,6 +18,9 @@ func on_tick() -> void:
 	remainingDamage -= tickDamage
 	if status.hurtbox and tickDamage > 0.0:
 		status.hurtbox.take_damage(tickDamage, damageType)
+	var bleedVisual : StatusVisualClass = visual as StatusVisualClass
+	if bleedVisual:
+		bleedVisual.pulse()
 
 func refresh(newEffect : StatusEffectClass) -> void:
 	super(newEffect)

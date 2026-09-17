@@ -5,7 +5,6 @@ class_name KnockbackAreaAttributeClass
 @export var radius : float = 32.0
 @export var force : float = 120.0
 @export var pull : bool = false
-@export var color : Color = Color.WHITE
 
 #------------------------#
 
@@ -24,4 +23,4 @@ func on_proc(weapon : WeaponClass, _roll : AttributeRollClass, hurtbox : Hurtbox
 		if pull:
 			direction = -direction
 		target.knockback(direction * force)
-	spawn_shockwave(weapon, center, areaRadius, color, pull)
+	spawn_effect(weapon, center, areaRadius)

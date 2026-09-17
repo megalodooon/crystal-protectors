@@ -19,7 +19,8 @@ func _physics_process(delta : float) -> void:
 	position += Vector2.RIGHT.rotated(rotation) * speed * delta
 
 func on_hit(_hurtbox : HurtboxComponentClass, _damage : float) -> void:
-	queue_free()
+	if maxHits > 0 and hitCount >= maxHits:
+		queue_free()
 
 func on_body_entered(_body : Node2D) -> void:
 	queue_free()

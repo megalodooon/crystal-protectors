@@ -5,9 +5,10 @@
 
 [sub_resource type="Resource" id="Resource_scaling"]
 script = ExtResource("2_scaling")
-minBase = 20.0
-maxBase = 30.0
+minBase = 10.0
+maxBase = 15.0
 perStep = 1.0
+levelsPerStep = 2
 wholeNumber = true
 
 [resource]

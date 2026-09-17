@@ -2,9 +2,7 @@ extends Resource
 class_name AttributeClass
 
 
-const SHOCKWAVE_SCENE := preload("res://vfx/shockwave/shockwave.tscn")
-
-enum Stat { NONE, DAMAGE, CRIT_CHANCE, CRIT_DAMAGE, ATTACK_SPEED, KNOCKBACK, ATTACK_SIZE, ATTACK_ARC, EXTRA_TARGETS, STATUS_DAMAGE, MOVE_SPEED, STATUS_DURATION, EFFECT_CHANCE, EFFECT_AREA }
+enum Stat { NONE, DAMAGE, CRIT_CHANCE, CRIT_DAMAGE, ATTACK_SPEED, KNOCKBACK, ATTACK_SIZE, ATTACK_ARC, EXTRA_TARGETS, STATUS_DAMAGE, MOVE_SPEED, STATUS_DURATION, EFFECT_CHANCE, EFFECT_AREA, EFFECT_DAMAGE, PIERCE, EXTRA_PROJECTILES }
 enum Trigger { NONE, ATTACK, HIT, CRIT, KILL }
 
 @export var attributeName : String
@@ -13,6 +11,8 @@ enum Trigger { NONE, ATTACK, HIT, CRIT, KILL }
 @export var scaling : AttributeScalingClass
 @export var trigger : Trigger = Trigger.NONE
 @export var chanceScaling : AttributeScalingClass
+@export var effectScene : PackedScene
+@export var auraScene : PackedScene
 @export var attackTypes : Array[AttackTypeClass]
 @export var special : bool = false
 @export var inRandomPool : bool = true
@@ -67,8 +67,11 @@ func get_description_values(quality : float, level : int) -> Dictionary:
 		values["chance"] = chanceScaling.format_value(get_chance(quality, level))
 	return values
 
-func on_equip(_weapon : WeaponClass, _roll : AttributeRollClass) -> void:
-	pass
+func get_aura_scene() -> PackedScene:
+	return auraScene
+
+func on_equip(weapon : WeaponClass, _roll : AttributeRollClass) -> void:
+	weapon.add_aura(get_aura_scene())
 
 func on_attack(weapon : WeaponClass, roll : AttributeRollClass) -> void:
 	try_proc(Trigger.ATTACK, weapon, roll, null, 0.0)
@@ -111,10 +114,17 @@ func get_hurtboxes_in_radius(weapon : WeaponClass, center : Vector2, radius : fl
 			hurtboxes.append(hurtbox)
 	return hurtboxes
 
-func spawn_shockwave(weapon : WeaponClass, center : Vector2, radius : float, color : Color, shrink : bool = false) -> void:
-	var shockwave : ShockwaveClass = SHOCKWAVE_SCENE.instantiate()
-	shockwave.position = center
-	shockwave.radius = radius
-	shockwave.color = color
-	shockwave.shrink = shrink
-	weapon.get_tree().current_scene.add_child(shockwave)
+func spawn_effect(weapon : WeaponClass, position : Vector2, radius : float = 0.0, parent : Node = null) -> void:
+	if not effectScene:
+		return
+	var effect : Node2D = effectScene.instantiate()
+	var vfx : VfxEffectClass = effect as VfxEffectClass
+	if vfx:
+		vfx.radius = radius
+		vfx.color = weapon.get_color()
+	if parent:
+		parent.add_child(effect)
+		effect.global_position = position
+	else:
+		effect.position = position
+		weapon.get_tree().current_scene.add_child(effect)

@@ -2,19 +2,21 @@
 
 [ext_resource type="Script" path="res://weapons/attributes/behaviors/area_damage_attribute.gd" id="1_attribute"]
 [ext_resource type="Script" path="res://weapons/attributes/base/attribute_scaling.gd" id="2_scaling"]
+[ext_resource type="PackedScene" path="res://vfx/splash/splash.tscn" id="3_effect"]
+[ext_resource type="PackedScene" path="res://weapons/auras/explosive/weapon_explosive.tscn" id="4_aura"]
 
 [sub_resource type="Resource" id="Resource_scaling"]
 script = ExtResource("2_scaling")
-minBase = 0.3
-maxBase = 0.35
-perStep = 0.005
+minBase = 0.25
+maxBase = 0.3
+perStep = 0.003
 percent = true
 
 [sub_resource type="Resource" id="Resource_chance"]
 script = ExtResource("2_scaling")
-minBase = 0.2
-maxBase = 0.25
-perStep = 0.005
+minBase = 0.12
+maxBase = 0.16
+perStep = 0.003
 percent = true
 
 [resource]
@@ -25,6 +27,8 @@ description = "{chance}% Area Damage: {value}%"
 scaling = SubResource("Resource_scaling")
 trigger = 2
 chanceScaling = SubResource("Resource_chance")
+effectScene = ExtResource("3_effect")
+auraScene = ExtResource("4_aura")
 special = true
 inRandomPool = true
 weight = 0.6

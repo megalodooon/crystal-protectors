@@ -4,12 +4,13 @@
 [ext_resource type="Script" path="res://weapons/attributes/base/attribute_scaling.gd" id="2_scaling"]
 [ext_resource type="Script" path="res://weapons/attacks/base/attack_type.gd" id="3_attack_type"]
 [ext_resource type="Resource" path="res://weapons/attacks/types/slash.tres" id="4_slash"]
+[ext_resource type="PackedScene" path="res://weapons/auras/steel/weapon_steel.tscn" id="5_aura"]
 
 [sub_resource type="Resource" id="Resource_chance"]
 script = ExtResource("2_scaling")
-minBase = 0.08
-maxBase = 0.12
-perStep = 0.004
+minBase = 0.06
+maxBase = 0.09
+perStep = 0.003
 percent = true
 
 [resource]
@@ -18,6 +19,7 @@ attributeName = "Double Strike"
 description = "{chance}% Double Strike"
 trigger = 1
 chanceScaling = SubResource("Resource_chance")
+auraScene = ExtResource("5_aura")
 attackTypes = Array[ExtResource("3_attack_type")]([ExtResource("4_slash")])
 special = true
 inRandomPool = true

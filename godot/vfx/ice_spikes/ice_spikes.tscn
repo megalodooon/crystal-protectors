@@ -1,0 +1,125 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://vfx/base/vfx_effect.gd" id="1_effect"]
+[ext_resource type="Material" path="res://vfx/shared/add_material.tres" id="2_add"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_glow.tres" id="3_glow"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_dot.tres" id="4_dot"]
+[ext_resource type="Texture2D" path="res://vfx/shared/pixel.tres" id="5_pixel"]
+[ext_resource type="Texture2D" path="res://status_effects/frost/icicle.png" id="6_icicle"]
+[ext_resource type="Shader" path="res://status_effects/frost/icicle.gdshader" id="7_icicle_shader"]
+[ext_resource type="Texture2D" path="res://vfx/shared/flash_glow.tres" id="8_flash"]
+[ext_resource type="Script" path="res://vfx/base/vfx_flash.gd" id="9_flash"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_icicle"]
+shader = ExtResource("7_icicle_shader")
+
+[sub_resource type="Curve" id="Curve_erupt"]
+_data = [Vector2(0, 0.3), 0.0, 4.0, 0, 0, Vector2(0.25, 1), 0.0, 0.0, 0, 0, Vector2(1, 0.3), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="Gradient" id="Gradient_icicle_fade"]
+offsets = PackedFloat32Array(0, 0.75, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="Gradient" id="Gradient_mist"]
+offsets = PackedFloat32Array(0, 0.3, 1)
+colors = PackedColorArray(0.7, 0.9, 1, 0, 0.5, 0.8, 1, 0.65, 0.3, 0.6, 1, 0)
+
+[sub_resource type="Gradient" id="Gradient_shard"]
+offsets = PackedFloat32Array(0, 0.3, 1)
+colors = PackedColorArray(0.9, 0.97, 1, 1, 0.45, 0.72, 1, 1, 0.3, 0.55, 1, 0)
+
+[node name="IceSpikes" type="Node2D"]
+z_index = 2
+script = ExtResource("1_effect")
+baseRadius = 18.0
+lifetime = 1.1
+shake = 0.8
+
+[node name="Frost" type="Sprite2D" parent="."]
+z_index = -3
+texture_filter = 2
+material = ExtResource("2_add")
+position = Vector2(0, 5)
+scale = Vector2(1.5, 0.5)
+modulate = Color(0.5, 0.8, 1, 0.7)
+texture = ExtResource("3_glow")
+script = ExtResource("9_flash")
+duration = 1.0
+startScale = 0.4
+endScale = 1.0
+
+[node name="Flash" type="Sprite2D" parent="."]
+texture_filter = 2
+material = ExtResource("2_add")
+modulate = Color(0.8, 0.93, 1, 1)
+texture = ExtResource("8_flash")
+script = ExtResource("9_flash")
+duration = 0.18
+startScale = 0.4
+endScale = 1.1
+
+[node name="Mist" type="CPUParticles2D" parent="."]
+texture_filter = 2
+material = ExtResource("2_add")
+position = Vector2(0, 3)
+amount = 12
+texture = ExtResource("4_dot")
+lifetime = 0.9
+one_shot = true
+explosiveness = 0.9
+randomness = 0.5
+local_coords = true
+emission_shape = 3
+emission_rect_extents = Vector2(12, 3)
+spread = 180.0
+gravity = Vector2(0, -6)
+initial_velocity_min = 3.0
+initial_velocity_max = 12.0
+scale_amount_min = 1.2
+scale_amount_max = 2.0
+color_ramp = SubResource("Gradient_mist")
+
+[node name="Icicles" type="CPUParticles2D" parent="."]
+material = SubResource("ShaderMaterial_icicle")
+position = Vector2(0, 5)
+amount = 9
+texture = ExtResource("6_icicle")
+lifetime = 0.55
+one_shot = true
+explosiveness = 1.0
+randomness = 0.3
+local_coords = true
+emission_shape = 3
+emission_rect_extents = Vector2(10, 2)
+particle_flag_align_y = true
+direction = Vector2(0, -1)
+spread = 28.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 55.0
+initial_velocity_max = 85.0
+damping_min = 180.0
+damping_max = 240.0
+scale_amount_min = 1.3
+scale_amount_max = 1.8
+scale_amount_curve = SubResource("Curve_erupt")
+color_ramp = SubResource("Gradient_icicle_fade")
+
+[node name="Shards" type="CPUParticles2D" parent="."]
+amount = 16
+texture = ExtResource("5_pixel")
+lifetime = 0.45
+one_shot = true
+explosiveness = 1.0
+randomness = 0.5
+local_coords = true
+direction = Vector2(0, -1)
+spread = 120.0
+gravity = Vector2(0, 120)
+initial_velocity_min = 30.0
+initial_velocity_max = 75.0
+damping_min = 40.0
+damping_max = 70.0
+scale_amount_min = 0.5
+scale_amount_max = 1.0
+color_ramp = SubResource("Gradient_shard")

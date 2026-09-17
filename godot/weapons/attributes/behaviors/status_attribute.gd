@@ -35,12 +35,10 @@ func can_roll(weapon : WeaponClass, chosen : Array[AttributeClass]) -> bool:
 func uses_stat(usedStat : Stat) -> bool:
 	return usedStat == Stat.STATUS_DAMAGE or usedStat == Stat.STATUS_DURATION or super(usedStat)
 
-func on_equip(weapon : WeaponClass, _roll : AttributeRollClass) -> void:
-	for effect in weapon.activeEffects:
-		var statusEffect : StatusOnHitEffectClass = effect as StatusOnHitEffectClass
-		if statusEffect and statusEffect.auraScene == element.auraScene:
-			return
-	element.on_equip(weapon)
+func get_aura_scene() -> PackedScene:
+	if auraScene:
+		return auraScene
+	return element.auraScene
 
 func on_proc(weapon : WeaponClass, roll : AttributeRollClass, _hurtbox : HurtboxComponentClass, _damage : float) -> void:
 	var status : StatusEffectClass = element.status.duplicate()

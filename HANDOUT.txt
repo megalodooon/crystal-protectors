@@ -41,7 +41,7 @@ Weapon progression (agreed, like Dungeon Defenders 2):
   upgraded. Mythic/artifact (cannot upgrade) count as upgraded, so
   they start at 15. Combat level does NOT affect attributes.
   Some attributes step every few levels with a cap (blade waves:
-  +1 every 5 levels, max 3).
+  +1 at level 15, max 2).
 - Combat level (separate from upgrade level): later islands drop
   higher combat level gear and have stronger enemies. Old weapons
   can have their combat level raised at the blacksmith.
@@ -229,11 +229,12 @@ Example: godot/weapons/base/weapon.gd
   damage brought it to 0) and lastHitCrit, read by register_hit.
 - StatusComponentClass (Node): active status effects on a target.
   Exports hurtbox (effects deal damage through it, so damage numbers
-  work), sprite (the target's main Sprite2D, used by overlay visuals
-  like frost) and visualParent (default: its parent). Many different effects
+  work), sprite (the target's main Sprite2D, only used by the frost
+  overlay) and visualParent (default: its parent). Many different effects
   at once, keyed by effectName; the same name again = refresh
-  (longest duration, burn keeps highest damage). Visual particles
-  stop emitting and are freed 1s after the effect ends.
+  (longest duration, burn keeps highest damage) + pulse() on a
+  StatusVisualClass visual. When the effect ends: stop() (or particles
+  stop emitting) and the visual is freed 1s later.
   Signals: effect_added, effect_removed. has_effect(name).
   get_damage_taken_multiplier() / get_speed_multiplier() multiply the
   values of every active effect.
@@ -344,6 +345,10 @@ Example: godot/weapons/base/weapon.gd
   New rarity = duplicate a .tres (embedded style is copied too).
   Final damage = weapon damage x rarity x upgrade level x combat
   level x attack damageMultiplier.
+  damageMultiplier (weapons felt way too strong, keep it low): common
+  1, uncommon 1.1, rare 1.2, epic 1.35, legendary 1.5, mythic 1.7,
+  artifact 2. Rarity power should come from slots and specials more
+  than raw damage.
 - Effects (effects/, base script in effects/base/): custom behavior
   for weapons AND rarities. WeaponEffectClass Resource with
   on_equip(weapon) (in _ready, for weapon visuals), on_attack(weapon),
@@ -358,7 +363,7 @@ Example: godot/weapons/base/weapon.gd
 - Elemental weapon effects = StatusOnHitEffectClass .tres
   (effects/status_on_hit/): status (StatusEffect added on hit with
   weapon.add_hit_status, scale_power(weapon.get_status_power()) if
-  scaleWithPower), chance (per hit; fire/frost/poison use 0.5, the
+  scaleWithPower), chance (per hit; fire/frost/poison use 0.4, the
   developer wants effects to be a chance, never a guarantee) and
   auraScene (spawned under the sprite on equip). Aura scenes use
   WeaponAuraClass: any Sprite2D child gets the weapon texture (glow via
@@ -395,15 +400,17 @@ Example: godot/weapons/base/weapon.gd
   rarity has no nextRarity), max get_max_attribute_level() = 30.
 - WeaponUpgradesClass (weapon_upgrades.tres, one shared file,
   preloaded by the item as UPGRADES): maxLevel (15), damagePerLevel
-  (+5% each). Upgrade costs go here later.
+  (0.03 = +3% each, x1.45 at max). Upgrade costs go here later.
 
 [Attributes]  godot/weapons/attributes/
 - AttributeClass (base/attribute.gd) = one attribute definition, a
   .tres in normal/ or special/. Exports attributeName, description
   ("{value}", "{chance}" and other placeholders, % and ° written in
-  the text), stat, scaling, trigger, chanceScaling, attackTypes,
-  special, inRandomPool, weight (roll chance weight; specials use 0.6,
-  attributes that need something else on the weapon 0.7-0.8).
+  the text), stat, scaling, trigger, chanceScaling, effectScene (VFX
+  spawned by spawn_effect), auraScene (weapon aura added on equip,
+  one per scene), attackTypes, special, inRandomPool, weight (roll
+  chance weight; specials use 0.6, attributes that need something
+  else on the weapon 0.7-0.8).
 - inRandomPool = ON/OFF switch: off = never picked by random rolls
   (still usable as a fixed artifact attribute). Every special .tres
   writes it out explicitly. For now EVERY attribute is on (testing).
@@ -423,7 +430,9 @@ Example: godot/weapons/base/weapon.gd
 - stat (enum AttributeClass.Stat): NONE, DAMAGE, CRIT_CHANCE,
   CRIT_DAMAGE, ATTACK_SPEED, KNOCKBACK, ATTACK_SIZE, ATTACK_ARC,
   EXTRA_TARGETS, STATUS_DAMAGE, MOVE_SPEED (10), STATUS_DURATION (11),
-  EFFECT_CHANCE (12), EFFECT_AREA (13).
+  EFFECT_CHANCE (12), EFFECT_AREA (13), EFFECT_DAMAGE (14, proc
+  damage: get_effect_damage_multiplier), PIERCE (15, projectile
+  maxHits), EXTRA_PROJECTILES (16).
   Plain stat attributes need no script: code reads
   weapon.get_stat(stat) where the stat matters (slash reads
   ATTACK_SIZE, ATTACK_ARC, EXTRA_TARGETS; player reads MOVE_SPEED;
@@ -456,9 +465,11 @@ Example: godot/weapons/base/weapon.gd
   Kills = the hit brought the target to 0 (area/lightning/status
   kills do not count).
   Helpers: get_hurtboxes_in_radius(weapon, center, radius, layer),
-  spawn_shockwave(weapon, center, radius, color, shrink),
-  static is_stat_used(weapon, chosen, stat) (weapon effects or chosen
-  attributes use that stat).
+  spawn_effect(weapon, position, radius, parent) (effectScene in the
+  weapon color), static is_stat_used(weapon, chosen, stat) (weapon
+  effects or chosen attributes use that stat).
+  Buffs pass a visualScene to add_buff (vfx/buffs/, BuffVisualClass on
+  the wielder: more stacks = more particle tiers + alpha).
   behaviors/:
   * StatBoostAttributeClass: only rolls when is_stat_used(its stat,
     or requiredStat if set) (Elemental Power, Lingering, Lucky, Wide
@@ -499,7 +510,15 @@ Example: godot/weapons/base/weapon.gd
     ChainLightningAttributeClass (countScaling jumps to the nearest new
     enemy within jumpRange, damage = hit damage x value; {count}),
     DoubleStrikeAttributeClass (performs matching attacks again after
-    delay), LifeStealAttributeClass (heals wielder healthComponent).
+    delay), LifeStealAttributeClass (life orb flies to the wielder and
+    heals), IdleDamageAttributeClass (idleTime since the last attack),
+    ChanceDamageAttributeClass (chance for bonus hit damage),
+    MarkAttributeClass (applies Mark; the next hit consumes it for
+    bonus damage), MeteorAttributeClass (meteor falls on the nearest
+    enemy, area fire damage), BladeStormAttributeClass (spinning blades
+    around the wielder for duration, spawns/blade_storm/),
+    ZoneAttributeClass (StatusZoneClass cloud that applies a status
+    every tick, spawns/plague_cloud/).
 - AttributePoolClass (pool/attribute_pool.tres, preloaded by the item
   as ATTRIBUTE_POOL): attributes (every rollable attribute),
   maxAttributes (5). roll_attributes(item, kept): weapon
@@ -508,58 +527,67 @@ Example: godot/weapons/base/weapon.gd
   rarity.maxSpecialAttributes; fixed specials count too).
   New attribute = .tres (+ behavior script if it does something new)
   and add it to attribute_pool.tres.
-- BALANCE RULE (developer): attributes must not be op. The strongest
-  percent values reach about 50% only at attribute level 30 with a
-  perfect roll; level 0 values are small (old values like 70-80% at
-  low levels felt insane). Plain Damage/Attack Speed stay near 20%.
-- 56 attributes (31 normal, 25 special). Exact numbers live in the
-  .tres files.
-  Value = level 0 worst-best (best at level 30); chance the same way.
+- BALANCE RULE (developer): attributes must not be op, and weapons
+  felt way too strong (twice). Level 0 values are small and grow about
+  3-4x by attribute level 30. Targets at level 30 with a perfect roll:
+  plain stats (Damage, Attack Speed, Slash Size, Move Speed) 10-12%,
+  conditional damage bonuses 20-30%, proc chances 15-40% (on crit / on
+  kill up to about 60%, the trigger is rarer), proc damage 35-45% of
+  the hit. One normal attribute is worth about +12% damage, a special
+  about +20%. Tradeoff penalties shrink a little with level. Counts are
+  capped low (+1 at level 15-20, never more).
+- 80 attributes (47 normal, 33 special). Exact numbers live in the
+  .tres files. Value = level 0 worst-best (level 30 best).
 - Normal (all attack types unless noted):
-  Damage 3-5% (20%), Crit Chance 2-4% (14%), Crit Damage 10-15% (45%),
-  Attack Speed 3-5% (17%), Knockback 20-30 (60), First Strike (full
-  health) 15-20% (50%), Executioner (below 35%) 10-15% (45%), Elemental
-  Power (status damage) 8-12% (42%), Slash Size [slash] 3-5% (17%),
-  Slash Arc [slash] 4-6° (21°), Cleave [slash] +1 (3), Heavy Strike
-  (every 4th attack) 15-20% (50%), Opportunist (vs afflicted) 8-12%
-  (36%), Lingering (status duration) 10-15% (45%), Swiftness (move
-  speed) 3-5% (14%), Crippling Blows (HIT 20-25% (40%): slow 8-12%
-  (27%) 1.5s), Adrenaline (kills: move speed 3s) 8-12% (27%), Lucky
-  (effect chance) 5-8% (23%), Wide Impact (effect area) 6-10% (28%),
-  Momentum (damage while moving) / Steadfast (standing still) 8-12%
-  (36%), Duelist (lone enemies, radius 28) 10-15% (45%), Brawler (per
-  enemy within 32, x5) 2-3% (9%), Wind Up (attacks: attack speed 1.5s
-  x8) 1-1.5% (4.5%), Precision (crits: crit chance 3s x5) 1-1.5%
-  (4.5%), Lacerate (HIT 20-25% (40%): bleed 20-25% (49%) of the hit
-  over 3s), Relentless (KILL 15-20% (35%): reset attack), Heavy Blade
-  (+15-20% (44%) damage, -12..-8% attack speed), Featherweight
-  (+10-13% (28%) attack speed, -10..-6% damage), Reckless (+20-25%
-  (49%) crit damage, -4..-2% crit chance), Colossus [slash] (+8-12%
-  (27%) slash size, -10..-6% attack speed).
+  Damage 2-3% (12%), Crit Chance 1-2% (8%), Crit Damage 6-10% (28%),
+  Attack Speed 2-3% (10.5%), Knockback 10-15 (30), First Strike 8-12%
+  (30%), Executioner (below 35%) 6-10% (25%), Elemental Power 5-8%
+  (26%), Slash Size [slash] 2-3% (10.5%), Slash Arc [slash] 3-4° (14°),
+  Cleave [slash] +1 (+2 at 20), Heavy Strike (every 3rd) 10-14% (29%),
+  Opportunist 5-8% (23%), Lingering 8-12% (30%), Swiftness 2-3% (9%),
+  Crippling Blows (HIT 10-14% (23%): slow 10-14% (23%)), Adrenaline
+  (kills: move speed 3s) 6-9% (18%), Lucky 4-6% (15%), Wide Impact 5-8%
+  (20%), Momentum / Steadfast 5-8% (23%), Duelist 6-10% (28%), Brawler
+  (x4) 1.5-2% (5%), Wind Up (x5) 0.8-1% (3.1%), Precision (x4) 0.8-1%
+  (3.1%), Lacerate (HIT 10-14% (23%): bleed 15-20% (35%) of the hit),
+  Relentless (KILL 8-12% (21%): reset attack), Heavy Blade (+8-10% (19%)
+  damage, -7..-5% attack speed), Featherweight (+8-10% (19%) attack
+  speed, -7..-5% damage), Reckless (+15-20% (35%) crit damage, -2..-1.5%
+  crit chance), Colossus [slash] (+6-9% (18%) size, -7..-5% attack
+  speed), Ambush (1.5s idle) 12-16% (31%), Onslaught (hits x6) 0.5-0.7%
+  (2.2%), Crushing Blow (6-8% (14%): +30-35% (44%)), Hamstring (CRIT
+  30-40% (61%): slow 20-25% (34%)), Staggering Blows (CRIT 12-16% (25%):
+  stun), Armor Break (CRIT 30-40% (61%): sunder 4-5% (9.5%)), Headhunter
+  (kills x5) 2-3% (7.5%) crit damage, Static (HIT 10-14% (21.5%): zap
+  20-25% (37%)), Singe (HIT 10-14% (20%): burn 2-3% (7.5%)), Chill (HIT
+  12-16% (22%): frost, frostbite 15-20% (32%)), Venom (HIT 10-14% (20%):
+  poison 0.7-1% (2.5%)), Potency (effect damage) 5-8% (20%), Piercing +1
+  (+2 at 20), Volley +1, Sweeping [slash] (+8-10° (20°), -7..-5% damage),
+  Juggernaut (+7-10% (20.5%) damage, -9..-6% move speed).
 - Special:
-  Life Steal 1-2% (5%), Area Damage (HIT 20-25% (40%): 30-35% (50%),
-  radius 20), Blade Waves [slash] (ATTACK 25-30% (45%): 30-35% (50%),
-  count 1 +1/10 lvls max 3), Burn (HIT 30-35% (50%): 5-8% (20%) per
-  tick), Frostbite (HIT 40-45% (60%): 30-35% (50%)), Poison (HIT 30-35%
-  (50%): 1.5-2% (5%) per stack), Double Strike [slash] (ATTACK 8-12%
-  (24%)), Chain Lightning (HIT 15-20% (29%): 25-30% (48%), jumps 2
-  +1/15 lvls max 4), Sunder (HIT 20-25% (40%): +6-8% (17%) damage
-  taken 3s), Culling (below 4-6% (9%) health), Detonation (KILL 40-50%
-  (65%): 25-30% (48%), radius 24), Frenzy (kills: attack speed 3s)
-  10-15% (30%), Bloodlust (kills: damage 5s x5) 2-3% (6%), Concussive
-  Blows (HIT 4-6% (12%): stun 0.6s), Smite (HIT 12-15% (21%): sky
-  lightning 30-35% (50%) lightning area damage incl. target, radius
-  16), Nova (ATTACK 15-20% (29%): 30-35% (50%) weapon damage around
-  you, radius 30), Critical Burst (CRIT 40-50% (65%): explode 25-30%
-  (48%), radius 20), Contagion (KILL 40-50% (80%): spread the
-  target's statuses, radius 32), Shrapnel (KILL 30-35% (50%): 3 (+1/15
-  lvls, max 5) slash wave shards 25-30% (48%) in all directions),
-  Vortex (HIT 8-12% (21%): pull enemies within 36 toward the target),
-  Repulse (HIT 8-12% (21%): push enemies within 28 away), Terrify (HIT
-  5-8% (14%): fear 1s), Thunderclap (KILL 25-35% (50%): stun everyone
-  within 28), Time Warp (KILL 30-40% (55%): slow everyone within 32 by
-  25-30% (45%)), Spirit Orbs (ATTACK 20-25% (40%): 1 (+1/10 lvls, max
-  3) homing orbs 25-30% (48%)).
+  Life Steal 0.8-1.2% (3%), Area Damage (HIT 12-16% (25%): 25-30% (39%)),
+  Blade Waves [slash] (ATTACK 15-20% (29%): x1 (x2 at 15) 20-25% (34%)),
+  Burn (HIT 20-25% (34%): 4-6% (13.5%) per tick), Frostbite (HIT 25-30%
+  (39%): 25-30% (42%)), Poison (HIT 20-25% (34%): 1-1.3% (3.4%) per
+  stack), Double Strike [slash] (ATTACK 6-9% (18%)), Chain Lightning
+  (HIT 10-14% (20%): 20-25% (34%), 2 jumps (3 at 20)), Sunder (HIT
+  12-16% (25%): +5-6% (12%) damage taken), Culling (below 3-4% (6.4%)),
+  Detonation (KILL 30-40% (55%): 20-25% (37%)), Frenzy (kills: attack
+  speed 3s) 8-12% (22.5%), Bloodlust (kills x5) 1.5-2% (4.1%),
+  Concussive Blows (HIT 3-4% (7.6%): stun 0.5s), Smite (HIT 8-10% (16%):
+  25-30% (42%)), Nova (ATTACK 10-14% (20%): 20-25% (37%)), Critical
+  Burst (CRIT 30-40% (55%): 20-25% (37%)), Contagion (KILL 30-40%
+  (61%)), Shrapnel (KILL 20-25% (37%): 3 shards (4 at 20) 20-25% (34%)),
+  Vortex / Repulse (HIT 6-9% (15%)), Terrify (HIT 3-5% (8.6%): fear 1s),
+  Thunderclap (KILL 20-25% (37%): stun nearby 0.5s), Time Warp (KILL
+  25-30% (42%): slow nearby 20-25% (34%)), Spirit Orbs (ATTACK 12-16%
+  (23.5%): x1 (x2 at 20) 25-30% (39%)), Meteor (ATTACK 6-8% (12.5%):
+  30-35% (45.5%)), Blade Storm (KILL 15-20% (32%): 6-8% (12.5%) per
+  tick), Death Mark (HIT 10-14% (21.5%): next hit +25-30% (42%)), Soul
+  Harvest (KILL 20-25% (37%): 2 orbs 20-25% (34%)), Combustion (CRIT
+  30-40% (55%): burn around 4-5% (11%)), Ice Spikes (HIT 8-10% (16%):
+  25-30% (42%) + slow), Plague Cloud (KILL 20-25% (37%): poison 1.3-1.6%
+  (3.4%)), Overload (CRIT 30-40% (52%): lightning x3 20-25% (34%)).
 - SlashAttack maxTargets (3, spear 4) + Cleave = enemies per slash.
 
 [Combat level]  godot/combat_level/
@@ -567,9 +595,11 @@ Example: godot/weapons/base/weapon.gd
   COMBAT_SCALING): growthPerLevel (0.1). get_multiplier(combatLevel)
   = (1 + growth) ^ (combatLevel - 1), so combat level 1 = x1 and
   every level is +10% on top of the last.
-- Enemies (not built) must scale health/damage with the SAME
-  get_multiplier(), so a weapon matching the island's combat level
-  always feels the same, and old low level weapons fall behind.
+- Enemies scale health with the SAME get_multiplier() (enemy.gd,
+  combatLevel set by the wave manager), so a weapon matching the
+  island's combat level always feels the same, and old low level
+  weapons fall behind. Balance weapons against enemies at combat
+  level 1 (regular enemy 40 HP, wooden sword 10 damage).
 
 [Enchant]  godot/weapons/enchant/
 - RarityClass enchantStyle (EnchantStyleClass, embedded): glowStrength,
@@ -636,9 +666,33 @@ Example: godot/weapons/base/weapon.gd
 - hit_spark/: HitSparkClass star burst (drawn spikes + flash +
   spark particles + glowing orbs). Vars: color, strength,
   sparkAmount, orbAmount, angle.
-- shockwave/: ShockwaveClass expanding ring + soft flash (radius,
-  color, shrink = ring closes inward, used by Vortex), used by area
-  attributes. Kept subtle: several at once must not blow out to white.
+- QUALITY BAR (developer): every effect must be as juicy as the
+  burn, frost and poison visuals: layered glow + flash + particles,
+  never a single cheap shape.
+- NO RINGS unless the effect really is an area pulse: only Nova,
+  Repulse, Vortex and Time Warp keep one (the developer found rings
+  everywhere too much).
+- ONLY FROST CHANGES THE SPRITE (its freeze overlay). Other status
+  visuals never recolor or overlay the target: body glows and dark
+  smoke/tar go BEHIND the sprite (z_index -2 inside the visual).
+- Framework (vfx/base/): VfxEffectClass = root of every one-shot
+  effect scene (baseRadius: scaled by radius / baseRadius, lifetime:
+  frees itself, shake, tinted: nodes that take the spawn color).
+  Parts to build effects in the editor: VfxFlashClass (Sprite2D scale
+  + fade, loop), VfxSpikesClass (star spikes), VfxRingClass (only for
+  the 4 above), VfxArcsClass (electric arcs), VfxOrbitClass (STAR or
+  SHARD shapes orbiting), VfxReticleClass (corner brackets).
+  vfx/shared/: additive material, soft dot/glow, flash, streak, pixel,
+  bubble textures and puff/shrink/twinkle curves. Reuse them.
+- One folder per effect: splash, explosion, nova, crit_burst, smite,
+  thunderclap, time_warp, contagion, vortex, repulse, execute,
+  heavy_impact, spark_burst, reset_flash, ice_spikes, mark_burst,
+  shrapnel_burst, soul_release, cast_flash, heal_burst, life_orb.
+  Kept subtle: several at once must not blow out to white.
+- Buff visuals (vfx/buffs/<name>/): BuffVisualClass on the wielder,
+  tiers (particle emitters turned on by stack count), stop() fades.
+- Weapon auras (weapons/auras/: arcane, blood, electric, explosive,
+  shadow, steel) = WeaponAuraClass scenes set as attribute auraScene.
 - lightning/: LightningClass jagged bolt between points (global
   positions, node sits at the scene origin), drawn with draw_polyline
   (glow + colored + white core, additive), re-jagged every flickerTime,
@@ -658,6 +712,10 @@ Example: godot/weapons/base/weapon.gd
   "status" = the StatusComponentClass it is on.
   Applied copies are duplicated (only exported vars are copied).
   New effect = script extending it + a .tres in its own folder.
+- StatusVisualClass (base/status_visual.gd): root of the new status
+  visuals. Children: Loop (fades in, particles stop on stop()), Burst
+  (one-shot on apply), Pulse (one-shot particles restarted by pulse():
+  on refresh, and bleed calls it every tick).
 - Interactions (expandable): StatusInteractionClass (base/) on an
   effect's interactions list: triggerEffects (effect names being
   applied), triggerDamageTypes (damage taken), blockTriggerEffect
@@ -685,19 +743,24 @@ Example: godot/weapons/base/weapon.gd
   poison_bubbles.tscn on the target. No interactions.
 - Slow (slow/): SlowEffectClass slowAmount (0-1, speed multiplier =
   1 - slowAmount, refresh/combine keep the highest). slow.tres 1.5s,
-  slow_weights.tscn (purple motes sinking at the feet).
+  slow_visual.tscn (purple puddle, falling gravity streaks, tar).
 - Stun (stun/): stun.tres uses SlowEffectClass with slowAmount 1,
-  0.6s, stun_stars.tscn (yellow stars orbiting above the head).
+  0.5s, stun_visual.tscn (head glow, orbiting stars, twinkles).
 - Sunder (sunder/): SunderEffectClass damageTakenBonus (target takes
   x (1 + bonus) damage from everything; refresh keeps highest, combine
-  adds). sunder.tres 3s, sunder_shards.tscn (red glow + shards).
+  adds). sunder.tres 3s, sunder_visual.tscn (orbiting hot shards,
+  embers, metal flakes).
 - Fear (fear/): FearEffectClass fleeSpeed (speed multiplier =
   -fleeSpeed: enemies walk backwards along their path, then return).
-  fear.tres 1s, fear_wisps.tscn (purple wisps above the head).
+  fear.tres 1s, fear_visual.tscn (shadow, smoke, wisps, sweat drops).
 - Bleed (bleed/): BleedEffectClass totalDamage dealt spread over the
   remaining ticks (refresh adds the new damage to what is left, combine
   adds), damageType bleed (red). bleed.tres 3s, tick 0.5s,
-  bleed_drops.tscn (red pixel drops).
+  bleed_visual.tscn (blood pool at the feet, drips, a blood spurt
+  Pulse on every tick, gash + spray on apply).
+- Mark (mark/): MarkEffectClass bonus (Death Mark: the next weapon hit
+  consumes it for +bonus damage). mark.tres 4s, mark_visual.tscn
+  (corner bracket reticle, motes).
 - Targets need a StatusComponent (+ hurtbox statusComponent set) to
   receive effects. Test dummies have one.
 
@@ -870,3 +933,13 @@ Input actions: left, right, up, down (WASD), attack (left mouse).
             25 new attributes (56 total), fear + bleed statuses, spirit
             orb homing projectile, tradeoff attributes. Test panel
             shows roll quality as bars.
+            VFX framework (vfx/base parts, shared textures), every
+            effect remade juicy, buff visuals, 6 weapon auras. 24 new
+            attributes (80 total), mark status, meteor, blade storm,
+            plague cloud zone, life orb, Effect Damage / Pierce /
+            Extra Projectiles stats.
+            Rings removed except nova/repulse/vortex/time warp. Only
+            frost changes the sprite (overlay shader removed), status
+            visuals rebuilt (Loop/Burst/Pulse), bleed redone with
+            spurts per tick. Weapons weakened: rarity x2 max, +3% per
+            level, elements 40%, stun 0.5s. All attributes rebalanced.

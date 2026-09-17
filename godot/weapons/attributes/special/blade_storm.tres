@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="BladeStormAttributeClass" format=3]
+
+[ext_resource type="Script" path="res://weapons/attributes/behaviors/blade_storm_attribute.gd" id="1_attribute"]
+[ext_resource type="Script" path="res://weapons/attributes/base/attribute_scaling.gd" id="2_scaling"]
+[ext_resource type="PackedScene" path="res://weapons/spawns/blade_storm/blade_storm.tscn" id="3_storm"]
+[ext_resource type="PackedScene" path="res://weapons/auras/steel/weapon_steel.tscn" id="4_aura"]
+
+[sub_resource type="Resource" id="Resource_scaling"]
+script = ExtResource("2_scaling")
+minBase = 0.06
+maxBase = 0.08
+perStep = 0.0015
+percent = true
+
+[sub_resource type="Resource" id="Resource_chance"]
+script = ExtResource("2_scaling")
+minBase = 0.15
+maxBase = 0.2
+perStep = 0.004
+percent = true
+
+[resource]
+script = ExtResource("1_attribute")
+stormScene = ExtResource("3_storm")
+duration = 2.5
+attributeName = "Blade Storm"
+description = "{chance}% on kill: Blade Storm {value}%"
+scaling = SubResource("Resource_scaling")
+trigger = 4
+chanceScaling = SubResource("Resource_chance")
+auraScene = ExtResource("4_aura")
+special = true
+inRandomPool = true
+weight = 0.6

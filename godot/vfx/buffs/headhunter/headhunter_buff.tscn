@@ -1,0 +1,66 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://vfx/base/buff_visual.gd" id="1_buff"]
+[ext_resource type="Material" path="res://vfx/shared/add_material.tres" id="2_add"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_glow.tres" id="3_glow"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_dot.tres" id="4_dot"]
+[ext_resource type="Texture2D" path="res://vfx/shared/streak.tres" id="5_streak"]
+[ext_resource type="Curve" path="res://vfx/shared/twinkle_curve.tres" id="6_twinkle"]
+[ext_resource type="Script" path="res://vfx/base/vfx_flash.gd" id="7_flash"]
+
+[sub_resource type="Gradient" id="Gradient_crimson"]
+offsets = PackedFloat32Array(0, 0.25, 1)
+colors = PackedColorArray(1, 0.9, 0.5, 1, 1, 0.3, 0.25, 1, 0.7, 0.05, 0.1, 0)
+
+[node name="HeadhunterBuff" type="Node2D" node_paths=PackedStringArray("tiers")]
+z_index = 1
+script = ExtResource("1_buff")
+tiers = [NodePath("Sparkles"), NodePath("Rays")]
+minAlpha = 0.5
+
+[node name="HeadGlow" type="Sprite2D" parent="."]
+texture_filter = 2
+material = ExtResource("2_add")
+position = Vector2(0, -6)
+scale = Vector2(0.55, 0.45)
+modulate = Color(1, 0.25, 0.2, 0.4)
+texture = ExtResource("3_glow")
+script = ExtResource("7_flash")
+duration = 0.45
+startScale = 0.85
+endScale = 1.1
+loop = true
+
+[node name="Sparkles" type="CPUParticles2D" parent="."]
+texture_filter = 2
+material = ExtResource("2_add")
+amount = 6
+texture = ExtResource("4_dot")
+lifetime = 0.55
+randomness = 0.5
+emission_shape = 3
+emission_rect_extents = Vector2(7, 7)
+gravity = Vector2(0, -10)
+scale_amount_min = 0.3
+scale_amount_max = 0.5
+scale_amount_curve = ExtResource("6_twinkle")
+color_ramp = SubResource("Gradient_crimson")
+
+[node name="Rays" type="CPUParticles2D" parent="."]
+texture_filter = 2
+material = ExtResource("2_add")
+amount = 4
+texture = ExtResource("5_streak")
+lifetime = 0.3
+randomness = 0.4
+emission_shape = 3
+emission_rect_extents = Vector2(6, 5)
+particle_flag_align_y = true
+direction = Vector2(0, -1)
+spread = 5.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 30.0
+initial_velocity_max = 45.0
+scale_amount_min = 0.35
+scale_amount_max = 0.6
+color_ramp = SubResource("Gradient_crimson")

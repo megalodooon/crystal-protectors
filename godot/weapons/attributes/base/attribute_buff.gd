@@ -6,6 +6,7 @@ var roll : AttributeRollClass
 var stat : AttributeClass.Stat = AttributeClass.Stat.NONE
 var stacks : int = 0
 var timeLeft : float = 0.0
+var visual : BuffVisualClass
 
 #------------------------#
 

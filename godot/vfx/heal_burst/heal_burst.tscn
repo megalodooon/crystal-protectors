@@ -1,0 +1,52 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://vfx/base/vfx_effect.gd" id="1_effect"]
+[ext_resource type="Material" path="res://vfx/shared/add_material.tres" id="2_add"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_glow.tres" id="3_glow"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_dot.tres" id="4_dot"]
+[ext_resource type="Curve" path="res://vfx/shared/twinkle_curve.tres" id="5_twinkle"]
+[ext_resource type="Script" path="res://vfx/base/vfx_flash.gd" id="6_flash"]
+
+[sub_resource type="Gradient" id="Gradient_life"]
+offsets = PackedFloat32Array(0, 0.25, 1)
+colors = PackedColorArray(1, 0.9, 0.9, 1, 1, 0.3, 0.35, 1, 0.8, 0.1, 0.15, 0)
+
+[node name="HealBurst" type="Node2D"]
+z_index = 2
+script = ExtResource("1_effect")
+baseRadius = 8.0
+lifetime = 0.7
+
+[node name="Glow" type="Sprite2D" parent="."]
+texture_filter = 2
+material = ExtResource("2_add")
+scale = Vector2(0.7, 0.9)
+modulate = Color(1, 0.3, 0.35, 1)
+texture = ExtResource("3_glow")
+script = ExtResource("6_flash")
+duration = 0.35
+startScale = 0.5
+endScale = 1.0
+startAlpha = 0.6
+
+[node name="Motes" type="CPUParticles2D" parent="."]
+texture_filter = 2
+material = ExtResource("2_add")
+amount = 7
+texture = ExtResource("4_dot")
+lifetime = 0.6
+one_shot = true
+explosiveness = 0.7
+randomness = 0.5
+local_coords = true
+emission_shape = 3
+emission_rect_extents = Vector2(5, 5)
+direction = Vector2(0, -1)
+spread = 20.0
+gravity = Vector2(0, -20)
+initial_velocity_min = 8.0
+initial_velocity_max = 18.0
+scale_amount_min = 0.3
+scale_amount_max = 0.55
+scale_amount_curve = ExtResource("5_twinkle")
+color_ramp = SubResource("Gradient_life")

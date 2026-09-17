@@ -2,17 +2,19 @@
 
 [ext_resource type="Script" path="res://weapons/attributes/behaviors/attack_count_damage_attribute.gd" id="1_attribute"]
 [ext_resource type="Script" path="res://weapons/attributes/base/attribute_scaling.gd" id="2_scaling"]
+[ext_resource type="PackedScene" path="res://vfx/heavy_impact/heavy_impact.tscn" id="3_effect"]
 
 [sub_resource type="Resource" id="Resource_scaling"]
 script = ExtResource("2_scaling")
-minBase = 0.15
-maxBase = 0.2
-perStep = 0.01
+minBase = 0.1
+maxBase = 0.14
+perStep = 0.005
 percent = true
 
 [resource]
 script = ExtResource("1_attribute")
-everyAttacks = 4
+everyAttacks = 3
 attributeName = "Heavy Strike"
-description = "Every {attacks}th attack: +{value}% Damage"
+description = "Every {attacks} attacks: +{value}% Damage"
 scaling = SubResource("Resource_scaling")
+effectScene = ExtResource("3_effect")

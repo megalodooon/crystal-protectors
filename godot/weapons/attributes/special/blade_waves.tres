@@ -5,19 +5,20 @@
 [ext_resource type="Script" path="res://weapons/attacks/base/attack_type.gd" id="3_attack_type"]
 [ext_resource type="Resource" path="res://weapons/attacks/types/slash.tres" id="4_slash"]
 [ext_resource type="PackedScene" path="res://weapons/projectiles/slash_wave/slash_wave.tscn" id="5_projectile"]
+[ext_resource type="PackedScene" path="res://weapons/auras/steel/weapon_steel.tscn" id="6_aura"]
 
 [sub_resource type="Resource" id="Resource_scaling"]
 script = ExtResource("2_scaling")
-minBase = 0.3
-maxBase = 0.35
-perStep = 0.005
+minBase = 0.2
+maxBase = 0.25
+perStep = 0.003
 percent = true
 
 [sub_resource type="Resource" id="Resource_chance"]
 script = ExtResource("2_scaling")
-minBase = 0.25
-maxBase = 0.3
-perStep = 0.005
+minBase = 0.15
+maxBase = 0.2
+perStep = 0.003
 percent = true
 
 [sub_resource type="Resource" id="Resource_count"]
@@ -25,8 +26,8 @@ script = ExtResource("2_scaling")
 minBase = 1.0
 maxBase = 1.0
 perStep = 1.0
-levelsPerStep = 10
-maxValue = 3.0
+levelsPerStep = 15
+maxValue = 2.0
 wholeNumber = true
 
 [resource]
@@ -38,6 +39,7 @@ description = "{chance}% Blade Waves x{count}: {value}%"
 scaling = SubResource("Resource_scaling")
 trigger = 1
 chanceScaling = SubResource("Resource_chance")
+auraScene = ExtResource("6_aura")
 attackTypes = Array[ExtResource("3_attack_type")]([ExtResource("4_slash")])
 special = true
 inRandomPool = true

@@ -1,0 +1,40 @@
+[gd_resource type="Resource" script_class="AreaDamageAttributeClass" format=3]
+
+[ext_resource type="Script" path="res://weapons/attributes/behaviors/area_damage_attribute.gd" id="1_attribute"]
+[ext_resource type="Script" path="res://weapons/attributes/base/attribute_scaling.gd" id="2_scaling"]
+[ext_resource type="Resource" path="res://damage/types/ice.tres" id="3_ice"]
+[ext_resource type="Resource" path="res://status_effects/slow/slow.tres" id="4_slow"]
+[ext_resource type="PackedScene" path="res://vfx/ice_spikes/ice_spikes.tscn" id="5_effect"]
+[ext_resource type="PackedScene" path="res://weapons/effects/frost/weapon_frost.tscn" id="6_aura"]
+
+[sub_resource type="Resource" id="Resource_scaling"]
+script = ExtResource("2_scaling")
+minBase = 0.25
+maxBase = 0.3
+perStep = 0.004
+percent = true
+
+[sub_resource type="Resource" id="Resource_chance"]
+script = ExtResource("2_scaling")
+minBase = 0.08
+maxBase = 0.1
+perStep = 0.002
+percent = true
+
+[resource]
+script = ExtResource("1_attribute")
+radius = 18.0
+includeTarget = true
+damageType = ExtResource("3_ice")
+status = ExtResource("4_slow")
+statusStrength = 0.3
+attributeName = "Ice Spikes"
+description = "{chance}% Ice Spikes: {value}% + slow"
+scaling = SubResource("Resource_scaling")
+trigger = 2
+chanceScaling = SubResource("Resource_chance")
+effectScene = ExtResource("5_effect")
+auraScene = ExtResource("6_aura")
+special = true
+inRandomPool = true
+weight = 0.6

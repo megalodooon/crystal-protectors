@@ -3,19 +3,21 @@
 [ext_resource type="Script" path="res://weapons/attributes/behaviors/projectile_attribute.gd" id="1_attribute"]
 [ext_resource type="Script" path="res://weapons/attributes/base/attribute_scaling.gd" id="2_scaling"]
 [ext_resource type="PackedScene" path="res://weapons/projectiles/slash_wave/slash_wave.tscn" id="3_projectile"]
+[ext_resource type="PackedScene" path="res://vfx/shrapnel_burst/shrapnel_burst.tscn" id="4_effect"]
+[ext_resource type="PackedScene" path="res://weapons/auras/steel/weapon_steel.tscn" id="5_aura"]
 
 [sub_resource type="Resource" id="Resource_scaling"]
 script = ExtResource("2_scaling")
-minBase = 0.25
-maxBase = 0.3
-perStep = 0.006
+minBase = 0.2
+maxBase = 0.25
+perStep = 0.003
 percent = true
 
 [sub_resource type="Resource" id="Resource_chance"]
 script = ExtResource("2_scaling")
-minBase = 0.3
-maxBase = 0.35
-perStep = 0.005
+minBase = 0.2
+maxBase = 0.25
+perStep = 0.004
 percent = true
 
 [sub_resource type="Resource" id="Resource_count"]
@@ -23,8 +25,8 @@ script = ExtResource("2_scaling")
 minBase = 3.0
 maxBase = 3.0
 perStep = 1.0
-levelsPerStep = 15
-maxValue = 5.0
+levelsPerStep = 20
+maxValue = 4.0
 wholeNumber = true
 
 [resource]
@@ -36,6 +38,8 @@ description = "{chance}% on kill: {count} shards {value}%"
 scaling = SubResource("Resource_scaling")
 trigger = 4
 chanceScaling = SubResource("Resource_chance")
+effectScene = ExtResource("4_effect")
+auraScene = ExtResource("5_aura")
 special = true
 inRandomPool = true
 weight = 0.6

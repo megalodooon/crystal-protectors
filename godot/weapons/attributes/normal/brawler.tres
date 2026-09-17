@@ -5,16 +5,16 @@
 
 [sub_resource type="Resource" id="Resource_scaling"]
 script = ExtResource("2_scaling")
-minBase = 0.02
-maxBase = 0.03
-perStep = 0.002
+minBase = 0.015
+maxBase = 0.02
+perStep = 0.001
 percent = true
 
 [resource]
 script = ExtResource("1_attribute")
 mode = 1
 radius = 32.0
-maxEnemies = 5
+maxEnemies = 4
 attributeName = "Brawler"
 description = "+{value}% Dmg per nearby enemy (x{max})"
 scaling = SubResource("Resource_scaling")

@@ -3,23 +3,26 @@
 [ext_resource type="Script" path="res://weapons/attributes/behaviors/debuff_attribute.gd" id="1_attribute"]
 [ext_resource type="Script" path="res://weapons/attributes/base/attribute_scaling.gd" id="2_scaling"]
 [ext_resource type="Resource" path="res://status_effects/stun/stun.tres" id="3_status"]
+[ext_resource type="PackedScene" path="res://vfx/thunderclap/thunderclap.tscn" id="4_effect"]
+[ext_resource type="PackedScene" path="res://weapons/auras/electric/weapon_electric.tscn" id="5_aura"]
 
 [sub_resource type="Resource" id="Resource_chance"]
 script = ExtResource("2_scaling")
-minBase = 0.25
-maxBase = 0.35
-perStep = 0.005
+minBase = 0.2
+maxBase = 0.25
+perStep = 0.004
 percent = true
 
 [resource]
 script = ExtResource("1_attribute")
 status = ExtResource("3_status")
 radius = 28.0
-color = Color(1, 0.9, 0.4, 1)
 attributeName = "Thunderclap"
 description = "{chance}% on kill: stun nearby {duration}s"
 trigger = 4
 chanceScaling = SubResource("Resource_chance")
+effectScene = ExtResource("4_effect")
+auraScene = ExtResource("5_aura")
 special = true
 inRandomPool = true
 weight = 0.6

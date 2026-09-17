@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="SlowEffectClass" format=3]
 
 [ext_resource type="Script" path="res://status_effects/slow/slow_effect.gd" id="1_slow"]
-[ext_resource type="PackedScene" path="res://status_effects/slow/slow_weights.tscn" id="2_weights"]
+[ext_resource type="PackedScene" path="res://status_effects/slow/slow_visual.tscn" id="2_weights"]
 
 [resource]
 script = ExtResource("1_slow")

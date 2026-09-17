@@ -5,9 +5,16 @@ class_name DebuffAttributeClass
 @export var status : StatusEffectClass
 @export var damageFromHit : bool = false
 @export var radius : float = 0.0
-@export var color : Color = Color.WHITE
 
 #------------------------#
+
+func can_roll(weapon : WeaponClass, chosen : Array[AttributeClass]) -> bool:
+	if not status or not super(weapon, chosen):
+		return false
+	for other in StatusAttributeClass.get_statuses(weapon, chosen):
+		if StatusAttributeClass.cancels(other, status) or StatusAttributeClass.cancels(status, other):
+			return false
+	return true
 
 func uses_stat(usedStat : Stat) -> bool:
 	if usedStat == Stat.STATUS_DURATION:
@@ -29,11 +36,12 @@ func on_proc(weapon : WeaponClass, roll : AttributeRollClass, hurtbox : HurtboxC
 	var value : float = roll.get_value(weapon.get_attribute_level())
 	if radius <= 0.0:
 		weapon.add_hit_status(create_status(weapon, value, damage))
+		spawn_effect(weapon, hurtbox.global_position)
 		return
 	var areaRadius : float = radius * weapon.get_area_multiplier()
 	for target in get_hurtboxes_in_radius(weapon, hurtbox.global_position, areaRadius, hurtbox.collision_layer):
 		weapon.apply_status(target, create_status(weapon, value, damage))
-	spawn_shockwave(weapon, hurtbox.global_position, areaRadius, color)
+	spawn_effect(weapon, hurtbox.global_position, areaRadius)
 
 func create_status(weapon : WeaponClass, value : float, damage : float) -> StatusEffectClass:
 	var newStatus : StatusEffectClass = status.duplicate()

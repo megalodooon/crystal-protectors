@@ -3,7 +3,6 @@ class_name ContagionAttributeClass
 
 
 @export var radius : float = 32.0
-@export var color : Color = Color.WHITE
 
 #------------------------#
 
@@ -22,4 +21,4 @@ func on_proc(weapon : WeaponClass, _roll : AttributeRollClass, hurtbox : Hurtbox
 			continue
 		for effect : StatusEffectClass in hurtbox.statusComponent.activeEffects.values():
 			target.apply_status(effect.duplicate())
-	spawn_shockwave(weapon, hurtbox.global_position, areaRadius, color)
+	spawn_effect(weapon, hurtbox.global_position, areaRadius)

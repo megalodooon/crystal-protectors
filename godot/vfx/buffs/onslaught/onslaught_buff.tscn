@@ -1,0 +1,72 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://vfx/base/buff_visual.gd" id="1_buff"]
+[ext_resource type="Material" path="res://vfx/shared/add_material.tres" id="2_add"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_glow.tres" id="3_glow"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_dot.tres" id="4_dot"]
+[ext_resource type="Texture2D" path="res://vfx/shared/streak.tres" id="5_streak"]
+[ext_resource type="Curve" path="res://vfx/shared/shrink_curve.tres" id="6_shrink"]
+[ext_resource type="Script" path="res://vfx/base/vfx_flash.gd" id="7_flash"]
+
+[sub_resource type="Gradient" id="Gradient_ember"]
+offsets = PackedFloat32Array(0, 0.2, 1)
+colors = PackedColorArray(1, 0.9, 0.5, 0, 1, 0.6, 0.2, 1, 0.9, 0.25, 0.05, 0)
+
+[node name="OnslaughtBuff" type="Node2D" node_paths=PackedStringArray("tiers")]
+z_index = 1
+script = ExtResource("1_buff")
+tiers = [NodePath("Embers"), NodePath("Streaks")]
+minAlpha = 0.45
+
+[node name="Ground" type="Sprite2D" parent="."]
+z_index = -2
+texture_filter = 2
+material = ExtResource("2_add")
+position = Vector2(0, 7.5)
+scale = Vector2(0.65, 0.22)
+modulate = Color(1, 0.5, 0.15, 0.45)
+texture = ExtResource("3_glow")
+script = ExtResource("7_flash")
+duration = 0.5
+startScale = 0.85
+endScale = 1.1
+loop = true
+
+[node name="Embers" type="CPUParticles2D" parent="."]
+texture_filter = 2
+material = ExtResource("2_add")
+amount = 8
+texture = ExtResource("4_dot")
+lifetime = 0.6
+randomness = 0.5
+emission_shape = 3
+emission_rect_extents = Vector2(6, 7)
+direction = Vector2(0, -1)
+spread = 30.0
+gravity = Vector2(0, -25)
+initial_velocity_min = 3.0
+initial_velocity_max = 8.0
+scale_amount_min = 0.3
+scale_amount_max = 0.55
+scale_amount_curve = ExtResource("6_shrink")
+color_ramp = SubResource("Gradient_ember")
+
+[node name="Streaks" type="CPUParticles2D" parent="."]
+texture_filter = 2
+material = ExtResource("2_add")
+amount = 5
+texture = ExtResource("5_streak")
+lifetime = 0.3
+randomness = 0.4
+emission_shape = 3
+emission_rect_extents = Vector2(7, 5)
+particle_flag_align_y = true
+direction = Vector2(0, -1)
+spread = 5.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 35.0
+initial_velocity_max = 55.0
+scale_amount_min = 0.35
+scale_amount_max = 0.6
+scale_amount_curve = ExtResource("6_shrink")
+color_ramp = SubResource("Gradient_ember")

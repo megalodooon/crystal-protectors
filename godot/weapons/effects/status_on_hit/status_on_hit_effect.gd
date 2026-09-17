@@ -17,13 +17,7 @@ func uses_stat(stat : AttributeClass.Stat) -> bool:
 	return stat == AttributeClass.Stat.STATUS_DURATION
 
 func on_equip(weapon : WeaponClass) -> void:
-	var sprite : Sprite2D = weapon.get_sprite()
-	if not auraScene or not sprite:
-		return
-	var aura : WeaponAuraClass = auraScene.instantiate()
-	aura.texture = sprite.texture
-	aura.points = WeaponClass.get_pixel_points(sprite.texture, true)
-	sprite.add_child(aura)
+	weapon.add_aura(auraScene)
 
 func on_hit(weapon : WeaponClass, _hurtbox : HurtboxComponentClass, _damage : float) -> void:
 	if not status or not weapon.roll_chance(chance):

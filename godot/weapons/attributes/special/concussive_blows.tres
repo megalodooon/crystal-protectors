@@ -3,12 +3,13 @@
 [ext_resource type="Script" path="res://weapons/attributes/behaviors/debuff_attribute.gd" id="1_attribute"]
 [ext_resource type="Script" path="res://weapons/attributes/base/attribute_scaling.gd" id="2_scaling"]
 [ext_resource type="Resource" path="res://status_effects/stun/stun.tres" id="3_status"]
+[ext_resource type="PackedScene" path="res://weapons/auras/steel/weapon_steel.tscn" id="4_aura"]
 
 [sub_resource type="Resource" id="Resource_chance"]
 script = ExtResource("2_scaling")
-minBase = 0.04
-maxBase = 0.06
-perStep = 0.002
+minBase = 0.03
+maxBase = 0.04
+perStep = 0.0012
 percent = true
 
 [resource]
@@ -18,6 +19,7 @@ attributeName = "Concussive Blows"
 description = "{chance}% Stun for {duration}s"
 trigger = 2
 chanceScaling = SubResource("Resource_chance")
+auraScene = ExtResource("4_aura")
 special = true
 inRandomPool = true
 weight = 0.6

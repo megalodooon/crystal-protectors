@@ -2,12 +2,14 @@
 
 [ext_resource type="Script" path="res://weapons/attributes/behaviors/cull_attribute.gd" id="1_attribute"]
 [ext_resource type="Script" path="res://weapons/attributes/base/attribute_scaling.gd" id="2_scaling"]
+[ext_resource type="PackedScene" path="res://vfx/execute/execute.tscn" id="3_effect"]
+[ext_resource type="PackedScene" path="res://weapons/auras/shadow/weapon_shadow.tscn" id="4_aura"]
 
 [sub_resource type="Resource" id="Resource_scaling"]
 script = ExtResource("2_scaling")
-minBase = 0.04
-maxBase = 0.06
-perStep = 0.001
+minBase = 0.03
+maxBase = 0.04
+perStep = 0.0008
 percent = true
 
 [resource]
@@ -15,6 +17,8 @@ script = ExtResource("1_attribute")
 attributeName = "Culling"
 description = "Cull enemies below {value}% health"
 scaling = SubResource("Resource_scaling")
+effectScene = ExtResource("3_effect")
+auraScene = ExtResource("4_aura")
 special = true
 inRandomPool = true
 weight = 0.6

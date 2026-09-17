@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="TradeoffAttributeClass" format=3]
+
+[ext_resource type="Script" path="res://weapons/attributes/behaviors/tradeoff_attribute.gd" id="1_attribute"]
+[ext_resource type="Script" path="res://weapons/attributes/base/attribute_scaling.gd" id="2_scaling"]
+[ext_resource type="Script" path="res://weapons/attacks/base/attack_type.gd" id="3_attack_type"]
+[ext_resource type="Resource" path="res://weapons/attacks/types/slash.tres" id="4_slash"]
+
+[sub_resource type="Resource" id="Resource_scaling"]
+script = ExtResource("2_scaling")
+minBase = 8.0
+maxBase = 10.0
+perStep = 1.0
+levelsPerStep = 3
+wholeNumber = true
+
+[sub_resource type="Resource" id="Resource_second"]
+script = ExtResource("2_scaling")
+minBase = -0.07
+maxBase = -0.05
+perStep = 0.0005
+percent = true
+
+[resource]
+script = ExtResource("1_attribute")
+secondStat = 1
+secondScaling = SubResource("Resource_second")
+attributeName = "Sweeping"
+description = "+{value}° Slash Arc, {second}% Damage"
+stat = 7
+scaling = SubResource("Resource_scaling")
+attackTypes = Array[ExtResource("3_attack_type")]([ExtResource("4_slash")])

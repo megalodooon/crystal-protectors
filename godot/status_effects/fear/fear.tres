@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="FearEffectClass" format=3]
 
 [ext_resource type="Script" path="res://status_effects/fear/fear_effect.gd" id="1_fear"]
-[ext_resource type="PackedScene" path="res://status_effects/fear/fear_wisps.tscn" id="2_wisps"]
+[ext_resource type="PackedScene" path="res://status_effects/fear/fear_visual.tscn" id="2_wisps"]
 
 [resource]
 script = ExtResource("1_fear")

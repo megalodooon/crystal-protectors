@@ -29,7 +29,11 @@ func apply_effect(effect : StatusEffectClass) -> void:
 	if blocked:
 		return
 	if activeEffects.has(effect.effectName):
-		activeEffects[effect.effectName].refresh(effect)
+		var existing : StatusEffectClass = activeEffects[effect.effectName]
+		existing.refresh(effect)
+		var existingVisual : StatusVisualClass = existing.visual as StatusVisualClass
+		if existingVisual:
+			existingVisual.pulse()
 		return
 	var newEffect : StatusEffectClass = effect.duplicate()
 	newEffect.status = self
@@ -54,10 +58,14 @@ func remove_effect(effect : StatusEffectClass) -> void:
 		return
 	activeEffects.erase(effect.effectName)
 	effect.on_remove()
-	if effect.visual:
+	var statusVisual : StatusVisualClass = effect.visual as StatusVisualClass
+	if statusVisual:
+		statusVisual.stop()
+	elif effect.visual:
 		for child in effect.visual.get_children():
 			if child is CPUParticles2D:
 				child.emitting = false
+	if effect.visual:
 		get_tree().create_timer(1.0).timeout.connect(effect.visual.queue_free)
 	effect_removed.emit(effect)
 

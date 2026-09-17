@@ -1,0 +1,134 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://vfx/base/vfx_effect.gd" id="1_effect"]
+[ext_resource type="Material" path="res://vfx/shared/add_material.tres" id="2_add"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_glow.tres" id="3_glow"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_dot.tres" id="4_dot"]
+[ext_resource type="Texture2D" path="res://vfx/shared/pixel.tres" id="5_pixel"]
+[ext_resource type="Texture2D" path="res://vfx/shared/bubble.tres" id="6_bubble"]
+[ext_resource type="Curve" path="res://vfx/shared/puff_curve.tres" id="7_puff"]
+[ext_resource type="Script" path="res://vfx/base/vfx_flash.gd" id="8_flash"]
+
+[sub_resource type="Gradient" id="Gradient_toxic"]
+offsets = PackedFloat32Array(0, 0.2, 0.6, 1)
+colors = PackedColorArray(0.85, 1, 0.6, 1, 0.55, 0.95, 0.3, 0.8, 0.3, 0.7, 0.15, 0.45, 0.15, 0.4, 0.05, 0)
+
+[sub_resource type="Gradient" id="Gradient_murk"]
+offsets = PackedFloat32Array(0, 0.25, 1)
+colors = PackedColorArray(0.1, 0.25, 0.05, 0, 0.12, 0.28, 0.06, 0.55, 0.05, 0.12, 0.02, 0)
+
+[sub_resource type="Gradient" id="Gradient_drop"]
+offsets = PackedFloat32Array(0, 0.7, 1)
+colors = PackedColorArray(0.7, 1, 0.45, 1, 0.4, 0.85, 0.2, 1, 0.3, 0.6, 0.1, 0)
+
+[sub_resource type="Curve" id="Curve_pop"]
+_data = [Vector2(0, 0.4), 0.0, 0.0, 0, 0, Vector2(0.8, 1), 0.0, 0.0, 0, 0, Vector2(1, 1.4), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[node name="Contagion" type="Node2D"]
+z_index = 2
+script = ExtResource("1_effect")
+baseRadius = 32.0
+lifetime = 1.4
+shake = 0.4
+
+[node name="Ground" type="Sprite2D" parent="."]
+z_index = -3
+texture_filter = 2
+material = ExtResource("2_add")
+position = Vector2(0, 4)
+scale = Vector2(2.2, 0.8)
+modulate = Color(0.45, 0.95, 0.25, 0.5)
+texture = ExtResource("3_glow")
+script = ExtResource("8_flash")
+duration = 1.0
+startScale = 0.2
+endScale = 1.0
+
+[node name="Murk" type="CPUParticles2D" parent="."]
+texture_filter = 2
+amount = 8
+texture = ExtResource("4_dot")
+lifetime = 1.1
+one_shot = true
+explosiveness = 0.9
+randomness = 0.5
+local_coords = true
+emission_shape = 1
+emission_sphere_radius = 5.0
+spread = 180.0
+gravity = Vector2(0, -6)
+initial_velocity_min = 15.0
+initial_velocity_max = 35.0
+damping_min = 25.0
+damping_max = 35.0
+scale_amount_min = 2.4
+scale_amount_max = 3.4
+scale_amount_curve = ExtResource("7_puff")
+color_ramp = SubResource("Gradient_murk")
+
+[node name="Cloud" type="CPUParticles2D" parent="."]
+texture_filter = 2
+material = ExtResource("2_add")
+amount = 14
+texture = ExtResource("4_dot")
+lifetime = 0.9
+one_shot = true
+explosiveness = 0.9
+randomness = 0.5
+local_coords = true
+emission_shape = 1
+emission_sphere_radius = 4.0
+spread = 180.0
+gravity = Vector2(0, -8)
+initial_velocity_min = 20.0
+initial_velocity_max = 48.0
+damping_min = 35.0
+damping_max = 55.0
+scale_amount_min = 1.8
+scale_amount_max = 2.8
+scale_amount_curve = ExtResource("7_puff")
+color_ramp = SubResource("Gradient_toxic")
+
+[node name="Droplets" type="CPUParticles2D" parent="."]
+texture_filter = 2
+material = ExtResource("2_add")
+amount = 18
+texture = ExtResource("5_pixel")
+lifetime = 0.6
+one_shot = true
+explosiveness = 1.0
+randomness = 0.5
+local_coords = true
+direction = Vector2(0, -1)
+spread = 180.0
+gravity = Vector2(0, 110)
+initial_velocity_min = 40.0
+initial_velocity_max = 90.0
+damping_min = 20.0
+damping_max = 40.0
+scale_amount_min = 0.5
+scale_amount_max = 1.0
+color_ramp = SubResource("Gradient_drop")
+
+[node name="Bubbles" type="CPUParticles2D" parent="."]
+texture_filter = 2
+material = ExtResource("2_add")
+amount = 10
+texture = ExtResource("6_bubble")
+lifetime = 0.8
+one_shot = true
+explosiveness = 0.7
+randomness = 0.5
+local_coords = true
+emission_shape = 1
+emission_sphere_radius = 18.0
+direction = Vector2(0, -1)
+spread = 30.0
+gravity = Vector2(0, -12)
+initial_velocity_min = 4.0
+initial_velocity_max = 10.0
+scale_amount_min = 0.5
+scale_amount_max = 0.9
+scale_amount_curve = SubResource("Curve_pop")
+color_ramp = SubResource("Gradient_drop")
