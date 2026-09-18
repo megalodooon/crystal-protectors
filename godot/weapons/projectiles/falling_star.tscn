@@ -47,22 +47,22 @@ loop = true
 [node name="Trail" type="CPUParticles2D" parent="Rock"]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 32
+amount = 20
 texture = ExtResource("4_dot")
 lifetime = 0.3
 randomness = 0.3
 emission_shape = 1
 emission_sphere_radius = 1.5
 gravity = Vector2(0, 0)
-scale_amount_min = 0.9
-scale_amount_max = 1.4
+scale_amount_min = 0.5
+scale_amount_max = 0.8
 scale_amount_curve = ExtResource("6_shrink")
 color_ramp = SubResource("Gradient_trail")
 
 [node name="Glitter" type="CPUParticles2D" parent="Rock"]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 10
+amount = 5
 texture = ExtResource("5_sparkle")
 lifetime = 0.55
 randomness = 0.5
@@ -78,20 +78,20 @@ color_ramp = SubResource("Gradient_glitter")
 texture_filter = 2
 material = ExtResource("2_add")
 position = Vector2(-12, 0)
-scale = Vector2(1.8, 0.35)
-modulate = Color(0.55, 0.7, 1, 0.8)
+scale = Vector2(1.1, 0.22)
+modulate = Color(0.55, 0.7, 1, 0.6)
 texture = ExtResource("3_glow")
 
 [node name="Glow" type="Sprite2D" parent="Rock"]
 texture_filter = 2
 material = ExtResource("2_add")
-scale = Vector2(0.7, 0.7)
-modulate = Color(0.65, 0.8, 1, 0.9)
+scale = Vector2(0.4, 0.4)
+modulate = Color(0.65, 0.8, 1, 0.6)
 texture = ExtResource("3_glow")
 
 [node name="Star" type="Sprite2D" parent="Rock"]
 texture_filter = 2
 material = ExtResource("2_add")
 rotation = 0.785398
-scale = Vector2(1.3, 1.3)
+scale = Vector2(0.8, 0.8)
 texture = ExtResource("5_sparkle")

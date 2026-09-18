@@ -10,6 +10,7 @@
 [ext_resource type="Curve" path="res://vfx/shared/twinkle_curve.tres" id="8_twinkle"]
 [ext_resource type="Script" path="res://vfx/base/vfx_flash.gd" id="9_flash"]
 [ext_resource type="Script" path="res://vfx/base/vfx_spikes.gd" id="10_spikes"]
+[ext_resource type="Texture2D" path="res://weapons/projectiles/judgement_sword.png" id="11_sword"]
 
 [sub_resource type="Gradient" id="Gradient_spark"]
 offsets = PackedFloat32Array(0, 0.25, 1)
@@ -33,18 +34,6 @@ tracks/0/keys = {
 "transitions": PackedFloat32Array(1, 2, 1),
 "update": 0,
 "values": [Color(1, 1, 1, 1), Color(1, 1, 1, 0.9), Color(1, 1, 1, 0)]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("Sword:scale")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.08, 0.9),
-"transitions": PackedFloat32Array(0.5, 1, 1),
-"update": 0,
-"values": [Vector2(1.25, 0.8), Vector2(1, 1), Vector2(0.7, 1.1)]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_impact"]
@@ -87,30 +76,9 @@ endScale = 0.85
 [node name="Sword" type="Node2D" parent="."]
 position = Vector2(0, 4)
 
-[node name="Blade" type="Polygon2D" parent="Sword"]
-antialiased = true
-color = Color(1, 0.96, 0.82, 0.95)
-polygon = PackedVector2Array(-2.5, -24, 2.5, -24, 2.5, -2, 0, 3, -2.5, -2)
-
-[node name="Edge" type="Polygon2D" parent="Sword"]
-antialiased = true
-color = Color(1, 1, 1, 1)
-polygon = PackedVector2Array(-0.7, -24, 0.7, -24, 0.7, -3, 0, 1, -0.7, -3)
-
-[node name="Guard" type="Polygon2D" parent="Sword"]
-antialiased = true
-color = Color(1, 0.8, 0.35, 1)
-polygon = PackedVector2Array(-8, -27, 8, -27, 8, -24, -8, -24)
-
-[node name="Hilt" type="Polygon2D" parent="Sword"]
-antialiased = true
-color = Color(0.95, 0.72, 0.3, 1)
-polygon = PackedVector2Array(-1.5, -35, 1.5, -35, 1.5, -27, -1.5, -27)
-
-[node name="Pommel" type="Polygon2D" parent="Sword"]
-antialiased = true
-color = Color(1, 0.85, 0.4, 1)
-polygon = PackedVector2Array(0, -38, 2.5, -36, 0, -34, -2.5, -36)
+[node name="Sprite" type="Sprite2D" parent="Sword"]
+position = Vector2(0, -16)
+texture = ExtResource("11_sword")
 
 [node name="Glow" type="Sprite2D" parent="Sword"]
 texture_filter = 2

@@ -3,11 +3,11 @@
 [ext_resource type="Script" path="res://weapons/projectiles/meteor.gd" id="1_meteor"]
 [ext_resource type="Material" path="res://vfx/shared/add_material.tres" id="2_add"]
 [ext_resource type="Texture2D" path="res://vfx/shared/soft_glow.tres" id="3_glow"]
-[ext_resource type="Texture2D" path="res://vfx/shared/flash_glow.tres" id="4_flash"]
 [ext_resource type="Texture2D" path="res://vfx/shared/soft_dot.tres" id="5_dot"]
 [ext_resource type="Curve" path="res://vfx/shared/shrink_curve.tres" id="6_shrink"]
 [ext_resource type="Curve" path="res://vfx/shared/puff_curve.tres" id="7_puff"]
 [ext_resource type="PackedScene" path="res://vfx/effects/explosion.tscn" id="9_explosion"]
+[ext_resource type="Texture2D" path="res://weapons/projectiles/meteor_rock.png" id="10_rock"]
 
 [sub_resource type="Gradient" id="Gradient_fire"]
 offsets = PackedFloat32Array(0, 0.2, 0.55, 1)
@@ -37,59 +37,39 @@ texture = ExtResource("3_glow")
 
 [node name="Smoke" type="CPUParticles2D" parent="Rock"]
 texture_filter = 2
-amount = 14
+amount = 8
 texture = ExtResource("5_dot")
 lifetime = 0.5
 randomness = 0.4
 emission_shape = 1
 emission_sphere_radius = 2.0
 gravity = Vector2(0, -10)
-scale_amount_min = 1.2
-scale_amount_max = 1.8
+scale_amount_min = 0.8
+scale_amount_max = 1.1
 scale_amount_curve = ExtResource("7_puff")
 color_ramp = SubResource("Gradient_smoke")
 
 [node name="Trail" type="CPUParticles2D" parent="Rock"]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 36
+amount = 24
 texture = ExtResource("5_dot")
 lifetime = 0.28
 randomness = 0.3
 emission_shape = 1
 emission_sphere_radius = 2.5
 gravity = Vector2(0, 0)
-scale_amount_min = 1.5
-scale_amount_max = 2.1
+scale_amount_min = 0.7
+scale_amount_max = 1.0
 scale_amount_curve = ExtResource("6_shrink")
 color_ramp = SubResource("Gradient_fire")
-
-[node name="Tail" type="Sprite2D" parent="Rock"]
-texture_filter = 2
-material = ExtResource("2_add")
-position = Vector2(-14, 0)
-scale = Vector2(2.2, 0.5)
-modulate = Color(1, 0.45, 0.1, 0.85)
-texture = ExtResource("3_glow")
-
-[node name="TailCore" type="Sprite2D" parent="Rock"]
-texture_filter = 2
-material = ExtResource("2_add")
-position = Vector2(-8, 0)
-scale = Vector2(1.2, 0.22)
-modulate = Color(1, 0.85, 0.5, 0.9)
-texture = ExtResource("3_glow")
 
 [node name="Glow" type="Sprite2D" parent="Rock"]
 texture_filter = 2
 material = ExtResource("2_add")
-scale = Vector2(0.9, 0.9)
-modulate = Color(1, 0.5, 0.15, 0.9)
+scale = Vector2(0.6, 0.6)
+modulate = Color(1, 0.5, 0.15, 0.6)
 texture = ExtResource("3_glow")
 
 [node name="Core" type="Sprite2D" parent="Rock"]
-texture_filter = 2
-material = ExtResource("2_add")
-scale = Vector2(0.45, 0.45)
-modulate = Color(1, 0.9, 0.65, 1)
-texture = ExtResource("4_flash")
+texture = ExtResource("10_rock")

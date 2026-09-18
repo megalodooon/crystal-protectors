@@ -435,7 +435,10 @@ Example: godot/weapons/base/weapon.gd
   Particles are world space (local_coords off): they stay where they
   spawn and do NOT move with the player (developer, 2026-09-18; a
   wielder-space version was tried and rejected). EnchantClass extends it.
-  Particles use soft_dot / sparkle.png, never bare square pixels.
+  Particles use soft_dot / sparkle.png, never bare square pixels, and
+  stay sparse (developer: high rarity weapons had way too many).
+  Summoned objects (swords, crystals, rocks) are pixel art sprites, not
+  Polygon2D shapes (those looked like vector art and did not fit).
 - WeaponClass.get_sprite() = first Visuals Sprite2D.
   WeaponClass.get_pixel_points(texture, bladeOnly) = opaque pixel
   positions for particle emission (bladeOnly keeps the top-right half,
