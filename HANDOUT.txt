@@ -95,7 +95,7 @@ coding style (section 5). Follow it exactly.
   core/ (GameFeel autoload, NumberFormat, combat scaling),
   components/, damage/ (damage type script + types),
   enemies/ (enemy scenes + modifier chances), paths/, player/,
-  waves/, status_effects/ (base, fire, frost, poison, lightning,
+  waves/ (wave manager, waves, spawn groups, portal), status_effects/ (base, fire, frost, poison, lightning,
   water, debuffs, modifiers), vfx/ (base = parts, shared = textures
   and curves, effects = one-shot effect scenes, buffs),
   weapons/ (attacks, attributes/{base, behaviors, normal, special},
@@ -110,14 +110,23 @@ coding style (section 5). Follow it exactly.
   C weapon combat level +1, Z enemy combat level +1 (label shows the
   modifier chance), T cycles a test element on the held weapon
   (testElements: fire, frost, poison, lightning, water), G start next
-  wave, V show/hide attribute panel (5 bars in front = roll quality,
+  wave (auto waves also start by countdown), V show/hide attribute panel (5 bars in front = roll quality,
   specials in rarity color), X reroll attributes. The starting item
   rolls attributes on start.
-  Has a Camera2D, two hit dummies (top right, out of the paths),
-  labels (UpgradeLabel shows level, combat level, damage; WaveLabel),
-  a PathNetwork (PathWest on; PathNorth = its own spawn in the
-  middle top, merges into PathWest, turned on by wave 2) and a
-  WaveManager with 3 waves. enemySpriteScales and
+  Map is 512x288 (bigger than the screen): Ground (tiled noise
+  texture, z -10), Camera2D inside Player (smoothing, limits = map).
+  Two hit dummies below the player start (center, out of the paths).
+  HUD: CanvasLayer/HUD Control holds a Theme (default_font_size 5,
+  Label line_spacing 0): change the text size of ALL labels there.
+  Labels: RarityLabel, WaveLabel (countdown for auto waves),
+  UpgradeLabel (anchored bottom), AttributePanel.
+  PathNetwork: PathWest (on, portal top left), PathEast (portal
+  bottom right), PathNorth (portal top middle, merges into PathEast),
+  Shortcut (branch of PathWest that merges back into it, turned on
+  by wave 3). Both main paths end at the map center (future crystal).
+  WaveManager with 5 waves showing every option (chained groups,
+  bursts, forced Swift/Fortified modifiers, auto start, a boss with
+  health x10). enemySpriteScales and
   enemyColors (test.gd) size and tint enemies ONLY in the test
   scene: enemy scenes keep unscaled placeholder sprites on purpose
   (real size-appropriate sprites come later).
@@ -864,8 +873,9 @@ Example: godot/weapons/base/weapon.gd
   pulse travels from the spawn paths through active branches and
   merges, leaves an afterglow, then fades and repeats (network clock,
   all paths in sync). Only paths the pulse reaches are visible.
-  set_spawn_paths(paths) (WaveManager passes the next wave's SpawnGroup
-  paths; empty = every active path that is not fed by a branch).
+  set_spawn_paths(paths) (WaveManager passes the paths of the next
+  wave's portals; empty = every active path that is not fed by a
+  branch). A spawn path holds a Portal node (see [Waves]).
   play_preview() / stop_preview(). During a wave (stopped) the same
   paths stay visible, grayed out and transparent (waveOpacity).
   playOnStart export.
@@ -890,7 +900,10 @@ Example: godot/weapons/base/weapon.gd
   statusComponent. Visuals/
   Sprite2D like the player, walk animation, Hurtbox (Enemy Hurtbox) +
   StatusComponent. Health x COMBAT_SCALING.get_multiplier(combatLevel)
-  (combatLevel set by the WaveManager). died -> die() (queue_free),
+  x healthMultiplier; movementComponent.speedMultiplier =
+  speedMultiplier; modifier (set = always that modifier, empty = the
+  random roll). The WaveManager sets all four before add_child.
+  died -> die() (queue_free),
   reached_end -> on_reached_end() (queue_free for now, no crystal yet).
   Signals connected in the scene.
 - Spawn modifiers: EnemyModifiersClass (enemy_modifiers.gd/.tres,
@@ -913,18 +926,57 @@ Example: godot/weapons/base/weapon.gd
   continue on mergeInto. reached_end signal.
 
 [Waves]  godot/waves/
+- Setup is all nodes: WaveManager > Wave nodes (amount of waves =
+  amount of Wave children, in order) > SpawnGroup nodes (which enemy,
+  how many, from which portal). Duplicate nodes to add waves/groups.
 - WaveManager node (WaveManagerClass): exports pathNetwork,
-  enemyParent (empty = current scene), combatLevel. Children = Wave
-  nodes in order. start_next_wave(). Signals wave_started,
-  wave_finished, enemy_spawned(enemy). A wave ends when everything
-  spawned and every enemy is gone.
-- Wave node (WaveClass): activatePaths (e.g. branches enemies may take
-  from now on). Children = SpawnGroup nodes. get_spawn_paths().
-  When a wave is NEXT (level start / previous wave done) its
-  activatePaths and every path its SpawnGroups use turn on, the
-  network gets its spawn paths, then the path preview plays.
-- SpawnGroup node (SpawnGroupClass): enemyScene, path, count,
-  interval, delay.
+  enemyParent (empty = current scene), combatLevel. start_next_wave(),
+  get_wave() (running or next wave, null = all done),
+  get_enemies_left(), autoStartTimeLeft (countdown, 0 = manual).
+  Signals wave_started, wave_finished, all_waves_finished,
+  enemy_spawned(enemy). A wave ends when everything spawned and every
+  enemy is gone. Enemy combat level = combatLevel + wave bonus + group
+  bonus; health/speed = wave x group multipliers.
+  Enemies only count as removed when queue_freed (dying or reaching
+  the end), so quitting the game never triggers spawns.
+- Wave node (WaveClass): waveName (shown in the HUD, empty = none),
+  autoStartTime (0 = wait for start_next_wave, above 0 = starts by
+  itself that many seconds after it became next), activatePaths /
+  deactivatePaths (e.g. a branch enemies may take from now on),
+  Enemy Stats group: combatLevelBonus, healthMultiplier,
+  speedMultiplier. get_spawn_groups(), get_portals(),
+  get_spawn_paths(), get_enemy_count().
+  When a wave is NEXT (level start / previous wave done):
+  deactivatePaths turn off, activatePaths turn on, every path its
+  portals sit on turns on (plus the paths they merge into, so enemies
+  always reach an end), the network gets its spawn paths, the path
+  preview plays and its portals show the warning rift.
+- SpawnGroup node (SpawnGroupClass): enemyScene, portal, count,
+  burst (enemies per spawn moment), interval, intervalRandomness
+  (0-1, +- that fraction). Start group: startAfter (WAVE_START,
+  PREVIOUS_SPAWNED = after the group above finished spawning,
+  PREVIOUS_CLEARED = after every enemy of the group above died or
+  reached the end), delay (seconds after that). Enemy Stats group:
+  combatLevelBonus, healthMultiplier, speedMultiplier, modifier (a
+  status .tres from status_effects/modifiers/, forced on every enemy).
+  Signals finished_spawning, cleared.
+- Portal (portal.tscn, PortalClass) = a spawn point. Put it INSIDE
+  the EnemyPath it spawns on: on ready it moves to the path's first
+  point. Enemies pop out of it (Visuals scale.y grows with a bright
+  emergeColor flash, spawnSpread = random offset). States: CLOSED
+  (hidden), WARNING (the next wave uses it: thin flickering rift),
+  OPEN (while any of its groups spawn: swirling vortex; open() /
+  release() count users, closes closeDelay after the last one).
+  Exports color (everything in tinted + the shader rim/glow), voidColor,
+  openTime, closeTime, closeDelay, warningSize, warningIntensity,
+  spawnSpread, emergeTime, emergeColor.
+  Body = Sprite2D with portal.gdshader (blend_premul_alpha: darkens
+  the void AND adds glow in one pass; spiral arms, noise swirl,
+  wobbling rim, halo; uniforms intensity + flash set by the script).
+  Particle groups: OpenLoop (smoke, inward orbiting motes, rim sparks),
+  WarningLoop (drift, crackle), OpenBurst / SpawnBurst / CloseBurst
+  (one-shot, restarted by play_burst). Looks the same in the
+  Compatibility (web) renderer.
 
 [Collision layers]
 1 World, 2 Player, 3 Enemy, 4 Player Hurtbox, 5 Enemy Hurtbox.
@@ -1018,3 +1070,10 @@ Input actions: left, right, up, down (WASD), attack (left mouse).
             level 15 keeps the level. Enemy spawn modifiers (Fortified,
             Swift, Regenerating) with a subtle combat level chance.
             Test scene: T test element, Z enemy combat level.
+            Wave system rebuilt: portals (spawn points with open /
+            spawn / close effects and a warning rift), spawn groups with
+            bursts, chaining (after previous spawned/cleared), random
+            intervals, per wave/group stat multipliers and forced
+            modifiers, auto start waves, wave names. Test scene: 512x288
+            map with 3 portals, merge + shortcut branch, following
+            camera, ground texture, 5 waves, HUD text size 5 via theme.

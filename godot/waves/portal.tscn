@@ -1,0 +1,346 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://waves/portal.gd" id="1_portal"]
+[ext_resource type="Shader" path="res://waves/portal.gdshader" id="2_shader"]
+[ext_resource type="Material" path="res://vfx/shared/add_material.tres" id="3_add"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_glow.tres" id="4_glow"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_dot.tres" id="5_dot"]
+[ext_resource type="Texture2D" path="res://vfx/shared/pixel.tres" id="6_pixel"]
+[ext_resource type="Texture2D" path="res://vfx/shared/streak.tres" id="7_streak"]
+[ext_resource type="Texture2D" path="res://vfx/shared/flash_glow.tres" id="8_flash"]
+[ext_resource type="Curve" path="res://vfx/shared/shrink_curve.tres" id="9_shrink"]
+[ext_resource type="Curve" path="res://vfx/shared/puff_curve.tres" id="10_puff"]
+[ext_resource type="Curve" path="res://vfx/shared/twinkle_curve.tres" id="11_twinkle"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_body"]
+resource_local_to_scene = true
+shader = ExtResource("2_shader")
+
+[sub_resource type="Gradient" id="Gradient_mote"]
+offsets = PackedFloat32Array(0, 0.2, 1)
+colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="Gradient" id="Gradient_spark"]
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="Gradient" id="Gradient_smoke"]
+offsets = PackedFloat32Array(0, 0.3, 1)
+colors = PackedColorArray(0.08, 0.02, 0.16, 0, 0.08, 0.02, 0.16, 0.45, 0.04, 0.01, 0.08, 0)
+
+[sub_resource type="Gradient" id="Gradient_flash"]
+colors = PackedColorArray(1, 1, 1, 0.9, 1, 1, 1, 0)
+
+[node name="Portal" type="Node2D" node_paths=PackedStringArray("tinted")]
+z_index = -1
+script = ExtResource("1_portal")
+tinted = [NodePath("GroundGlow"), NodePath("OpenLoop/Motes"), NodePath("OpenLoop/Sparks"), NodePath("WarningLoop/Crackle"), NodePath("WarningLoop/Drift"), NodePath("OpenBurst/Glow"), NodePath("OpenBurst/Shards"), NodePath("SpawnBurst/Glow"), NodePath("SpawnBurst/Sparks"), NodePath("CloseBurst/Glow"), NodePath("CloseBurst/Motes")]
+
+[node name="GroundGlow" type="Sprite2D" parent="."]
+z_index = -1
+texture_filter = 2
+material = ExtResource("3_add")
+position = Vector2(0, 10)
+scale = Vector2(1.15, 0.32)
+modulate = Color(0.62, 0.3, 1, 0.6)
+texture = ExtResource("4_glow")
+
+[node name="Body" type="Sprite2D" parent="."]
+texture_filter = 2
+material = SubResource("ShaderMaterial_body")
+position = Vector2(0, -4)
+scale = Vector2(0.95, 1.45)
+texture = ExtResource("4_glow")
+
+[node name="OpenLoop" type="Node2D" parent="."]
+position = Vector2(0, -4)
+
+[node name="Smoke" type="CPUParticles2D" parent="OpenLoop"]
+z_index = -1
+texture_filter = 2
+emitting = false
+amount = 8
+texture = ExtResource("4_glow")
+lifetime = 1.4
+randomness = 0.4
+emission_shape = 3
+emission_rect_extents = Vector2(7, 11)
+direction = Vector2(0, -1)
+spread = 30.0
+gravity = Vector2(0, -8)
+initial_velocity_min = 2.0
+initial_velocity_max = 5.0
+scale_amount_min = 0.3
+scale_amount_max = 0.5
+scale_amount_curve = ExtResource("10_puff")
+color_ramp = SubResource("Gradient_smoke")
+
+[node name="Motes" type="CPUParticles2D" parent="OpenLoop"]
+texture_filter = 2
+material = ExtResource("3_add")
+scale = Vector2(1, 1.5)
+emitting = false
+amount = 16
+texture = ExtResource("5_dot")
+lifetime = 0.9
+randomness = 0.3
+local_coords = true
+emission_shape = 6
+emission_ring_radius = 12.0
+emission_ring_inner_radius = 10.0
+gravity = Vector2(0, 0)
+orbit_velocity_min = 0.35
+orbit_velocity_max = 0.55
+radial_accel_min = -36.0
+radial_accel_max = -22.0
+scale_amount_min = 0.35
+scale_amount_max = 0.6
+scale_amount_curve = ExtResource("11_twinkle")
+color_ramp = SubResource("Gradient_mote")
+
+[node name="Sparks" type="CPUParticles2D" parent="OpenLoop"]
+texture_filter = 2
+material = ExtResource("3_add")
+scale = Vector2(1, 1.5)
+emitting = false
+amount = 7
+texture = ExtResource("6_pixel")
+lifetime = 0.7
+randomness = 0.5
+local_coords = true
+emission_shape = 6
+emission_ring_radius = 10.0
+emission_ring_inner_radius = 9.0
+spread = 180.0
+gravity = Vector2(0, -8)
+initial_velocity_min = 1.0
+initial_velocity_max = 4.0
+radial_accel_min = 20.0
+radial_accel_max = 40.0
+scale_amount_min = 0.4
+scale_amount_max = 0.7
+scale_amount_curve = ExtResource("9_shrink")
+color_ramp = SubResource("Gradient_spark")
+
+[node name="WarningLoop" type="Node2D" parent="."]
+position = Vector2(0, -4)
+
+[node name="Drift" type="CPUParticles2D" parent="WarningLoop"]
+texture_filter = 2
+material = ExtResource("3_add")
+scale = Vector2(1, 1.3)
+emitting = false
+amount = 5
+texture = ExtResource("5_dot")
+lifetime = 1.2
+randomness = 0.4
+local_coords = true
+emission_shape = 6
+emission_ring_radius = 12.0
+emission_ring_inner_radius = 7.0
+gravity = Vector2(0, 0)
+orbit_velocity_min = 0.1
+orbit_velocity_max = 0.2
+radial_accel_min = -14.0
+radial_accel_max = -8.0
+scale_amount_min = 0.2
+scale_amount_max = 0.35
+scale_amount_curve = ExtResource("11_twinkle")
+color_ramp = SubResource("Gradient_mote")
+
+[node name="Crackle" type="CPUParticles2D" parent="WarningLoop"]
+texture_filter = 2
+material = ExtResource("3_add")
+emitting = false
+amount = 5
+texture = ExtResource("6_pixel")
+lifetime = 0.4
+randomness = 0.5
+emission_shape = 3
+emission_rect_extents = Vector2(0.5, 9)
+spread = 180.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 4.0
+initial_velocity_max = 10.0
+damping_min = 10.0
+damping_max = 20.0
+scale_amount_min = 0.4
+scale_amount_max = 0.6
+color_ramp = SubResource("Gradient_spark")
+
+[node name="OpenBurst" type="Node2D" parent="."]
+z_index = 2
+position = Vector2(0, -4)
+
+[node name="Glow" type="CPUParticles2D" parent="OpenBurst"]
+texture_filter = 2
+material = ExtResource("3_add")
+emitting = false
+amount = 1
+texture = ExtResource("4_glow")
+lifetime = 0.45
+one_shot = true
+local_coords = true
+gravity = Vector2(0, 0)
+scale_amount_min = 1.4
+scale_amount_max = 1.4
+scale_amount_curve = ExtResource("10_puff")
+color_ramp = SubResource("Gradient_flash")
+
+[node name="Core" type="CPUParticles2D" parent="OpenBurst"]
+texture_filter = 2
+material = ExtResource("3_add")
+emitting = false
+amount = 1
+texture = ExtResource("8_flash")
+lifetime = 0.2
+one_shot = true
+local_coords = true
+gravity = Vector2(0, 0)
+scale_amount_min = 0.6
+scale_amount_max = 0.6
+scale_amount_curve = ExtResource("10_puff")
+color_ramp = SubResource("Gradient_flash")
+
+[node name="Shards" type="CPUParticles2D" parent="OpenBurst"]
+texture_filter = 2
+material = ExtResource("3_add")
+emitting = false
+amount = 14
+texture = ExtResource("7_streak")
+lifetime = 0.45
+one_shot = true
+explosiveness = 1.0
+randomness = 0.4
+local_coords = true
+emission_shape = 1
+emission_sphere_radius = 3.0
+particle_flag_align_y = true
+spread = 180.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 40.0
+initial_velocity_max = 80.0
+damping_min = 100.0
+damping_max = 160.0
+scale_amount_min = 0.35
+scale_amount_max = 0.6
+scale_amount_curve = ExtResource("9_shrink")
+color_ramp = SubResource("Gradient_spark")
+
+[node name="SpawnBurst" type="Node2D" parent="."]
+z_index = 2
+
+[node name="Puff" type="CPUParticles2D" parent="SpawnBurst"]
+z_index = -3
+texture_filter = 2
+emitting = false
+amount = 4
+texture = ExtResource("4_glow")
+lifetime = 0.6
+one_shot = true
+explosiveness = 1.0
+randomness = 0.4
+local_coords = true
+emission_shape = 1
+emission_sphere_radius = 2.0
+spread = 180.0
+gravity = Vector2(0, -6)
+initial_velocity_min = 6.0
+initial_velocity_max = 12.0
+damping_min = 8.0
+damping_max = 14.0
+scale_amount_min = 0.3
+scale_amount_max = 0.45
+scale_amount_curve = ExtResource("10_puff")
+color_ramp = SubResource("Gradient_smoke")
+
+[node name="Glow" type="CPUParticles2D" parent="SpawnBurst"]
+texture_filter = 2
+material = ExtResource("3_add")
+emitting = false
+amount = 1
+texture = ExtResource("4_glow")
+lifetime = 0.3
+one_shot = true
+local_coords = true
+gravity = Vector2(0, 0)
+scale_amount_min = 0.8
+scale_amount_max = 0.8
+scale_amount_curve = ExtResource("10_puff")
+color_ramp = SubResource("Gradient_flash")
+
+[node name="Core" type="CPUParticles2D" parent="SpawnBurst"]
+texture_filter = 2
+material = ExtResource("3_add")
+emitting = false
+amount = 1
+texture = ExtResource("8_flash")
+lifetime = 0.15
+one_shot = true
+local_coords = true
+gravity = Vector2(0, 0)
+scale_amount_min = 0.4
+scale_amount_max = 0.4
+scale_amount_curve = ExtResource("10_puff")
+color_ramp = SubResource("Gradient_flash")
+
+[node name="Sparks" type="CPUParticles2D" parent="SpawnBurst"]
+texture_filter = 2
+material = ExtResource("3_add")
+emitting = false
+amount = 8
+texture = ExtResource("6_pixel")
+lifetime = 0.4
+one_shot = true
+explosiveness = 1.0
+randomness = 0.4
+local_coords = true
+spread = 180.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 18.0
+initial_velocity_max = 36.0
+damping_min = 30.0
+damping_max = 50.0
+scale_amount_min = 0.5
+scale_amount_max = 0.8
+color_ramp = SubResource("Gradient_spark")
+
+[node name="CloseBurst" type="Node2D" parent="."]
+z_index = 2
+position = Vector2(0, -4)
+
+[node name="Glow" type="CPUParticles2D" parent="CloseBurst"]
+texture_filter = 2
+material = ExtResource("3_add")
+emitting = false
+amount = 1
+texture = ExtResource("4_glow")
+lifetime = 0.35
+one_shot = true
+local_coords = true
+gravity = Vector2(0, 0)
+scale_amount_min = 1.0
+scale_amount_max = 1.0
+scale_amount_curve = ExtResource("9_shrink")
+color_ramp = SubResource("Gradient_flash")
+
+[node name="Motes" type="CPUParticles2D" parent="CloseBurst"]
+texture_filter = 2
+material = ExtResource("3_add")
+scale = Vector2(1, 1.4)
+emitting = false
+amount = 12
+texture = ExtResource("5_dot")
+lifetime = 0.3
+one_shot = true
+explosiveness = 1.0
+local_coords = true
+emission_shape = 6
+emission_ring_radius = 17.0
+emission_ring_inner_radius = 14.0
+gravity = Vector2(0, 0)
+radial_accel_min = -260.0
+radial_accel_max = -200.0
+scale_amount_min = 0.3
+scale_amount_max = 0.5
+scale_amount_curve = ExtResource("9_shrink")
+color_ramp = SubResource("Gradient_spark")

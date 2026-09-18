@@ -9,11 +9,11 @@ extends Node2D
 @export var enemySpriteScales : Dictionary[PackedScene, float]
 @export var enemyColors : Dictionary[PackedScene, Color]
 
-@onready var rarityLabel : Label = $CanvasLayer/RarityLabel
-@onready var upgradeLabel : Label = $CanvasLayer/UpgradeLabel
-@onready var waveLabel : Label = $CanvasLayer/WaveLabel
-@onready var attributePanel : PanelContainer = $CanvasLayer/AttributePanel
-@onready var attributeText : RichTextLabel = $CanvasLayer/AttributePanel/AttributeText
+@onready var rarityLabel : Label = $CanvasLayer/HUD/RarityLabel
+@onready var upgradeLabel : Label = $CanvasLayer/HUD/UpgradeLabel
+@onready var waveLabel : Label = $CanvasLayer/HUD/WaveLabel
+@onready var attributePanel : PanelContainer = $CanvasLayer/HUD/AttributePanel
+@onready var attributeText : RichTextLabel = $CanvasLayer/HUD/AttributePanel/AttributeText
 
 var weaponIndex : int = 0
 var elementIndex : int = -1
@@ -123,13 +123,19 @@ func get_quality_bar(quality : float) -> String:
 	return "[color=#bbbbbb]%s[/color][color=#444444]%s[/color]" % ["|".repeat(filled), "|".repeat(5 - filled)]
 
 func update_wave_label() -> void:
-	var waveText : String = str(waveManager.waveIndex + 1) + "/" + str(waveManager.waves.size())
 	var modifierChance : float = EnemyClass.MODIFIERS.get_chance(waveManager.combatLevel)
 	var enemyText : String = "  Z Enemy Lv " + str(waveManager.combatLevel) + " Mod " + AttributeScalingClass.format_number(modifierChance * 100.0) + "%"
+	var wave : WaveClass = waveManager.get_wave()
+	if not wave:
+		waveLabel.text = "All waves cleared" + enemyText
+		return
+	var waveText : String = "Wave " + str(waveManager.waveIndex + 1) + "/" + str(waveManager.waves.size())
+	if not wave.waveName.is_empty():
+		waveText += " " + wave.waveName
 	if waveManager.isWaveRunning:
-		waveLabel.text = "Wave " + waveText + "  Enemies " + str(waveManager.aliveEnemies + waveManager.pendingSpawns)
-	elif waveManager.has_next_wave():
-		waveLabel.text = "G Start wave " + waveText
+		waveLabel.text = waveText + "  Enemies " + str(waveManager.get_enemies_left())
+	elif waveManager.autoStartTimeLeft > 0.0:
+		waveLabel.text = "G " + waveText + " in " + str(ceili(waveManager.autoStartTimeLeft)) + "s"
 	else:
-		waveLabel.text = "All waves cleared"
+		waveLabel.text = "G Start " + waveText
 	waveLabel.text += enemyText

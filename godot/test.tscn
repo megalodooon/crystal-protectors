@@ -28,7 +28,15 @@
 [ext_resource type="PackedScene" path="res://enemies/regular_enemy.tscn" id="26_regular_enemy"]
 [ext_resource type="PackedScene" path="res://enemies/big_enemy.tscn" id="27_big_enemy"]
 [ext_resource type="PackedScene" path="res://enemies/small_enemy.tscn" id="28_small_enemy"]
-[ext_resource type="Script" path="res://weapons/effects/weapon_effect.gd" id="29_weapon_effect"] [ext_resource type="Resource" path="res://weapons/effects/fire.tres" id="30_fire"] [ext_resource type="Resource" path="res://weapons/effects/frost.tres" id="31_frost"] [ext_resource type="Resource" path="res://weapons/effects/poison.tres" id="32_poison"] [ext_resource type="Resource" path="res://weapons/effects/lightning.tres" id="33_lightning"] [ext_resource type="Resource" path="res://weapons/effects/water.tres" id="34_water"]
+[ext_resource type="Script" path="res://weapons/effects/weapon_effect.gd" id="29_weapon_effect"]
+[ext_resource type="Resource" path="res://weapons/effects/fire.tres" id="30_fire"]
+[ext_resource type="Resource" path="res://weapons/effects/frost.tres" id="31_frost"]
+[ext_resource type="Resource" path="res://weapons/effects/poison.tres" id="32_poison"]
+[ext_resource type="Resource" path="res://weapons/effects/lightning.tres" id="33_lightning"]
+[ext_resource type="Resource" path="res://weapons/effects/water.tres" id="34_water"]
+[ext_resource type="PackedScene" path="res://waves/portal.tscn" id="35_portal"]
+[ext_resource type="Resource" path="res://status_effects/modifiers/swift.tres" id="36_swift"]
+[ext_resource type="Resource" path="res://status_effects/modifiers/fortified.tres" id="37_fortified"]
 
 [sub_resource type="Resource" id="Resource_weapon_item"]
 script = ExtResource("20_weapon_item")
@@ -38,11 +46,15 @@ rarity = ExtResource("4_common")
 [sub_resource type="CircleShape2D" id="CircleShape2D_dummy"]
 radius = 6.0
 
+[sub_resource type="Theme" id="Theme_hud"]
+default_font_size = 5
+Label/constants/line_spacing = 0
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_attributes"]
-content_margin_left = 4.0
-content_margin_top = 2.0
-content_margin_right = 4.0
-content_margin_bottom = 3.0
+content_margin_left = 3.0
+content_margin_top = 1.0
+content_margin_right = 3.0
+content_margin_bottom = 2.0
 bg_color = Color(0.05, 0.04, 0.08, 0.9)
 border_width_left = 1
 border_width_top = 1
@@ -53,15 +65,40 @@ corner_radius_top_right = 2
 corner_radius_bottom_right = 2
 corner_radius_bottom_left = 2
 
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_ground"]
+frequency = 0.05
+
+[sub_resource type="Gradient" id="Gradient_ground"]
+colors = PackedColorArray(0.24, 0.25, 0.27, 1, 0.3, 0.31, 0.33, 1)
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_ground"]
+width = 128
+height = 128
+seamless = true
+color_ramp = SubResource("Gradient_ground")
+noise = SubResource("FastNoiseLite_ground")
+
 [sub_resource type="Curve2D" id="Curve2D_west"]
 _data = {
-"points": PackedVector2Array(0, 0, 0, 0, 4, 76, 0, 0, 0, 0, 150, 76, 0, 0, 0, 0, 150, 46, 0, 0, 0, 0, 188, 46)
+"points": PackedVector2Array(0, 0, 0, 0, 16, 56, 0, 0, 0, 0, 104, 56, 0, 0, 0, 0, 104, 232, 0, 0, 0, 0, 184, 232, 0, 0, 0, 0, 184, 176, 0, 0, 0, 0, 240, 176)
 }
-point_count = 4
+point_count = 6
+
+[sub_resource type="Curve2D" id="Curve2D_east"]
+_data = {
+"points": PackedVector2Array(0, 0, 0, 0, 496, 264, 0, 0, 0, 0, 416, 264, 0, 0, 0, 0, 416, 104, 0, 0, 0, 0, 328, 104, 0, 0, 0, 0, 328, 176, 0, 0, 0, 0, 272, 176)
+}
+point_count = 6
 
 [sub_resource type="Curve2D" id="Curve2D_north"]
 _data = {
-"points": PackedVector2Array(0, 0, 0, 0, 60, 28, 0, 0, 0, 0, 172, 28, 0, 0, 0, 0, 172, 46)
+"points": PackedVector2Array(0, 0, 0, 0, 240, 32, 0, 0, 0, 0, 240, 64, 0, 0, 0, 0, 368, 64, 0, 0, 0, 0, 368, 104)
+}
+point_count = 4
+
+[sub_resource type="Curve2D" id="Curve2D_shortcut"]
+_data = {
+"points": PackedVector2Array(0, 0, 0, 0, 104, 128, 0, 0, 0, 0, 200, 128, 0, 0, 0, 0, 200, 176)
 }
 point_count = 3
 
@@ -82,9 +119,13 @@ ExtResource("27_big_enemy"): Color(1, 0.75, 0.3, 1),
 ExtResource("28_small_enemy"): Color(0.5, 1, 0.5, 1)
 })
 
-[node name="Camera2D" type="Camera2D" parent="." unique_id=1434578543]
-position = Vector2(96, 54)
-process_callback = 0
+[node name="Ground" type="Sprite2D" parent="."]
+z_index = -10
+texture_repeat = 2
+texture = SubResource("NoiseTexture2D_ground")
+centered = false
+region_enabled = true
+region_rect = Rect2(0, 0, 512, 288)
 
 [node name="PathNetwork" type="Node2D" parent="."]
 script = ExtResource("21_path_network")
@@ -93,18 +134,48 @@ script = ExtResource("21_path_network")
 curve = SubResource("Curve2D_west")
 script = ExtResource("22_enemy_path")
 
+[node name="Portal" parent="PathNetwork/PathWest" instance=ExtResource("35_portal")]
+position = Vector2(16, 56)
+
+[node name="PathEast" type="Path2D" parent="PathNetwork"]
+curve = SubResource("Curve2D_east")
+script = ExtResource("22_enemy_path")
+active = false
+
+[node name="Portal" parent="PathNetwork/PathEast" instance=ExtResource("35_portal")]
+position = Vector2(496, 264)
+
 [node name="PathNorth" type="Path2D" parent="PathNetwork" node_paths=PackedStringArray("mergeInto")]
 curve = SubResource("Curve2D_north")
 script = ExtResource("22_enemy_path")
 active = false
+mergeInto = NodePath("../PathEast")
+
+[node name="Portal" parent="PathNetwork/PathNorth" instance=ExtResource("35_portal")]
+position = Vector2(240, 32)
+
+[node name="Shortcut" type="Path2D" parent="PathNetwork" node_paths=PackedStringArray("branchFrom", "mergeInto")]
+curve = SubResource("Curve2D_shortcut")
+script = ExtResource("22_enemy_path")
+active = false
+branchFrom = NodePath("../PathWest")
 mergeInto = NodePath("../PathWest")
 
 [node name="Player" parent="." unique_id=1472814208 instance=ExtResource("2_player")]
-position = Vector2(96, 54)
+position = Vector2(256, 208)
 weaponItem = SubResource("Resource_weapon_item")
 
+[node name="Camera2D" type="Camera2D" parent="Player" unique_id=1434578543]
+process_callback = 0
+limit_left = 0
+limit_top = 0
+limit_right = 512
+limit_bottom = 288
+position_smoothing_enabled = true
+position_smoothing_speed = 6.0
+
 [node name="DummyRight" type="Node2D" parent="." unique_id=441248857]
-position = Vector2(180, 12)
+position = Vector2(272, 248)
 
 [node name="Sprite2D" type="Sprite2D" parent="DummyRight" unique_id=1597118294]
 modulate = Color(1, 0.55, 0.55, 1)
@@ -130,7 +201,7 @@ hurtbox = NodePath("../HurtboxComponent")
 sprite = NodePath("../Sprite2D")
 
 [node name="DummyLeft" type="Node2D" parent="." unique_id=1812046715]
-position = Vector2(156, 12)
+position = Vector2(240, 248)
 
 [node name="Sprite2D" type="Sprite2D" parent="DummyLeft" unique_id=1237072971]
 modulate = Color(1, 0.55, 0.55, 1)
@@ -163,110 +234,215 @@ enemyParent = NodePath("..")
 [node name="Wave1" type="Node" parent="WaveManager"]
 script = ExtResource("24_wave")
 
-[node name="RegularEnemies" type="Node" parent="WaveManager/Wave1" node_paths=PackedStringArray("path")]
+[node name="RegularEnemies" type="Node" parent="WaveManager/Wave1" node_paths=PackedStringArray("portal")]
 script = ExtResource("25_spawn_group")
 enemyScene = ExtResource("26_regular_enemy")
-path = NodePath("../../../PathNetwork/PathWest")
-count = 4
+portal = NodePath("../../../PathNetwork/PathWest/Portal")
+count = 5
 interval = 1.5
 
-[node name="SmallEnemies" type="Node" parent="WaveManager/Wave1" node_paths=PackedStringArray("path")]
+[node name="SmallEnemies" type="Node" parent="WaveManager/Wave1" node_paths=PackedStringArray("portal")]
 script = ExtResource("25_spawn_group")
 enemyScene = ExtResource("28_small_enemy")
-path = NodePath("../../../PathNetwork/PathWest")
-count = 3
-interval = 0.7
-delay = 3.0
+portal = NodePath("../../../PathNetwork/PathWest/Portal")
+count = 4
+interval = 0.6
+startAfter = 1
+delay = 1.0
 
 [node name="Wave2" type="Node" parent="WaveManager"]
 script = ExtResource("24_wave")
 
-[node name="BigEnemies" type="Node" parent="WaveManager/Wave2" node_paths=PackedStringArray("path")]
+[node name="BigEnemies" type="Node" parent="WaveManager/Wave2" node_paths=PackedStringArray("portal")]
 script = ExtResource("25_spawn_group")
 enemyScene = ExtResource("27_big_enemy")
-path = NodePath("../../../PathNetwork/PathNorth")
+portal = NodePath("../../../PathNetwork/PathNorth/Portal")
 count = 2
 interval = 4.0
 
-[node name="RegularEnemies" type="Node" parent="WaveManager/Wave2" node_paths=PackedStringArray("path")]
+[node name="RegularEnemies" type="Node" parent="WaveManager/Wave2" node_paths=PackedStringArray("portal")]
 script = ExtResource("25_spawn_group")
 enemyScene = ExtResource("26_regular_enemy")
-path = NodePath("../../../PathNetwork/PathWest")
-count = 4
-interval = 1.5
+portal = NodePath("../../../PathNetwork/PathWest/Portal")
+count = 5
+interval = 1.4
 delay = 1.0
 
-[node name="SmallEnemies" type="Node" parent="WaveManager/Wave2" node_paths=PackedStringArray("path")]
+[node name="SmallEnemies" type="Node" parent="WaveManager/Wave2" node_paths=PackedStringArray("portal")]
 script = ExtResource("25_spawn_group")
 enemyScene = ExtResource("28_small_enemy")
-path = NodePath("../../../PathNetwork/PathWest")
-count = 4
-interval = 0.5
+portal = NodePath("../../../PathNetwork/PathNorth/Portal")
+count = 6
+burst = 2
+interval = 1.5
 delay = 4.0
 
-[node name="Wave3" type="Node" parent="WaveManager"]
+[node name="Wave3" type="Node" parent="WaveManager" node_paths=PackedStringArray("activatePaths")]
 script = ExtResource("24_wave")
+waveName = "Flank"
+activatePaths = [NodePath("../../PathNetwork/Shortcut")]
 
-[node name="BigEnemies" type="Node" parent="WaveManager/Wave3" node_paths=PackedStringArray("path")]
-script = ExtResource("25_spawn_group")
-enemyScene = ExtResource("27_big_enemy")
-path = NodePath("../../../PathNetwork/PathWest")
-count = 3
-interval = 3.0
-
-[node name="RegularEnemies" type="Node" parent="WaveManager/Wave3" node_paths=PackedStringArray("path")]
+[node name="RegularEnemies" type="Node" parent="WaveManager/Wave3" node_paths=PackedStringArray("portal")]
 script = ExtResource("25_spawn_group")
 enemyScene = ExtResource("26_regular_enemy")
-path = NodePath("../../../PathNetwork/PathNorth")
+portal = NodePath("../../../PathNetwork/PathEast/Portal")
 count = 6
 interval = 1.2
-delay = 1.0
 
-[node name="SmallEnemies" type="Node" parent="WaveManager/Wave3" node_paths=PackedStringArray("path")]
+[node name="SmallEnemies" type="Node" parent="WaveManager/Wave3" node_paths=PackedStringArray("portal")]
 script = ExtResource("25_spawn_group")
 enemyScene = ExtResource("28_small_enemy")
-path = NodePath("../../../PathNetwork/PathWest")
+portal = NodePath("../../../PathNetwork/PathEast/Portal")
+count = 9
+burst = 3
+interval = 2.5
+startAfter = 1
+delay = 1.0
+
+[node name="BigEnemies" type="Node" parent="WaveManager/Wave3" node_paths=PackedStringArray("portal")]
+script = ExtResource("25_spawn_group")
+enemyScene = ExtResource("27_big_enemy")
+portal = NodePath("../../../PathNetwork/PathWest/Portal")
+count = 2
+interval = 5.0
+delay = 2.0
+
+[node name="Reinforcements" type="Node" parent="WaveManager/Wave3" node_paths=PackedStringArray("portal")]
+script = ExtResource("25_spawn_group")
+enemyScene = ExtResource("26_regular_enemy")
+portal = NodePath("../../../PathNetwork/PathWest/Portal")
+count = 4
+interval = 1.5
+intervalRandomness = 0.4
+startAfter = 2
+
+[node name="Wave4" type="Node" parent="WaveManager"]
+script = ExtResource("24_wave")
+waveName = "Swift Rush"
+autoStartTime = 10.0
+
+[node name="SwiftWest" type="Node" parent="WaveManager/Wave4" node_paths=PackedStringArray("portal")]
+script = ExtResource("25_spawn_group")
+enemyScene = ExtResource("28_small_enemy")
+portal = NodePath("../../../PathNetwork/PathWest/Portal")
+count = 6
+burst = 2
+interval = 1.2
+intervalRandomness = 0.3
+modifier = ExtResource("36_swift")
+
+[node name="SwiftNorth" type="Node" parent="WaveManager/Wave4" node_paths=PackedStringArray("portal")]
+script = ExtResource("25_spawn_group")
+enemyScene = ExtResource("28_small_enemy")
+portal = NodePath("../../../PathNetwork/PathNorth/Portal")
+count = 6
+burst = 2
+interval = 1.2
+intervalRandomness = 0.3
+delay = 0.6
+modifier = ExtResource("36_swift")
+
+[node name="SwiftEast" type="Node" parent="WaveManager/Wave4" node_paths=PackedStringArray("portal")]
+script = ExtResource("25_spawn_group")
+enemyScene = ExtResource("28_small_enemy")
+portal = NodePath("../../../PathNetwork/PathEast/Portal")
+count = 6
+burst = 2
+interval = 1.2
+intervalRandomness = 0.3
+delay = 1.2
+modifier = ExtResource("36_swift")
+
+[node name="Wave5" type="Node" parent="WaveManager"]
+script = ExtResource("24_wave")
+waveName = "Boss"
+combatLevelBonus = 1
+
+[node name="Boss" type="Node" parent="WaveManager/Wave5" node_paths=PackedStringArray("portal")]
+script = ExtResource("25_spawn_group")
+enemyScene = ExtResource("27_big_enemy")
+portal = NodePath("../../../PathNetwork/PathEast/Portal")
+count = 1
+healthMultiplier = 10.0
+speedMultiplier = 0.8
+modifier = ExtResource("37_fortified")
+
+[node name="BossRevenge" type="Node" parent="WaveManager/Wave5" node_paths=PackedStringArray("portal")]
+script = ExtResource("25_spawn_group")
+enemyScene = ExtResource("28_small_enemy")
+portal = NodePath("../../../PathNetwork/PathNorth/Portal")
+count = 10
+burst = 5
+interval = 2.0
+startAfter = 2
+
+[node name="Escorts" type="Node" parent="WaveManager/Wave5" node_paths=PackedStringArray("portal")]
+script = ExtResource("25_spawn_group")
+enemyScene = ExtResource("26_regular_enemy")
+portal = NodePath("../../../PathNetwork/PathEast/Portal")
+count = 6
+interval = 0.8
+delay = 1.5
+
+[node name="RegularWest" type="Node" parent="WaveManager/Wave5" node_paths=PackedStringArray("portal")]
+script = ExtResource("25_spawn_group")
+enemyScene = ExtResource("26_regular_enemy")
+portal = NodePath("../../../PathNetwork/PathWest/Portal")
 count = 8
-interval = 0.4
+interval = 1.6
+intervalRandomness = 0.3
 delay = 3.0
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=421371986]
 
-[node name="RarityLabel" type="Label" parent="CanvasLayer" unique_id=317467087]
+[node name="HUD" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme = SubResource("Theme_hud")
+
+[node name="RarityLabel" type="Label" parent="CanvasLayer/HUD" unique_id=317467087]
+layout_mode = 0
 offset_left = 3.0
 offset_top = 1.0
 offset_right = 190.0
-offset_bottom = 12.0
-theme_override_font_sizes/font_size = 8
+offset_bottom = 8.0
 
-[node name="UpgradeLabel" type="Label" parent="CanvasLayer" unique_id=1738290461]
+[node name="WaveLabel" type="Label" parent="CanvasLayer/HUD"]
+layout_mode = 0
 offset_left = 3.0
-offset_top = 76.0
+offset_top = 8.0
 offset_right = 190.0
-offset_bottom = 107.0
+offset_bottom = 15.0
+
+[node name="UpgradeLabel" type="Label" parent="CanvasLayer/HUD" unique_id=1738290461]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 3.0
+offset_top = -15.0
+offset_right = 190.0
+offset_bottom = -1.0
 grow_vertical = 0
-theme_override_font_sizes/font_size = 8
 vertical_alignment = 2
 
-[node name="WaveLabel" type="Label" parent="CanvasLayer"]
-offset_left = 3.0
-offset_top = 11.0
-offset_right = 190.0
-offset_bottom = 22.0
-theme_override_font_sizes/font_size = 8
-
-[node name="AttributePanel" type="PanelContainer" parent="CanvasLayer"]
+[node name="AttributePanel" type="PanelContainer" parent="CanvasLayer/HUD"]
 visible = false
-offset_left = 4.0
-offset_top = 23.0
-offset_right = 12.0
-offset_bottom = 31.0
+layout_mode = 0
+offset_left = 3.0
+offset_top = 16.0
+offset_right = 11.0
+offset_bottom = 24.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_attributes")
 
-[node name="AttributeText" type="RichTextLabel" parent="CanvasLayer/AttributePanel"]
+[node name="AttributeText" type="RichTextLabel" parent="CanvasLayer/HUD/AttributePanel"]
 layout_mode = 2
 theme_override_constants/line_separation = -1
-theme_override_font_sizes/normal_font_size = 8
 bbcode_enabled = true
 fit_content = true
 scroll_active = false

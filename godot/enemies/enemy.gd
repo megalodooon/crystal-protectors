@@ -17,6 +17,9 @@ const MODIFIERS := preload("res://enemies/enemy_modifiers.tres")
 @onready var sprite : Sprite2D = $Visuals/Sprite2D
 
 var combatLevel : int = 1
+var healthMultiplier : float = 1.0
+var speedMultiplier : float = 1.0
+var modifier : StatusEffectClass
 var facing : float = 1.0
 
 #------------------------#
@@ -26,9 +29,11 @@ func _ready() -> void:
 		sprite.texture = image
 	else:
 		sprite.texture = PLACEHOLDER_IMAGE
-	healthComponent.maxHealth *= COMBAT_SCALING.get_multiplier(combatLevel)
+	healthComponent.maxHealth *= COMBAT_SCALING.get_multiplier(combatLevel) * healthMultiplier
 	healthComponent.currentHealth = healthComponent.maxHealth
-	var modifier : StatusEffectClass = MODIFIERS.roll_modifier(combatLevel)
+	movementComponent.speedMultiplier = speedMultiplier
+	if not modifier:
+		modifier = MODIFIERS.roll_modifier(combatLevel)
 	if modifier and statusComponent:
 		statusComponent.apply_effect(modifier)
 
