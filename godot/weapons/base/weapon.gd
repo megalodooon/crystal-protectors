@@ -34,6 +34,8 @@ var cooldownId : int = 0
 var lastAttackTime : int = -100000
 var attackIdleTime : float = 100.0
 var auraScenes : Array[PackedScene] = []
+var statCache : Dictionary[AttributeClass.Stat, float] = {}
+var statCacheFrame : int = -1
 
 #------------------------#
 
@@ -227,6 +229,7 @@ func add_buff(roll : AttributeRollClass, stat : AttributeClass.Stat, duration : 
 	buff.stat = stat
 	buff.stacks = mini(buff.stacks + 1, maxi(maxStacks, 1))
 	buff.timeLeft = duration
+	statCacheFrame = -1
 	if is_instance_valid(buff.visual):
 		buff.visual.set_stacks(buff.stacks, maxStacks)
 
@@ -242,6 +245,7 @@ func remove_buff(roll : AttributeRollClass) -> void:
 	if is_instance_valid(buffs[roll].visual):
 		buffs[roll].visual.stop()
 	buffs.erase(roll)
+	statCacheFrame = -1
 
 func add_aura(scene : PackedScene) -> void:
 	var sprite : Sprite2D = get_sprite()
@@ -271,6 +275,12 @@ func get_attribute_level() -> int:
 	return 0
 
 func get_stat(stat : AttributeClass.Stat) -> float:
+	var frame : int = Engine.get_process_frames()
+	if frame != statCacheFrame:
+		statCacheFrame = frame
+		statCache.clear()
+	if statCache.has(stat):
+		return statCache[stat]
 	var total : float = 0.0
 	var level : int = get_attribute_level()
 	for roll in get_rolls():
@@ -278,6 +288,7 @@ func get_stat(stat : AttributeClass.Stat) -> float:
 	for buff : AttributeBuffClass in buffs.values():
 		if buff.stat == stat:
 			total += buff.get_value(level)
+	statCache[stat] = total
 	return total
 
 func get_damage() -> float:

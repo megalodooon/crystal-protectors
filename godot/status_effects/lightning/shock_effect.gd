@@ -32,12 +32,7 @@ func find_jump_target(hurtbox : HurtboxComponentClass) -> HurtboxComponentClass:
 	return closest
 
 func spawn_bolt(from : Vector2, to : Vector2) -> void:
-	if not boltScene:
-		return
-	var bolt : LightningClass = boltScene.instantiate()
-	bolt.points = PackedVector2Array([from, to])
-	bolt.color = boltColor
-	status.get_tree().current_scene.add_child(bolt)
+	Vfx.spawn_lightning(boltScene, PackedVector2Array([from, to]), boltColor)
 
 func refresh(newEffect : StatusEffectClass) -> void:
 	super(newEffect)

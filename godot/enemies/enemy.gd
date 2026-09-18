@@ -35,7 +35,7 @@ func _ready() -> void:
 	if not modifier:
 		modifier = MODIFIERS.roll_modifier(combatLevel)
 	if modifier and statusComponent:
-		statusComponent.apply_effect(modifier)
+		statusComponent.apply_effect.call_deferred(modifier)
 
 func _physics_process(delta : float) -> void:
 	var direction : Vector2 = pathFollowComponent.get_direction(self)

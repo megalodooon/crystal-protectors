@@ -24,11 +24,7 @@ func on_tick() -> void:
 	if targets.is_empty():
 		return
 	var hurtbox : HurtboxComponentClass = targets.pick_random()
-	var lightning : LightningClass = LIGHTNING_SCENE.instantiate()
-	lightning.points = PackedVector2Array([global_position + Vector2(randf_range(-7.0, 7.0), -cloudHeight), hurtbox.global_position])
-	lightning.color = boltColor
-	lightning.width = 1.5
-	get_tree().current_scene.add_child(lightning)
+	Vfx.spawn_lightning(LIGHTNING_SCENE, PackedVector2Array([global_position + Vector2(randf_range(-7.0, 7.0), -cloudHeight), hurtbox.global_position]), boltColor, 1.5)
 	hit(hurtbox, damage)
 	spawn_vfx(strikeScene, hurtbox.global_position)
 	flashStrength = 1.0

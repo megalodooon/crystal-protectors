@@ -37,10 +37,7 @@ func on_proc(weapon : WeaponClass, roll : AttributeRollClass, hurtbox : HurtboxC
 	if points.size() < 2:
 		return
 	spawn_effect(weapon, hurtbox.global_position)
-	var lightning : LightningClass = LIGHTNING_SCENE.instantiate()
-	lightning.points = points
-	lightning.color = color
-	weapon.get_tree().current_scene.add_child(lightning)
+	Vfx.spawn_lightning(LIGHTNING_SCENE, points, color)
 
 func find_next_target(weapon : WeaponClass, targets : Array[HurtboxComponentClass]) -> HurtboxComponentClass:
 	var from : HurtboxComponentClass = targets.back()

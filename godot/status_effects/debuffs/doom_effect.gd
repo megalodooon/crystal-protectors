@@ -31,9 +31,6 @@ func on_remove() -> void:
 	var hurtbox : HurtboxComponentClass = status.hurtbox
 	if not is_instance_valid(hurtbox):
 		return
-	if burstScene:
-		var burst : Node2D = burstScene.instantiate()
-		burst.position = hurtbox.global_position
-		hurtbox.get_tree().current_scene.add_child(burst)
+	Vfx.spawn_effect(burstScene, hurtbox.global_position)
 	if storedDamage > 0.0:
 		hurtbox.take_damage(storedDamage * bonus, damageType)

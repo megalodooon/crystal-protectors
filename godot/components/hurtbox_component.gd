@@ -2,8 +2,6 @@ extends Area2D
 class_name HurtboxComponentClass
 
 
-const DAMAGE_NUMBER_SCENE := preload("res://vfx/effects/damage_number.tscn")
-
 @export var healthComponent : HealthComponentClass
 @export var statusComponent : StatusComponentClass
 @export var showDamageNumbers : bool = true
@@ -14,12 +12,12 @@ var lastHitOverkill : float = 0.0
 
 #------------------------#
 
-static func find_in_radius(world : World2D, center : Vector2, radius : float, layer : int) -> Array[HurtboxComponentClass]:
+static func find_in_radius(world : World2D, center : Vector2, radius : float, layer : int, maxTargets : int = 0) -> Array[HurtboxComponentClass]:
 	var shape : CircleShape2D = CircleShape2D.new()
 	shape.radius = radius
-	return find_in_shape(world, shape, Transform2D(0.0, center), layer)
+	return find_in_shape(world, shape, Transform2D(0.0, center), layer, maxTargets)
 
-static func find_in_shape(world : World2D, shape : Shape2D, shapeTransform : Transform2D, layer : int) -> Array[HurtboxComponentClass]:
+static func find_in_shape(world : World2D, shape : Shape2D, shapeTransform : Transform2D, layer : int, maxTargets : int = 0) -> Array[HurtboxComponentClass]:
 	var query : PhysicsShapeQueryParameters2D = PhysicsShapeQueryParameters2D.new()
 	query.shape = shape
 	query.transform = shapeTransform
@@ -27,10 +25,25 @@ static func find_in_shape(world : World2D, shape : Shape2D, shapeTransform : Tra
 	query.collide_with_bodies = false
 	query.collision_mask = layer
 	var hurtboxes : Array[HurtboxComponentClass] = []
-	for result : Dictionary in world.direct_space_state.intersect_shape(query):
+	for result : Dictionary in world.direct_space_state.intersect_shape(query, 64):
 		var hurtbox : HurtboxComponentClass = result["collider"] as HurtboxComponentClass
 		if hurtbox:
 			hurtboxes.append(hurtbox)
+	return keep_nearest(hurtboxes, shapeTransform.origin, maxTargets)
+
+static func find_overlapping(area : Area2D, maxTargets : int = 0) -> Array[HurtboxComponentClass]:
+	var hurtboxes : Array[HurtboxComponentClass] = []
+	for overlapping in area.get_overlapping_areas():
+		var hurtbox : HurtboxComponentClass = overlapping as HurtboxComponentClass
+		if hurtbox:
+			hurtboxes.append(hurtbox)
+	return keep_nearest(hurtboxes, area.global_position, maxTargets)
+
+static func keep_nearest(hurtboxes : Array[HurtboxComponentClass], center : Vector2, maxTargets : int) -> Array[HurtboxComponentClass]:
+	if maxTargets <= 0 or hurtboxes.size() <= maxTargets:
+		return hurtboxes
+	hurtboxes.sort_custom(func(a : HurtboxComponentClass, b : HurtboxComponentClass) -> bool: return a.global_position.distance_squared_to(center) < b.global_position.distance_squared_to(center))
+	hurtboxes.resize(maxTargets)
 	return hurtboxes
 
 func apply_status(effect : StatusEffectClass) -> void:
@@ -64,9 +77,4 @@ func displace(motion : Vector2) -> void:
 		body.move_and_collide(motion)
 
 func spawn_damage_number(amount : float, damageType : DamageTypeClass, isCrit : bool) -> void:
-	var damageNumber : DamageNumberClass = DAMAGE_NUMBER_SCENE.instantiate()
-	damageNumber.amount = amount
-	damageNumber.damageType = damageType
-	damageNumber.isCrit = isCrit
-	damageNumber.position = global_position
-	get_tree().current_scene.add_child.call_deferred(damageNumber)
+	Vfx.show_damage_number(global_position, amount, damageType, isCrit)

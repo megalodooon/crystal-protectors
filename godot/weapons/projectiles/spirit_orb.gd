@@ -2,8 +2,6 @@ extends ProjectileClass
 class_name SpiritOrbClass
 
 
-const HIT_SPARK_SCENE := preload("res://vfx/effects/hit_spark.tscn")
-
 @export var turnSpeed : float = 7.0
 @export var seekRange : float = 70.0
 @export var fadeTime : float = 0.15
@@ -29,6 +27,7 @@ func _ready() -> void:
 	seekQuery.collide_with_areas = true
 	seekQuery.collide_with_bodies = false
 	seekQuery.collision_mask = collision_mask
+	Vfx.add_cullable(self)
 
 func _process(delta : float) -> void:
 	age += delta
@@ -53,12 +52,5 @@ func find_target() -> HurtboxComponentClass:
 	return closest
 
 func on_hit(hurtbox : HurtboxComponentClass, hitDamage : float) -> void:
-	var hitSpark : HitSparkClass = HIT_SPARK_SCENE.instantiate()
-	hitSpark.position = hurtbox.global_position
-	hitSpark.color = color
-	hitSpark.strength = 0.8
-	hitSpark.sparkAmount = 8
-	hitSpark.orbAmount = 5
-	hitSpark.angle = rotation + PI / 2.0
-	get_tree().current_scene.add_child(hitSpark)
+	Vfx.show_hit_spark(hurtbox.global_position, color, 0.8, 8, 5, rotation + PI / 2.0)
 	super(hurtbox, hitDamage)

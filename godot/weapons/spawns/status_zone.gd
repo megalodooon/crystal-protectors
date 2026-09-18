@@ -6,6 +6,7 @@ class_name StatusZoneClass
 @export var duration : float = 3.0
 @export var tickInterval : float = 0.5
 @export var fadeTime : float = 0.5
+@export var maxTargets : int = 6
 
 @onready var detectorShape : CollisionShape2D = $Detector/CollisionShape2D
 @onready var detector : Area2D = $Detector
@@ -23,6 +24,7 @@ func _ready() -> void:
 	shape.radius = radius
 	visuals.scale = Vector2.ONE * radius / baseRadius
 	modulate.a = 0.0
+	Vfx.add_cullable(self)
 
 func _process(delta : float) -> void:
 	age += delta
@@ -42,7 +44,5 @@ func _physics_process(delta : float) -> void:
 	if tickTimer < tickInterval:
 		return
 	tickTimer -= tickInterval
-	for area in detector.get_overlapping_areas():
-		var hurtbox : HurtboxComponentClass = area as HurtboxComponentClass
-		if hurtbox:
-			hurtbox.apply_status(status.duplicate())
+	for hurtbox in HurtboxComponentClass.find_overlapping(detector, maxTargets):
+		hurtbox.apply_status(status.duplicate())

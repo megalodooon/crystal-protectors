@@ -4,6 +4,7 @@ class_name CrystalEffectClass
 
 @export var shatterDamage : float = 10.0
 @export var shatterRadius : float = 16.0
+@export var maxTargets : int = 6
 @export var damageType : DamageTypeClass
 @export var shatterScene : PackedScene
 
@@ -33,19 +34,6 @@ func on_remove() -> void:
 	var hurtbox : HurtboxComponentClass = status.hurtbox
 	if not is_instance_valid(hurtbox):
 		return
-	var shape : CircleShape2D = CircleShape2D.new()
-	shape.radius = shatterRadius
-	var query : PhysicsShapeQueryParameters2D = PhysicsShapeQueryParameters2D.new()
-	query.shape = shape
-	query.transform = Transform2D(0.0, hurtbox.global_position)
-	query.collide_with_areas = true
-	query.collide_with_bodies = false
-	query.collision_mask = hurtbox.collision_layer
-	for result : Dictionary in hurtbox.get_world_2d().direct_space_state.intersect_shape(query):
-		var target : HurtboxComponentClass = result["collider"] as HurtboxComponentClass
-		if target:
-			target.take_damage(shatterDamage, damageType)
-	if shatterScene:
-		var shatter : Node2D = shatterScene.instantiate()
-		shatter.position = hurtbox.global_position
-		hurtbox.get_tree().current_scene.add_child(shatter)
+	for target in HurtboxComponentClass.find_in_radius(hurtbox.get_world_2d(), hurtbox.global_position, shatterRadius, hurtbox.collision_layer, maxTargets):
+		target.take_damage(shatterDamage, damageType)
+	Vfx.spawn_effect(shatterScene, hurtbox.global_position)

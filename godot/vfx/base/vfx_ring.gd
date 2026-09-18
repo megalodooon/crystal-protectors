@@ -17,6 +17,10 @@ var elapsed : float = 0.0
 
 #------------------------#
 
+func restart() -> void:
+	elapsed = 0.0
+	queue_redraw()
+
 func _process(delta : float) -> void:
 	elapsed += delta
 	if loop and elapsed > delay + duration:

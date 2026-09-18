@@ -2,7 +2,6 @@ extends ProjectileClass
 class_name SlashWaveClass
 
 
-const HIT_SPARK_SCENE := preload("res://vfx/effects/hit_spark.tscn")
 const SEGMENTS : int = 10
 
 @export var radius : float = 5.0
@@ -22,6 +21,7 @@ func _ready() -> void:
 	glow.self_modulate = color
 	trail.color = color
 	trail.emitting = true
+	Vfx.add_cullable(self)
 
 func _process(delta : float) -> void:
 	age += delta
@@ -41,11 +41,5 @@ func get_crescent(arc : float, width : float) -> PackedVector2Array:
 	return points
 
 func on_hit(hurtbox : HurtboxComponentClass, hitDamage : float) -> void:
-	var hitSpark : HitSparkClass = HIT_SPARK_SCENE.instantiate()
-	hitSpark.position = hurtbox.global_position
-	hitSpark.color = color
-	hitSpark.strength = 0.6
-	hitSpark.sparkAmount = 4
-	hitSpark.angle = rotation + PI / 2.0
-	get_tree().current_scene.add_child(hitSpark)
+	Vfx.show_hit_spark(hurtbox.global_position, color, 0.6, 4, 0, rotation + PI / 2.0)
 	super(hurtbox, hitDamage)

@@ -2,14 +2,13 @@ extends Node2D
 class_name BladeStormClass
 
 
-const HIT_SPARK_SCENE := preload("res://vfx/effects/hit_spark.tscn")
-
 @export var radius : float = 20.0
 @export var tickInterval : float = 0.3
 @export var spinSpeed : float = 10.0
 @export var bladeCount : int = 3
 @export var fadeTime : float = 0.25
 @export var bladeLength : float = 6.0
+@export var maxTargets : int = 6
 
 @onready var detector : Area2D = $Detector
 @onready var detectorShape : CollisionShape2D = $Detector/CollisionShape2D
@@ -55,10 +54,8 @@ func _physics_process(delta : float) -> void:
 	if tickTimer < tickInterval:
 		return
 	tickTimer -= tickInterval
-	for area in detector.get_overlapping_areas():
-		var hurtbox : HurtboxComponentClass = area as HurtboxComponentClass
-		if hurtbox:
-			hit(hurtbox)
+	for hurtbox in HurtboxComponentClass.find_overlapping(detector, maxTargets):
+		hit(hurtbox)
 
 func hit(hurtbox : HurtboxComponentClass) -> void:
 	var isCrit : bool = randf() < critChance
@@ -66,13 +63,7 @@ func hit(hurtbox : HurtboxComponentClass) -> void:
 	if isCrit:
 		hitDamage *= critMultiplier
 	hurtbox.take_damage(hitDamage, damageType, isCrit)
-	var hitSpark : HitSparkClass = HIT_SPARK_SCENE.instantiate()
-	hitSpark.position = hurtbox.global_position
-	hitSpark.color = color
-	hitSpark.strength = 0.7
-	hitSpark.sparkAmount = 5
-	hitSpark.angle = global_position.angle_to_point(hurtbox.global_position) + PI / 2.0
-	get_tree().current_scene.add_child(hitSpark)
+	Vfx.show_hit_spark(hurtbox.global_position, color, 0.7, 5, 0, global_position.angle_to_point(hurtbox.global_position) + PI / 2.0)
 
 func refresh(newDuration : float) -> void:
 	duration = maxf(duration, age + newDuration)

@@ -47,9 +47,5 @@ func land() -> void:
 		child.emitting = false
 	if onImpact.is_valid():
 		onImpact.call(global_position)
-	if impactScene:
-		var impact : VfxEffectClass = impactScene.instantiate()
-		impact.position = global_position
-		impact.radius = radius
-		get_parent().add_child(impact)
+	Vfx.spawn_effect(impactScene, global_position, radius)
 	get_tree().create_timer(0.6).timeout.connect(queue_free)

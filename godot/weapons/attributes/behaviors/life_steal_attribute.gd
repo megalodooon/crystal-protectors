@@ -12,7 +12,7 @@ func on_proc(weapon : WeaponClass, roll : AttributeRollClass, hurtbox : HurtboxC
 	var health : HealthComponentClass = weapon.wielder.get("healthComponent") as HealthComponentClass
 	if health:
 		health.heal(damage * roll.get_value(weapon.get_attribute_level()))
-	if orbScene and hurtbox:
+	if orbScene and hurtbox and Vfx.can_spawn(orbScene, hurtbox.global_position, Vfx.effectsPerCrowd):
 		var orb : LifeOrbClass = orbScene.instantiate()
 		orb.position = hurtbox.global_position
 		orb.target = weapon.wielder

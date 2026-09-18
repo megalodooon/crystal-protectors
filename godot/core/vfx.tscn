@@ -1,0 +1,17 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://core/vfx.gd" id="1_vfx"]
+[ext_resource type="PackedScene" path="res://vfx/effects/damage_numbers.tscn" id="2_numbers"]
+[ext_resource type="PackedScene" path="res://vfx/effects/hit_sparks.tscn" id="3_sparks"]
+
+[node name="Vfx" type="Node"]
+script = ExtResource("1_vfx")
+
+[node name="HitSparks" parent="." instance=ExtResource("3_sparks")]
+
+[node name="DamageNumbers" parent="." instance=ExtResource("2_numbers")]
+
+[node name="Pool" type="Node2D" parent="."]
+
+[node name="Warmup" type="Node2D" parent="."]
+modulate = Color(1, 1, 1, 0.004)

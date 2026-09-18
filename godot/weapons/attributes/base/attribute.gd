@@ -125,24 +125,13 @@ func modify_attack_damage(_weapon : WeaponClass, _roll : AttributeRollClass, dam
 func modify_hit_damage(_weapon : WeaponClass, _roll : AttributeRollClass, _hurtbox : HurtboxComponentClass, damage : float) -> float:
 	return damage
 
-func get_hurtboxes_in_radius(weapon : WeaponClass, center : Vector2, radius : float, layer : int) -> Array[HurtboxComponentClass]:
-	return HurtboxComponentClass.find_in_radius(weapon.get_world_2d(), center, radius, layer)
+func get_hurtboxes_in_radius(weapon : WeaponClass, center : Vector2, radius : float, layer : int, maxTargets : int = 0) -> Array[HurtboxComponentClass]:
+	return HurtboxComponentClass.find_in_radius(weapon.get_world_2d(), center, radius, layer, maxTargets)
 
-func get_hurtboxes_in_shape(weapon : WeaponClass, shape : Shape2D, shapeTransform : Transform2D, layer : int) -> Array[HurtboxComponentClass]:
-	return HurtboxComponentClass.find_in_shape(weapon.get_world_2d(), shape, shapeTransform, layer)
+func get_hurtboxes_in_shape(weapon : WeaponClass, shape : Shape2D, shapeTransform : Transform2D, layer : int, maxTargets : int = 0) -> Array[HurtboxComponentClass]:
+	return HurtboxComponentClass.find_in_shape(weapon.get_world_2d(), shape, shapeTransform, layer, maxTargets)
 
 func spawn_effect(weapon : WeaponClass, position : Vector2, radius : float = 0.0, parent : Node = null) -> Node2D:
 	if not effectScene:
 		return null
-	var effect : Node2D = effectScene.instantiate()
-	var vfx : VfxEffectClass = effect as VfxEffectClass
-	if vfx:
-		vfx.radius = radius
-		vfx.color = weapon.get_color()
-	if parent:
-		parent.add_child(effect)
-		effect.global_position = position
-	else:
-		effect.position = position
-		weapon.get_tree().current_scene.add_child(effect)
-	return effect
+	return Vfx.spawn_effect(effectScene, position, radius, weapon.get_color(), parent)

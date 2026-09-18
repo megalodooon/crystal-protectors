@@ -5,6 +5,7 @@ class_name DebuffAttributeClass
 @export var status : StatusEffectClass
 @export var damageFromHit : bool = false
 @export var radius : float = 0.0
+@export var maxTargets : int = 6
 @export_flags_2d_physics var targetLayer : int = 16
 
 #------------------------#
@@ -44,7 +45,7 @@ func on_proc(weapon : WeaponClass, roll : AttributeRollClass, hurtbox : HurtboxC
 		layer = hurtbox.collision_layer
 		hitDamage = damage
 	var areaRadius : float = radius * weapon.get_area_multiplier()
-	for target in get_hurtboxes_in_radius(weapon, center, areaRadius, layer):
+	for target in get_hurtboxes_in_radius(weapon, center, areaRadius, layer, maxTargets):
 		weapon.apply_status(target, create_status(weapon, value, hitDamage))
 	spawn_effect(weapon, center, areaRadius)
 

@@ -5,6 +5,7 @@ class_name AreaDamageAttributeClass
 const LIGHTNING_SCENE := preload("res://vfx/effects/lightning.tscn")
 
 @export var radius : float = 20.0
+@export var maxTargets : int = 6
 @export var includeTarget : bool = false
 @export var damageType : DamageTypeClass
 @export var status : StatusEffectClass
@@ -38,17 +39,15 @@ func on_proc(weapon : WeaponClass, roll : AttributeRollClass, hurtbox : HurtboxC
 	var areaDamageType : DamageTypeClass = damageType
 	if not areaDamageType:
 		areaDamageType = weapon.damageType
-	for target in get_hurtboxes_in_radius(weapon, center, areaRadius, layer):
-		if target != hurtbox or includeTarget:
-			target.take_damage(areaDamage, areaDamageType)
-			if status:
-				var newStatus : StatusEffectClass = status.duplicate()
-				newStatus.set_strength(statusStrength)
-				weapon.apply_status(target, newStatus)
+	var skipTarget : bool = hurtbox != null and not includeTarget
+	for target in get_hurtboxes_in_radius(weapon, center, areaRadius, layer, maxTargets + (1 if skipTarget else 0)):
+		if target == hurtbox and skipTarget:
+			continue
+		target.take_damage(areaDamage, areaDamageType)
+		if status:
+			var newStatus : StatusEffectClass = status.duplicate()
+			newStatus.set_strength(statusStrength)
+			weapon.apply_status(target, newStatus)
 	spawn_effect(weapon, center, areaRadius)
 	if skyLightning:
-		var lightning : LightningClass = LIGHTNING_SCENE.instantiate()
-		lightning.points = PackedVector2Array([center + Vector2(randf_range(-10.0, 10.0), -80.0), center])
-		lightning.color = lightningColor
-		lightning.width = 2.0
-		weapon.get_tree().current_scene.add_child(lightning)
+		Vfx.spawn_lightning(LIGHTNING_SCENE, PackedVector2Array([center + Vector2(randf_range(-10.0, 10.0), -80.0), center]), lightningColor, 2.0)

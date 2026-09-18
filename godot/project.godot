@@ -17,6 +17,7 @@ config/features=PackedStringArray("4.7", "Mobile")
 [autoload]
 
 GameFeel="*res://core/game_feel.gd"
+Vfx="*res://core/vfx.tscn"
 
 [display]
 

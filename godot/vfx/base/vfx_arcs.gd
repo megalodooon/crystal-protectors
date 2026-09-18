@@ -21,6 +21,12 @@ var bolts : Array[PackedVector2Array] = []
 func _ready() -> void:
 	build_bolts()
 
+func restart() -> void:
+	elapsed = 0.0
+	flickerTimer = 0.0
+	build_bolts()
+	queue_redraw()
+
 func _process(delta : float) -> void:
 	elapsed += delta
 	if loop and elapsed > delay + duration:

@@ -11,10 +11,13 @@ var stacks : int = 0
 
 #------------------------#
 
-func on_apply() -> void:
+func on_visual_created() -> void:
 	var frostVisual : FrostVisualClass = get_frost_visual()
 	if frostVisual:
 		frostVisual.targetSprite = status.sprite
+		frostVisual.buildUp = float(stacks) / maxi(stacksToProc - 1, 1)
+
+func on_apply() -> void:
 	add_stack()
 
 func refresh(newEffect : StatusEffectClass) -> void:
@@ -52,8 +55,8 @@ func add_stack() -> void:
 func frostbite() -> void:
 	if status.hurtbox:
 		status.hurtbox.take_damage(frostbiteDamage, damageType)
-	if frostbiteScene:
-		status.get_visual_parent().add_child(frostbiteScene.instantiate())
+	var parent : Node2D = status.get_visual_parent()
+	Vfx.spawn_effect(frostbiteScene, parent.global_position, 0.0, Color.WHITE, parent)
 	var frostVisual : FrostVisualClass = get_frost_visual()
 	if frostVisual:
 		frostVisual.shatter()

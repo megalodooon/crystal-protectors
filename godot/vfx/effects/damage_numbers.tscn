@@ -1,0 +1,7 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://vfx/effects/damage_numbers.gd" id="1_numbers"]
+
+[node name="DamageNumbers" type="Node2D"]
+z_index = 3
+script = ExtResource("1_numbers")

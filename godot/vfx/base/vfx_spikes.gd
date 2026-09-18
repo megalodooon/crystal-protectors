@@ -20,6 +20,15 @@ var spikes : Array[Vector3] = []
 #------------------------#
 
 func _ready() -> void:
+	build_spikes()
+
+func restart() -> void:
+	elapsed = 0.0
+	build_spikes()
+	queue_redraw()
+
+func build_spikes() -> void:
+	spikes.clear()
 	for i in count:
 		var angle : float = deg_to_rad(angleOffset) + TAU * i / maxi(count, 1)
 		if randomAngles:

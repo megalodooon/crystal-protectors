@@ -1,7 +1,7 @@
 extends Node2D
 class_name SlashClass
 
-const HIT_SPARK_SCENE := preload("res://vfx/effects/hit_spark.tscn")
+
 const SEGMENTS : int = 40
 
 @onready var arc : MeshInstance2D = $Arc
@@ -33,6 +33,9 @@ func _process(delta : float) -> void:
 	elapsed += delta
 	var progress : float = minf(elapsed / style.duration, 1.0)
 	update_arc(progress)
+	if progress >= 1.0:
+		arc.visible = false
+		set_process(false)
 
 func setup_arc() -> void:
 	var bandInner : float = maxf(radius - size / 2.0, 0.0)
@@ -97,14 +100,8 @@ func update_arc(progress : float) -> void:
 func on_hit(hurtbox : HurtboxComponentClass, hitDamage : float) -> void:
 	if is_instance_valid(attack):
 		attack.register_hit(hurtbox, hitDamage)
-	var hitSpark : HitSparkClass = HIT_SPARK_SCENE.instantiate()
-	hitSpark.global_position = hurtbox.global_position
-	hitSpark.color = colors[1]
-	hitSpark.strength = style.hitSparkSize
-	hitSpark.sparkAmount = style.hitSparkAmount
-	hitSpark.orbAmount = style.orbAmount
-	hitSpark.angle = (hurtbox.global_position - global_position).angle() + PI / 2.0 * swingDirection
-	get_tree().current_scene.add_child(hitSpark)
+	var angle : float = (hurtbox.global_position - global_position).angle() + PI / 2.0 * swingDirection
+	Vfx.show_hit_spark(hurtbox.global_position, colors[1], style.hitSparkSize, style.hitSparkAmount, style.orbAmount, angle)
 	if not hitFeelPlayed:
 		hitFeelPlayed = true
 		GameFeel.hit_stop(style.hitStop)

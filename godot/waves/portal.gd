@@ -107,6 +107,7 @@ func update_state() -> void:
 		return
 	var wasOpen : bool = state == State.OPEN
 	state = newState
+	visible = true
 	if tween:
 		tween.kill()
 	tween = create_tween().set_parallel()
@@ -128,10 +129,8 @@ func update_state() -> void:
 	set_emitting(warningLoop, state == State.WARNING)
 
 func update_visuals() -> void:
-	var isVisible : bool = size.y > 0.001 and intensity > 0.001
-	body.visible = isVisible
-	groundGlow.visible = isVisible
-	if not isVisible:
+	visible = size.y > 0.001 and intensity > 0.001 and Vfx.is_on_screen(global_position)
+	if not visible:
 		return
 	var flicker : float = 1.0
 	if state == State.WARNING:

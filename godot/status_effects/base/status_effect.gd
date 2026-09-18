@@ -53,8 +53,11 @@ func get_speed_multiplier() -> float:
 
 func pulse_visual() -> void:
 	var statusVisual : StatusVisualClass = visual as StatusVisualClass
-	if statusVisual:
+	if statusVisual and statusVisual.visible:
 		statusVisual.pulse()
+
+func on_visual_created() -> void:
+	pass
 
 func on_apply() -> void:
 	pass

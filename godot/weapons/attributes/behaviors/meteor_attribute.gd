@@ -5,6 +5,7 @@ class_name MeteorAttributeClass
 @export var meteorScene : PackedScene
 @export var radius : float = 22.0
 @export var searchRange : float = 80.0
+@export var maxTargets : int = 6
 @export var damageType : DamageTypeClass
 @export var countScaling : AttributeScalingClass
 @export var scatter : float = 28.0
@@ -76,5 +77,5 @@ func impact(center : Vector2, weaponRef : WeakRef, areaDamage : float, areaRadiu
 	var impactDamageType : DamageTypeClass = damageType
 	if not impactDamageType:
 		impactDamageType = weapon.damageType
-	for target in get_hurtboxes_in_radius(weapon, center, areaRadius, targetLayer):
+	for target in get_hurtboxes_in_radius(weapon, center, areaRadius, targetLayer, maxTargets):
 		target.take_damage(areaDamage, impactDamageType)

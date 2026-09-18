@@ -3,6 +3,7 @@ class_name ContagionAttributeClass
 
 
 @export var radius : float = 32.0
+@export var maxTargets : int = 6
 
 #------------------------#
 
@@ -19,7 +20,7 @@ func on_proc(weapon : WeaponClass, _roll : AttributeRollClass, hurtbox : Hurtbox
 	if harmful.is_empty():
 		return
 	var areaRadius : float = radius * weapon.get_area_multiplier()
-	for target in get_hurtboxes_in_radius(weapon, hurtbox.global_position, areaRadius, hurtbox.collision_layer):
+	for target in get_hurtboxes_in_radius(weapon, hurtbox.global_position, areaRadius, hurtbox.collision_layer, maxTargets + 1):
 		if target == hurtbox:
 			continue
 		for effect in harmful:

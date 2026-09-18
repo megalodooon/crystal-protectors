@@ -16,7 +16,7 @@ func get_description_values(quality : float, level : int) -> Dictionary:
 	return values
 
 func modify_hit_damage(weapon : WeaponClass, roll : AttributeRollClass, hurtbox : HurtboxComponentClass, damage : float) -> float:
-	var others : int = get_hurtboxes_in_radius(weapon, hurtbox.global_position, radius, hurtbox.collision_layer).size() - 1
+	var others : int = get_hurtboxes_in_radius(weapon, hurtbox.global_position, radius, hurtbox.collision_layer, maxEnemies + 1).size() - 1
 	var value : float = roll.get_value(weapon.get_attribute_level())
 	if mode == Mode.ISOLATED:
 		if others > 0:

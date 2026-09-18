@@ -5,6 +5,7 @@ class_name KnockbackAreaAttributeClass
 @export var radius : float = 32.0
 @export var force : float = 120.0
 @export var pull : bool = false
+@export var maxTargets : int = 6
 
 #------------------------#
 
@@ -16,7 +17,7 @@ func on_proc(weapon : WeaponClass, _roll : AttributeRollClass, hurtbox : Hurtbox
 		return
 	var center : Vector2 = hurtbox.global_position
 	var areaRadius : float = radius * weapon.get_area_multiplier()
-	for target in get_hurtboxes_in_radius(weapon, center, areaRadius, hurtbox.collision_layer):
+	for target in get_hurtboxes_in_radius(weapon, center, areaRadius, hurtbox.collision_layer, maxTargets + 1):
 		if target == hurtbox:
 			continue
 		var direction : Vector2 = center.direction_to(target.global_position)

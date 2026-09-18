@@ -18,6 +18,10 @@ func _ready() -> void:
 	baseScale = scale
 	update_flash()
 
+func restart() -> void:
+	elapsed = 0.0
+	update_flash()
+
 func _process(delta : float) -> void:
 	elapsed += delta
 	if loop and elapsed > delay + duration:

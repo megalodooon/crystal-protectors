@@ -5,6 +5,7 @@ class_name WeaponSpawnClass
 @export var tickInterval : float = 0.5
 @export var fadeTime : float = 0.3
 @export var lingerTime : float = 0.8
+@export var maxTargets : int = 6
 @export_flags_2d_physics var targetLayer : int = 16
 
 var radius : float = 24.0
@@ -53,20 +54,7 @@ func on_end() -> void:
 		particles.emitting = false
 
 func get_targets(center : Vector2, searchRadius : float) -> Array[HurtboxComponentClass]:
-	var shape : CircleShape2D = CircleShape2D.new()
-	shape.radius = searchRadius
-	var query : PhysicsShapeQueryParameters2D = PhysicsShapeQueryParameters2D.new()
-	query.shape = shape
-	query.transform = Transform2D(0.0, center)
-	query.collide_with_areas = true
-	query.collide_with_bodies = false
-	query.collision_mask = targetLayer
-	var hurtboxes : Array[HurtboxComponentClass] = []
-	for result : Dictionary in get_world_2d().direct_space_state.intersect_shape(query):
-		var hurtbox : HurtboxComponentClass = result["collider"] as HurtboxComponentClass
-		if hurtbox:
-			hurtboxes.append(hurtbox)
-	return hurtboxes
+	return HurtboxComponentClass.find_in_radius(get_world_2d(), center, searchRadius, targetLayer, maxTargets)
 
 func get_closest_target(center : Vector2, searchRadius : float) -> HurtboxComponentClass:
 	var closest : HurtboxComponentClass = null
@@ -82,12 +70,4 @@ func hit(hurtbox : HurtboxComponentClass, amount : float) -> void:
 	hurtbox.take_damage(amount, damageType, isCrit)
 
 func spawn_vfx(scene : PackedScene, at : Vector2, vfxRadius : float = 0.0) -> void:
-	if not scene:
-		return
-	var effect : Node2D = scene.instantiate()
-	var vfx : VfxEffectClass = effect as VfxEffectClass
-	if vfx:
-		vfx.radius = vfxRadius
-		vfx.color = color
-	effect.position = at
-	get_tree().current_scene.add_child(effect)
+	Vfx.spawn_effect(scene, at, vfxRadius, color)

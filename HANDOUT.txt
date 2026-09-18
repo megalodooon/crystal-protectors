@@ -92,7 +92,7 @@ coding style (section 5). Follow it exactly.
   behaviors, normal, special, synergy).
 - A folder holds either subfolders or files, never both.
 - Layout (godot/):
-  core/ (GameFeel autoload, NumberFormat, combat scaling),
+  core/ (GameFeel + Vfx autoloads, NumberFormat, combat scaling),
   components/, damage/ (damage type script + types),
   enemies/ (enemy scenes + modifier chances), paths/, player/,
   waves/ (wave manager, waves, spawn groups, portal), status_effects/ (base, fire, frost, poison, lightning,
@@ -257,9 +257,12 @@ Example: godot/weapons/base/weapon.gd
   get_remaining_damage() (burn, poison, shock: Catalyst). Exports healthComponent,
   statusComponent, showDamageNumbers. take_damage(amount, damageType,
   isCrit) multiplies by the statuses' damage taken multiplier for that
-  damage type (Sunder, Wet vs lightning, Fortified) and spawns a
-  floating DamageNumber. static find_in_radius(world, center, radius,
-  layer) = every hurtbox in a circle (attributes and Shock use it). apply_status(effect) passes
+  damage type (Sunder, Wet vs lightning, Fortified) and shows a
+  floating damage number (Vfx.show_damage_number). static
+  find_in_radius(world, center, radius, layer, maxTargets) = hurtboxes
+  in a circle, only the nearest maxTargets when > 0 (attributes and
+  Shock use it). static find_overlapping(area, maxTargets) = the same
+  for an Area2D (blade storm, zones). apply_status(effect) passes
   status effects to its statusComponent (none = ignored).
   knockback(impulse) adds to the parent CharacterBody2D velocity.
   is_dead() = health at 0. take_damage records lastHitKilled (this
@@ -528,10 +531,21 @@ Example: godot/weapons/base/weapon.gd
   keep no state in them (timed state = weapon buffs).
   Kills = the hit brought the target to 0 (area/lightning/status
   kills do not count).
-  Helpers: get_hurtboxes_in_radius(weapon, center, radius, layer),
-  spawn_effect(weapon, position, radius, parent) (effectScene in the
-  weapon color), static is_stat_used(weapon, chosen, stat) (weapon
-  effects or chosen attributes use that stat).
+  Helpers: get_hurtboxes_in_radius(weapon, center, radius, layer,
+  maxTargets), spawn_effect(weapon, position, radius, parent)
+  (effectScene in the weapon color, through Vfx), static
+  is_stat_used(weapon, chosen, stat) (weapon effects or chosen
+  attributes use that stat).
+  TARGET CAP (developer: never hit a whole pile at once): every area
+  behavior has maxTargets (default 6 = the most a slash can ever hit,
+  spear 4 + Cleave 2), nearest to the center first: AreaDamage, Debuff
+  with radius, Contagion, KnockbackArea, Meteor impact, Beam (nearest to
+  the beam origin), WeaponSpawnClass.get_targets (singularity pull and
+  damage, storm cloud, soul link), Crystal shatter, BladeStorm and
+  StatusZone ticks. New area effects must use it too.
+  Visual-only spawns in new code go through Vfx too (WeaponSpawnClass
+  spawn_vfx, storm cloud bolts, beams with angle and crowded = false,
+  doom/crystal bursts).
   Buffs pass a visualScene to add_buff (vfx/buffs/, BuffVisualClass on
   the wielder: more stacks = more particle tiers + alpha).
   behaviors/:
@@ -800,12 +814,14 @@ Example: godot/weapons/base/weapon.gd
   (dark/main/light by luminance, cached per texture), or from
   SlashAttack colorTexture if set (spear uses iron_sword.png).
 - Particles: none on the arc. Glowing orbs spawn only at the HIT
-  location (hit_spark scene). No dust anywhere: the developer removed
-  it, it looked out of place.
+  location (Vfx.show_hit_spark). No dust anywhere: the developer
+  removed it, it looked out of place.
 - Own HitboxComponent: sector polygon from radius/size/curve, mask
-  Enemy Hurtbox, active first 60% of duration.
+  Enemy Hurtbox, active first 60% of duration. Max targets: slash
+  maxTargets (3, spear 4) + Cleave (+1, +2 at level 20), nearest first.
   On hit: hit spark + register_hit per enemy; GameFeel hit stop +
   shake only once per slash (hitFeelPlayed), however many enemies.
+  The arc hides and stops processing once it has faded.
 - slash.gd types "attack" as AttackClass on purpose: typing it as
   SlashAttackClass creates a preload cycle (slash_attack.gd preloads
   slash.tscn) and breaks opening slash.tscn.
@@ -815,9 +831,19 @@ Example: godot/weapons/base/weapon.gd
   camelCase uniforms, //------------------------// separator).
 
 [VFX]  godot/vfx/
-- effects/hit_spark.tscn: HitSparkClass star burst (drawn spikes +
-  flash + spark particles + glowing orbs). Vars: color, strength,
-  sparkAmount, orbAmount, angle.
+- PERFORMANCE RULE (developer: must run on the worst PCs, but never
+  change what the player sees): every effect goes through the Vfx
+  autoload (core/vfx.tscn + vfx.gd), never instantiate effects
+  yourself. See [Vfx budget] below.
+- effects/hit_sparks.tscn: HitSparksClass draws EVERY hit spark in one
+  node (flash + star spikes + spark streaks + glowing orbs, particle
+  math copied from CPUParticles2D). Look = its exports (textures,
+  curves, gradients, speeds). Call Vfx.show_hit_spark(position, color,
+  strength, sparkAmount, orbAmount, angle).
+- effects/damage_numbers.tscn: DamageNumbersClass draws every damage
+  number in one node (pop, rise, fade, crit = bigger, critColor, "!",
+  text via NumberFormatClass). Pixel identical to the old Label version
+  (same layout math as Godot's Label). Call Vfx.show_damage_number().
 - QUALITY BAR (developer): every effect must be as juicy as the
   burn, frost and poison visuals: layered glow + flash + particles,
   never a single cheap shape.
@@ -828,12 +854,18 @@ Example: godot/weapons/base/weapon.gd
   visuals never recolor or overlay the target: body glows and dark
   smoke/tar go BEHIND the sprite (z_index -2 inside the visual).
 - Framework (vfx/base/): VfxEffectClass = root of every one-shot
-  effect scene (baseRadius: scaled by radius / baseRadius, lifetime:
-  frees itself, shake, tinted: nodes that take the spawn color).
+  effect scene (baseRadius: scaled by radius / baseRadius, lifetime,
+  shake, tinted: nodes that take the spawn color). Effects are POOLED:
+  play() restarts it, after lifetime it emits finished and Vfx hides
+  it for reuse (not pooled = frees itself). Every part must be
+  restartable: parts get restart() (elapsed = 0, rebuild randoms),
+  CPUParticles2D restart themselves. A new part script needs restart().
   Parts to build effects in the editor: VfxFlashClass (Sprite2D scale
   + fade, loop), VfxSpikesClass (star spikes), VfxRingClass (only for
   the 4 above), VfxArcsClass (electric arcs), VfxOrbitClass (STAR or
   SHARD shapes orbiting), VfxReticleClass (corner brackets).
+  Keep effect roots at z_index 2 (pooled effects live under the
+  autoload, which draws before the level at equal z).
   vfx/shared/: additive material, soft dot/glow, flash, streak, pixel,
   bubble textures, sparkle.png (4 point star glint) and
   puff/shrink/twinkle curves. Reuse them.
@@ -841,8 +873,8 @@ Example: godot/weapons/base/weapon.gd
   splash, water_splash, explosion, nova, crit_burst, smite,
   thunderclap, time_warp, contagion, vortex, repulse, execute,
   heavy_impact, spark_burst, reset_flash, ice_spikes, mark_burst,
-  shrapnel_burst, soul_release, cast_flash, heal_burst, hit_spark,
-  lightning, damage_number, volatile_pop, jackpot, aftershock,
+  shrapnel_burst, soul_release, cast_flash, heal_burst, hit_sparks,
+  lightning, damage_numbers, volatile_pop, jackpot, aftershock,
   wild_magic, judgement_impact, star_impact, sunlance (beam, baseRadius
   = length), catalyst, rend, crystal_shatter, doom_burst,
   singularity_collapse, soul_bind, frost_nova, inferno, divine_wrath,
@@ -857,7 +889,47 @@ Example: godot/weapons/base/weapon.gd
   wide glow, colored body, white core, tapered; VfxArcs and Soul Link
   use them too; the old polylines looked harsh), soft end glows,
   re-jagged every flickerTime, fades over duration. Vars: points, color. Used by Chain Lightning,
-  Smite (bolt from above the target) and Shock (arc to a neighbour).
+  Smite (bolt from above the target) and Shock (arc to a neighbour),
+  always through Vfx.spawn_lightning(scene, points, color, width).
+
+[Vfx budget]  godot/core/vfx.tscn + vfx.gd  (autoload "Vfx")
+- Children: HitSparks, DamageNumbers (batched drawers), Pool (pooled
+  one-shot effects), Warmup. All budget numbers are exports on the root.
+- Idea (developer): full effects where the player looks, less where it
+  cannot be seen: off screen (view rect + cullMargin) nothing spawns,
+  and "the ones below" (stacked enemies, same effect on the same spot)
+  only get one copy. Normal play looks exactly like before.
+- spawn_effect(scene, position, radius, color, parent): skipped when off
+  screen, when effectsPerCrowd copies of that scene started within
+  max(crowdRadius, radius / 2) in effectCrowdTime, or when maxEffects /
+  maxEffectsPerScene are alive. Skipped effects still shake the camera
+  (shake read from the scene). parent = null -> pooled.
+  AttributeClass.spawn_effect, frostbite and meteor impacts use it.
+- can_spawn(key, position, perCrowd) = the same check for anything
+  else (life orbs). show_hit_spark / show_damage_number / spawn_lightning
+  use sparksPerCrowd / numbersPerCrowd / boltsPerCrowd.
+- Status visuals: StatusComponent asks add_status_visual(effect); only
+  on-screen visuals are created, max statusVisualsPerCrowd per effect
+  name per statusCrowdRadius cell, max maxStatusVisuals total. Every
+  updateInterval the rest is hidden (visible off + process disabled =
+  free) and shown again when needed (created late = no Burst:
+  StatusVisualClass.skipBurst). StatusEffectClass.on_visual_created()
+  runs when a visual is made late (frost syncs its build up there).
+  pulse_visual() skips hidden visuals.
+- add_cullable(node): moving visuals (slash waves, spirit orbs, status
+  zones) are hidden while off screen; gameplay keeps running.
+- Warmup: the first frames instantiate every scene in warmupFolders
+  (vfx/effects, vfx/buffs, status_effects) nearly invisible so shaders
+  compile at load, not on the first hit; VfxEffect scenes stay in the
+  pool.
+- IMPORTANT: vfx.gd must NOT use status/hurtbox class types (it uses
+  Resource + duck typing). An autoload with typed references to the
+  status_effect / status_component / hurtbox scripts makes Godot leak
+  those scripts at exit ("resources still in use").
+- Portals hide themselves completely when closed or off screen.
+- Verify performance with a benchmark scene in a scratch copy
+  (40 stacked enemies, strong weapon, vsync off, frame times) in both
+  renderers (Mobile and gl_compatibility = web).
 
 [Status effects]  godot/status_effects/
 - Folders: base/ (status_effect, status_interaction,
@@ -957,8 +1029,8 @@ Example: godot/weapons/base/weapon.gd
 - New damage type = new .tres in damage/ (physical, fire, ice,
   poison, lightning, arcane, shadow, holy, crystal exist). Set it on a
   weapon (damageType).
-- vfx/effects/damage_number.tscn: DamageNumberClass pops, rises, fades. Crit =
-  bigger, critColor, "!" suffix. Text via NumberFormatClass.
+- Damage numbers: see [VFX] (DamageNumbersClass, damage type color,
+  critColor on crits).
 
 [Utils]  godot/core/number_format.gd
 - NumberFormatClass.format(value) (static): whole number below
@@ -969,8 +1041,11 @@ Example: godot/weapons/base/weapon.gd
 [GameFeel]  godot/core/game_feel.gd  (autoload "GameFeel")
 - hit_stop(seconds): Engine.time_scale = 0, restored by real time.
   Weapon cooldown timers ignore time scale, so hit stop does not
-  slow the attack rhythm.
+  slow the attack rhythm. HIT_STOP_COOLDOWN (250 ms): a new hit stop
+  only starts that long after the last one ended (fast weapons and
+  double strike froze the game too often and felt laggy).
 - shake(strength): shakes the active Camera2D offset. Needs a camera.
+  Does nothing while there is no shake.
 - Autoloads do not exist in --script test runs; test by running a
   harness scene normally instead.
 
@@ -1024,7 +1099,9 @@ Example: godot/weapons/base/weapon.gd
   StatusComponent. Health x COMBAT_SCALING.get_multiplier(combatLevel)
   x healthMultiplier; movementComponent.speedMultiplier =
   speedMultiplier; modifier (set = always that modifier, empty = the
-  random roll). The WaveManager sets all four before add_child.
+  random roll). The WaveManager sets all four before add_child. The
+  modifier is applied deferred (after the enemy was moved to its
+  portal) so the Vfx budget sees the real position.
   died -> die() (queue_free),
   reached_end -> on_reached_end() (queue_free for now, no crystal yet).
   Signals connected in the scene.
@@ -1209,3 +1286,14 @@ Input actions: left, right, up, down (WASD), attack (left mouse).
             space (trail on swings, move with the player), sparkles
             instead of square pixels. Lightning redrawn as soft
             feathered ribbons, smite rebuilt. Test scene: Y synergy.
+            Performance update (no visual change in normal play): Vfx
+            autoload budget (off-screen culling, one copy per spot for
+            stacked enemies, caps), damage numbers and hit sparks drawn
+            by one node each, pooled + prewarmed effects, status visuals
+            created only where seen, area effects capped at 6 targets,
+            hit stop cooldown, cached weapon stats, idle status
+            components/visuals sleep, portals hide when closed. 40
+            stacked enemies with a strong weapon (web renderer): 25.5 ms
+            -> 14.2 ms per frame, worst 1% of frames 80 ms -> 26 ms, draw
+            calls 482 -> 179. New synergy spawners, beams and statuses
+            routed through Vfx and capped at 6 targets.
