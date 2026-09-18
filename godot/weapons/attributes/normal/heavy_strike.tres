@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://weapons/attributes/behaviors/attack_count_damage_attribute.gd" id="1_attribute"]
 [ext_resource type="Script" path="res://weapons/attributes/base/attribute_scaling.gd" id="2_scaling"]
-[ext_resource type="PackedScene" path="res://vfx/heavy_impact/heavy_impact.tscn" id="3_effect"]
+[ext_resource type="PackedScene" path="res://vfx/effects/heavy_impact.tscn" id="3_effect"]
 
 [sub_resource type="Resource" id="Resource_scaling"]
 script = ExtResource("2_scaling")

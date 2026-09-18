@@ -1,0 +1,60 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://status_effects/base/status_visual.gd" id="1_visual"]
+[ext_resource type="Material" path="res://vfx/shared/add_material.tres" id="2_add"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_dot.tres" id="3_dot"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_glow.tres" id="4_glow"]
+[ext_resource type="Script" path="res://vfx/base/vfx_flash.gd" id="5_flash"]
+[ext_resource type="Script" path="res://vfx/base/vfx_orbit.gd" id="6_orbit"]
+[ext_resource type="Curve" path="res://vfx/shared/twinkle_curve.tres" id="7_twinkle"]
+
+[sub_resource type="Gradient" id="Gradient_glint"]
+offsets = PackedFloat32Array(0, 0.3, 1)
+colors = PackedColorArray(1, 1, 1, 0, 0.9, 0.95, 1, 1, 0.6, 0.75, 1, 0)
+
+[node name="FortifiedVisual" type="Node2D"]
+z_index = 1
+script = ExtResource("1_visual")
+
+[node name="Loop" type="Node2D" parent="."]
+
+[node name="Glow" type="Sprite2D" parent="Loop"]
+z_index = -2
+texture_filter = 2
+material = ExtResource("2_add")
+scale = Vector2(0.55, 0.65)
+modulate = Color(0.55, 0.7, 1, 0.3)
+texture = ExtResource("4_glow")
+script = ExtResource("5_flash")
+duration = 1.4
+startScale = 0.94
+endScale = 1.04
+loop = true
+
+[node name="Plates" type="Node2D" parent="Loop"]
+texture_filter = 2
+material = ExtResource("2_add")
+position = Vector2(0, 1)
+script = ExtResource("6_orbit")
+shape = 1
+count = 3
+orbitSize = Vector2(8.5, 3)
+speed = 1.6
+size = 2.2
+color = Color(0.72, 0.82, 1, 1)
+twinkleSpeed = 3.0
+
+[node name="Glints" type="CPUParticles2D" parent="Loop"]
+texture_filter = 2
+material = ExtResource("2_add")
+amount = 2
+texture = ExtResource("3_dot")
+lifetime = 0.7
+randomness = 0.5
+emission_shape = 3
+emission_rect_extents = Vector2(6, 7)
+gravity = Vector2(0, 0)
+scale_amount_min = 0.25
+scale_amount_max = 0.4
+scale_amount_curve = ExtResource("7_twinkle")
+color_ramp = SubResource("Gradient_glint")

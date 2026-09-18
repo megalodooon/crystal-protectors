@@ -2,8 +2,8 @@
 
 [ext_resource type="Script" path="res://weapons/attributes/behaviors/blade_storm_attribute.gd" id="1_attribute"]
 [ext_resource type="Script" path="res://weapons/attributes/base/attribute_scaling.gd" id="2_scaling"]
-[ext_resource type="PackedScene" path="res://weapons/spawns/blade_storm/blade_storm.tscn" id="3_storm"]
-[ext_resource type="PackedScene" path="res://weapons/auras/steel/weapon_steel.tscn" id="4_aura"]
+[ext_resource type="PackedScene" path="res://weapons/spawns/blade_storm.tscn" id="3_storm"]
+[ext_resource type="PackedScene" path="res://weapons/auras/steel_aura.tscn" id="4_aura"]
 
 [sub_resource type="Resource" id="Resource_scaling"]
 script = ExtResource("2_scaling")

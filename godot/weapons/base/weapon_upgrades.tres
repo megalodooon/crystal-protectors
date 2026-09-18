@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="WeaponUpgradesClass" format=3 uid="uid://chtxja7khwag0"]
+
+[ext_resource type="Script" uid="uid://dvc6cjis5qldf" path="res://weapons/base/weapon_upgrades.gd" id="1_upgrades"]
+
+[resource]
+script = ExtResource("1_upgrades")
+damagePerLevel = 0.08

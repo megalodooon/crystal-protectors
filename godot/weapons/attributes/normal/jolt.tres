@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="StatusAttributeClass" format=3]
+
+[ext_resource type="Script" path="res://weapons/attributes/behaviors/status_attribute.gd" id="1_attribute"]
+[ext_resource type="Script" path="res://weapons/attributes/base/attribute_scaling.gd" id="2_scaling"]
+[ext_resource type="Resource" path="res://weapons/effects/lightning.tres" id="3_element"]
+
+[sub_resource type="Resource" id="Resource_scaling"]
+script = ExtResource("2_scaling")
+minBase = 0.02
+maxBase = 0.03
+perStep = 0.0015
+percent = true
+
+[sub_resource type="Resource" id="Resource_chance"]
+script = ExtResource("2_scaling")
+minBase = 0.1
+maxBase = 0.14
+perStep = 0.002
+percent = true
+
+[resource]
+script = ExtResource("1_attribute")
+element = ExtResource("3_element")
+attributeName = "Jolt"
+description = "{chance}% Shock: {value}% dmg per tick"
+scaling = SubResource("Resource_scaling")
+trigger = 2
+chanceScaling = SubResource("Resource_chance")
+weight = 0.8

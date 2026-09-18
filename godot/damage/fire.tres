@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="DamageTypeClass" format=3]
+
+[ext_resource type="Script" path="res://damage/damage_type.gd" id="1_type"]
+
+[resource]
+script = ExtResource("1_type")
+typeName = "Fire"
+color = Color(1, 0.55, 0.2, 1)
+critColor = Color(1, 0.25, 0.1, 1)

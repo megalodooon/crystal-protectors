@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ModifierEffectClass" format=3]
+
+[ext_resource type="Script" path="res://status_effects/modifiers/modifier_effect.gd" id="1_modifier"]
+[ext_resource type="PackedScene" path="res://status_effects/modifiers/regenerating_visual.tscn" id="2_visual"]
+
+[resource]
+script = ExtResource("1_modifier")
+regeneration = 0.03
+effectName = "Regenerating"
+tickInterval = 0.5
+permanent = true
+beneficial = true
+visualScene = ExtResource("2_visual")

@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="EnemyModifiersClass" format=3]
+
+[ext_resource type="Script" path="res://enemies/enemy_modifiers.gd" id="1_modifiers"]
+[ext_resource type="Script" path="res://status_effects/base/status_effect.gd" id="2_status"]
+[ext_resource type="Resource" path="res://status_effects/modifiers/fortified.tres" id="3_fortified"]
+[ext_resource type="Resource" path="res://status_effects/modifiers/swift.tres" id="4_swift"]
+[ext_resource type="Resource" path="res://status_effects/modifiers/regenerating.tres" id="5_regenerating"]
+
+[resource]
+script = ExtResource("1_modifiers")
+modifiers = Array[ExtResource("2_status")]([ExtResource("3_fortified"), ExtResource("4_swift"), ExtResource("5_regenerating")])

@@ -5,6 +5,8 @@ class_name StatusEffectClass
 @export var effectName : String
 @export var duration : float = 3.0
 @export var tickInterval : float = 0.5
+@export var permanent : bool = false
+@export var beneficial : bool = false
 @export var visualScene : PackedScene
 @export var interactions : Array[StatusInteractionClass]
 
@@ -16,7 +18,8 @@ var visual : Node2D
 #------------------------#
 
 func update(delta : float) -> void:
-	timeLeft -= delta
+	if not permanent:
+		timeLeft -= delta
 	if tickInterval <= 0.0:
 		return
 	tickTimer += delta
@@ -39,11 +42,16 @@ func set_damage(_amount : float) -> void:
 func set_strength(_amount : float) -> void:
 	pass
 
-func get_damage_taken_multiplier() -> float:
+func get_damage_taken_multiplier(_damageType : DamageTypeClass) -> float:
 	return 1.0
 
 func get_speed_multiplier() -> float:
 	return 1.0
+
+func pulse_visual() -> void:
+	var statusVisual : StatusVisualClass = visual as StatusVisualClass
+	if statusVisual:
+		statusVisual.pulse()
 
 func on_apply() -> void:
 	pass

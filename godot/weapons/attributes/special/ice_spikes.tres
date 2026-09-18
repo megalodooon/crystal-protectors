@@ -2,10 +2,10 @@
 
 [ext_resource type="Script" path="res://weapons/attributes/behaviors/area_damage_attribute.gd" id="1_attribute"]
 [ext_resource type="Script" path="res://weapons/attributes/base/attribute_scaling.gd" id="2_scaling"]
-[ext_resource type="Resource" path="res://damage/types/ice.tres" id="3_ice"]
-[ext_resource type="Resource" path="res://status_effects/slow/slow.tres" id="4_slow"]
-[ext_resource type="PackedScene" path="res://vfx/ice_spikes/ice_spikes.tscn" id="5_effect"]
-[ext_resource type="PackedScene" path="res://weapons/effects/frost/weapon_frost.tscn" id="6_aura"]
+[ext_resource type="Resource" path="res://damage/ice.tres" id="3_ice"]
+[ext_resource type="Resource" path="res://status_effects/debuffs/slow.tres" id="4_slow"]
+[ext_resource type="PackedScene" path="res://vfx/effects/ice_spikes.tscn" id="5_effect"]
+[ext_resource type="PackedScene" path="res://weapons/auras/frost_aura.tscn" id="6_aura"]
 
 [sub_resource type="Resource" id="Resource_scaling"]
 script = ExtResource("2_scaling")

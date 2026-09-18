@@ -1,6 +1,0 @@
-[gd_resource type="Resource" script_class="CombatScalingClass" format=3 uid="uid://c4ai8raaq134t"]
-
-[ext_resource type="Script" uid="uid://dcn5560donbkl" path="res://combat_level/combat_scaling.gd" id="1_scaling"]
-
-[resource]
-script = ExtResource("1_scaling")

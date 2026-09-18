@@ -2,7 +2,7 @@ extends AttributeClass
 class_name AreaDamageAttributeClass
 
 
-const LIGHTNING_SCENE := preload("res://vfx/lightning/lightning.tscn")
+const LIGHTNING_SCENE := preload("res://vfx/effects/lightning.tscn")
 
 @export var radius : float = 20.0
 @export var includeTarget : bool = false

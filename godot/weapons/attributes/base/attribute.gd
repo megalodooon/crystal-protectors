@@ -99,20 +99,7 @@ func modify_hit_damage(_weapon : WeaponClass, _roll : AttributeRollClass, _hurtb
 	return damage
 
 func get_hurtboxes_in_radius(weapon : WeaponClass, center : Vector2, radius : float, layer : int) -> Array[HurtboxComponentClass]:
-	var shape : CircleShape2D = CircleShape2D.new()
-	shape.radius = radius
-	var query : PhysicsShapeQueryParameters2D = PhysicsShapeQueryParameters2D.new()
-	query.shape = shape
-	query.transform = Transform2D(0.0, center)
-	query.collide_with_areas = true
-	query.collide_with_bodies = false
-	query.collision_mask = layer
-	var hurtboxes : Array[HurtboxComponentClass] = []
-	for result : Dictionary in weapon.get_world_2d().direct_space_state.intersect_shape(query):
-		var hurtbox : HurtboxComponentClass = result["collider"] as HurtboxComponentClass
-		if hurtbox:
-			hurtboxes.append(hurtbox)
-	return hurtboxes
+	return HurtboxComponentClass.find_in_radius(weapon.get_world_2d(), center, radius, layer)
 
 func spawn_effect(weapon : WeaponClass, position : Vector2, radius : float = 0.0, parent : Node = null) -> void:
 	if not effectScene:

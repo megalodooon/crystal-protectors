@@ -1,0 +1,35 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://weapons/attacks/slash.gd" id="1_slash"]
+[ext_resource type="Shader" path="res://weapons/attacks/slash.gdshader" id="2_shader"]
+[ext_resource type="Script" uid="uid://sjivnp2m3sm0" path="res://components/hitbox_component.gd" id="3_hitbox"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_streak"]
+frequency = 0.035
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_streak"]
+width = 128
+height = 128
+seamless = true
+noise = SubResource("FastNoiseLite_streak")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_arc"]
+resource_local_to_scene = true
+shader = ExtResource("2_shader")
+shader_parameter/streakNoise = SubResource("NoiseTexture2D_streak")
+
+[node name="Slash" type="Node2D"]
+z_index = 1
+script = ExtResource("1_slash")
+
+[node name="Arc" type="MeshInstance2D" parent="."]
+material = SubResource("ShaderMaterial_arc")
+
+[node name="HitboxComponent" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 16
+monitoring = false
+monitorable = false
+script = ExtResource("3_hitbox")
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="HitboxComponent"]

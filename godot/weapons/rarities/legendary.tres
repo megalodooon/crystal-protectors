@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="RarityClass" format=3 uid="uid://mdhadydield1"]
 
 [ext_resource type="Script" uid="uid://b38xrlaoouxfl" path="res://weapons/rarities/rarity.gd" id="1_rarity"]
-[ext_resource type="Script" uid="uid://62usds3gqkdb" path="res://weapons/attacks/slash/slash_style.gd" id="2_slashstyle"]
+[ext_resource type="Script" uid="uid://62usds3gqkdb" path="res://weapons/attacks/slash_style.gd" id="2_slashstyle"]
 [ext_resource type="Resource" uid="uid://cd3jmqh6dfk0i" path="res://weapons/rarities/mythic.tres" id="3_next"]
 [ext_resource type="Script" uid="uid://bxwnpisywsux2" path="res://weapons/enchant/enchant_style.gd" id="3_enchantstyle"]
 

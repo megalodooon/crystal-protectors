@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="DebuffAttributeClass" format=3]
+
+[ext_resource type="Script" path="res://weapons/attributes/behaviors/debuff_attribute.gd" id="1_attribute"]
+[ext_resource type="Script" path="res://weapons/attributes/base/attribute_scaling.gd" id="2_scaling"]
+[ext_resource type="Resource" path="res://status_effects/water/wet.tres" id="3_status"]
+[ext_resource type="PackedScene" path="res://weapons/auras/water_aura.tscn" id="4_aura"]
+[ext_resource type="PackedScene" path="res://vfx/effects/water_splash.tscn" id="5_effect"]
+
+[sub_resource type="Resource" id="Resource_scaling"]
+script = ExtResource("2_scaling")
+minBase = 0.25
+maxBase = 0.3
+perStep = 0.004
+percent = true
+
+[sub_resource type="Resource" id="Resource_chance"]
+script = ExtResource("2_scaling")
+minBase = 0.15
+maxBase = 0.2
+perStep = 0.003
+percent = true
+
+[resource]
+script = ExtResource("1_attribute")
+status = ExtResource("3_status")
+radius = 28.0
+attributeName = "Deluge"
+description = "{chance}% Deluge: soak nearby, +{value}% lightning dmg taken"
+scaling = SubResource("Resource_scaling")
+trigger = 2
+chanceScaling = SubResource("Resource_chance")
+effectScene = ExtResource("5_effect")
+auraScene = ExtResource("4_aura")
+special = true
+inRandomPool = true
+weight = 0.6

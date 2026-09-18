@@ -1,0 +1,92 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://enemies/enemy.gd" id="1_enemy"]
+[ext_resource type="Texture2D" uid="uid://da3o6uce0fi14" path="res://player/player_placeholder.png" id="2_placeholder"]
+[ext_resource type="Script" uid="uid://dkhf1rkvog3oh" path="res://components/health_component.gd" id="3_health"]
+[ext_resource type="Script" uid="uid://fufi127c22am" path="res://components/movement_component.gd" id="4_movement"]
+[ext_resource type="Script" path="res://components/path_follow_component.gd" id="5_path_follow"]
+[ext_resource type="Script" uid="uid://iyol7ynmkhca" path="res://components/hurtbox_component.gd" id="6_hurtbox"]
+[ext_resource type="Script" uid="uid://0got7glne0r5" path="res://components/status_component.gd" id="7_status"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_body"]
+radius = 4.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_hurtbox"]
+radius = 6.0
+
+[sub_resource type="Animation" id="Animation_walk"]
+resource_name = "walk"
+length = 0.4
+loop_mode = 1
+step = 0.05
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Visuals/Sprite2D:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.3, 0.4),
+"transitions": PackedFloat32Array(-2, -2, -2, 1),
+"update": 0,
+"values": [0.0, -0.2, 0.2, 0.0]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_enemy"]
+_data = {
+&"walk": SubResource("Animation_walk")
+}
+
+[node name="Enemy" type="CharacterBody2D" node_paths=PackedStringArray("healthComponent", "movementComponent", "pathFollowComponent", "statusComponent")]
+collision_layer = 4
+motion_mode = 1
+script = ExtResource("1_enemy")
+healthComponent = NodePath("HealthComponent")
+movementComponent = NodePath("MovementComponent")
+pathFollowComponent = NodePath("PathFollowComponent")
+statusComponent = NodePath("StatusComponent")
+
+[node name="Visuals" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="Visuals"]
+modulate = Color(1, 0.55, 0.55, 1)
+position = Vector2(0, 8)
+texture = ExtResource("2_placeholder")
+offset = Vector2(0, -8)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_body")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries/ = SubResource("AnimationLibrary_enemy")
+autoplay = &"walk"
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("3_health")
+
+[node name="MovementComponent" type="Node" parent="." node_paths=PackedStringArray("statusComponent")]
+script = ExtResource("4_movement")
+acceleration = 300.0
+deceleration = 300.0
+statusComponent = NodePath("../StatusComponent")
+
+[node name="PathFollowComponent" type="Node" parent="."]
+script = ExtResource("5_path_follow")
+
+[node name="HurtboxComponent" type="Area2D" parent="." node_paths=PackedStringArray("healthComponent", "statusComponent")]
+collision_layer = 16
+collision_mask = 0
+script = ExtResource("6_hurtbox")
+healthComponent = NodePath("../HealthComponent")
+statusComponent = NodePath("../StatusComponent")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HurtboxComponent"]
+shape = SubResource("CircleShape2D_hurtbox")
+
+[node name="StatusComponent" type="Node" parent="." node_paths=PackedStringArray("hurtbox", "sprite")]
+script = ExtResource("7_status")
+hurtbox = NodePath("../HurtboxComponent")
+sprite = NodePath("../Visuals/Sprite2D")
+
+[connection signal="died" from="HealthComponent" to="." method="die"]
+[connection signal="reached_end" from="PathFollowComponent" to="." method="on_reached_end"]

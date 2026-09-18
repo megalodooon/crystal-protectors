@@ -1,0 +1,73 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://status_effects/base/status_visual.gd" id="1_visual"]
+[ext_resource type="Material" path="res://vfx/shared/add_material.tres" id="2_add"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_dot.tres" id="3_dot"]
+[ext_resource type="Texture2D" path="res://vfx/shared/streak.tres" id="4_streak"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_glow.tres" id="5_glow"]
+[ext_resource type="Script" path="res://vfx/base/vfx_flash.gd" id="6_flash"]
+[ext_resource type="Curve" path="res://vfx/shared/shrink_curve.tres" id="7_shrink"]
+
+[sub_resource type="Gradient" id="Gradient_trail"]
+offsets = PackedFloat32Array(0, 0.2, 1)
+colors = PackedColorArray(0.7, 1, 0.95, 0, 0.45, 1, 0.9, 0.55, 0.3, 0.8, 1, 0)
+
+[sub_resource type="Gradient" id="Gradient_gust"]
+offsets = PackedFloat32Array(0, 0.3, 1)
+colors = PackedColorArray(0.8, 1, 1, 0, 0.6, 1, 0.95, 0.8, 0.4, 0.85, 1, 0)
+
+[node name="SwiftVisual" type="Node2D"]
+z_index = 1
+script = ExtResource("1_visual")
+
+[node name="Loop" type="Node2D" parent="."]
+
+[node name="FeetGlow" type="Sprite2D" parent="Loop"]
+z_index = -2
+texture_filter = 2
+material = ExtResource("2_add")
+position = Vector2(0, 7)
+scale = Vector2(0.6, 0.25)
+modulate = Color(0.4, 1, 0.9, 0.4)
+texture = ExtResource("5_glow")
+script = ExtResource("6_flash")
+duration = 0.5
+startScale = 0.9
+endScale = 1.1
+loop = true
+
+[node name="Trail" type="CPUParticles2D" parent="Loop"]
+z_index = -2
+texture_filter = 2
+material = ExtResource("2_add")
+amount = 10
+texture = ExtResource("3_dot")
+lifetime = 0.35
+randomness = 0.3
+local_coords = false
+emission_shape = 3
+emission_rect_extents = Vector2(3, 6)
+gravity = Vector2(0, 0)
+scale_amount_min = 0.5
+scale_amount_max = 0.8
+scale_amount_curve = ExtResource("7_shrink")
+color_ramp = SubResource("Gradient_trail")
+
+[node name="Gusts" type="CPUParticles2D" parent="Loop"]
+texture_filter = 2
+material = ExtResource("2_add")
+amount = 3
+texture = ExtResource("4_streak")
+lifetime = 0.3
+randomness = 0.5
+emission_shape = 3
+emission_rect_extents = Vector2(6, 5)
+particle_flag_align_y = true
+direction = Vector2(0, -1)
+spread = 10.0
+gravity = Vector2(0, -40)
+initial_velocity_min = 15.0
+initial_velocity_max = 25.0
+scale_amount_min = 0.25
+scale_amount_max = 0.4
+color_ramp = SubResource("Gradient_gust")

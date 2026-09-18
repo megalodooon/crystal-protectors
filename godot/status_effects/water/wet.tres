@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="WetEffectClass" format=3]
+
+[ext_resource type="Script" path="res://status_effects/water/wet_effect.gd" id="1_wet"]
+[ext_resource type="Resource" path="res://damage/lightning.tres" id="2_lightning"]
+[ext_resource type="PackedScene" path="res://status_effects/water/wet_visual.tscn" id="3_visual"]
+[ext_resource type="Script" path="res://status_effects/base/remove_interaction.gd" id="4_remove"]
+[ext_resource type="Script" path="res://status_effects/base/status_interaction.gd" id="5_interaction"]
+[ext_resource type="Script" path="res://damage/damage_type.gd" id="6_damage_type"]
+[ext_resource type="Resource" path="res://damage/fire.tres" id="7_fire"]
+
+[sub_resource type="Resource" id="Resource_evaporated"]
+script = ExtResource("4_remove")
+triggerEffects = Array[String](["Burn"])
+triggerDamageTypes = Array[ExtResource("6_damage_type")]([ExtResource("7_fire")])
+blockTriggerEffect = true
+
+[resource]
+script = ExtResource("1_wet")
+amplifiedType = ExtResource("2_lightning")
+effectName = "Wet"
+duration = 4.0
+tickInterval = 0.0
+visualScene = ExtResource("3_visual")
+interactions = Array[ExtResource("5_interaction")]([SubResource("Resource_evaporated")])

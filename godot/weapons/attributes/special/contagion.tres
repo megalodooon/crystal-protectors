@@ -2,8 +2,8 @@
 
 [ext_resource type="Script" path="res://weapons/attributes/behaviors/contagion_attribute.gd" id="1_attribute"]
 [ext_resource type="Script" path="res://weapons/attributes/base/attribute_scaling.gd" id="2_scaling"]
-[ext_resource type="PackedScene" path="res://vfx/contagion/contagion.tscn" id="3_effect"]
-[ext_resource type="PackedScene" path="res://weapons/effects/poison/weapon_poison.tscn" id="4_aura"]
+[ext_resource type="PackedScene" path="res://vfx/effects/contagion.tscn" id="3_effect"]
+[ext_resource type="PackedScene" path="res://weapons/auras/poison_aura.tscn" id="4_aura"]
 
 [sub_resource type="Resource" id="Resource_chance"]
 script = ExtResource("2_scaling")

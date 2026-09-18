@@ -2,9 +2,9 @@ extends Resource
 class_name WeaponItemClass
 
 
-const UPGRADES := preload("res://weapons/upgrades/weapon_upgrades.tres")
-const COMBAT_SCALING := preload("res://combat_level/combat_scaling.tres")
-const ATTRIBUTE_POOL := preload("res://weapons/attributes/pool/attribute_pool.tres")
+const UPGRADES := preload("res://weapons/base/weapon_upgrades.tres")
+const COMBAT_SCALING := preload("res://core/combat_scaling.tres")
+const ATTRIBUTE_POOL := preload("res://weapons/attributes/base/attribute_pool.tres")
 
 @export var weaponScene : PackedScene
 @export var rarity : RarityClass
@@ -38,14 +38,13 @@ func level_up() -> void:
 	emit_changed()
 
 func can_upgrade_rarity() -> bool:
-	return is_max_level() and not rarityUpgraded and rarity != null and rarity.nextRarity != null
+	return level >= UPGRADES.rarityUpgradeLevel and not rarityUpgraded and rarity != null and rarity.nextRarity != null
 
 func upgrade_rarity() -> void:
 	if not can_upgrade_rarity():
 		return
 	rarity = rarity.nextRarity
 	rarityUpgraded = true
-	level = 0
 	attributes = ATTRIBUTE_POOL.roll_attributes(self, attributes)
 	emit_changed()
 
@@ -61,10 +60,7 @@ func get_damage_multiplier() -> float:
 	return UPGRADES.get_damage_multiplier(level) * COMBAT_SCALING.get_multiplier(combatLevel)
 
 func get_attribute_level() -> int:
-	var attributeLevel : int = level
-	if rarityUpgraded or (rarity != null and rarity.nextRarity == null):
-		attributeLevel += UPGRADES.maxLevel
-	return mini(attributeLevel, get_max_attribute_level())
+	return clampi(level, 0, get_max_attribute_level())
 
 func get_max_attribute_level() -> int:
-	return UPGRADES.maxLevel * 2
+	return UPGRADES.maxLevel

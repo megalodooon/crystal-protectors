@@ -2,10 +2,10 @@
 
 [ext_resource type="Script" path="res://weapons/attributes/behaviors/projectile_attribute.gd" id="1_attribute"]
 [ext_resource type="Script" path="res://weapons/attributes/base/attribute_scaling.gd" id="2_scaling"]
-[ext_resource type="Script" path="res://weapons/attacks/base/attack_type.gd" id="3_attack_type"]
-[ext_resource type="Resource" path="res://weapons/attacks/types/slash.tres" id="4_slash"]
-[ext_resource type="PackedScene" path="res://weapons/projectiles/slash_wave/slash_wave.tscn" id="5_projectile"]
-[ext_resource type="PackedScene" path="res://weapons/auras/steel/weapon_steel.tscn" id="6_aura"]
+[ext_resource type="Script" path="res://weapons/attacks/attack_type.gd" id="3_attack_type"]
+[ext_resource type="Resource" path="res://weapons/attacks/slash_type.tres" id="4_slash"]
+[ext_resource type="PackedScene" path="res://weapons/projectiles/slash_wave.tscn" id="5_projectile"]
+[ext_resource type="PackedScene" path="res://weapons/auras/steel_aura.tscn" id="6_aura"]
 
 [sub_resource type="Resource" id="Resource_scaling"]
 script = ExtResource("2_scaling")

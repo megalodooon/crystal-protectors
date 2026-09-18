@@ -5,6 +5,7 @@ extends Node2D
 @export var weapons : Array[PackedScene]
 @export var rarities : Array[RarityClass]
 @export var waveManager : WaveManagerClass
+@export var testElements : Array[WeaponEffectClass]
 @export var enemySpriteScales : Dictionary[PackedScene, float]
 @export var enemyColors : Dictionary[PackedScene, Color]
 
@@ -15,6 +16,8 @@ extends Node2D
 @onready var attributeText : RichTextLabel = $CanvasLayer/AttributePanel/AttributeText
 
 var weaponIndex : int = 0
+var elementIndex : int = -1
+var elementWeapon : WeaponClass
 
 #------------------------#
 
@@ -24,6 +27,10 @@ func _ready() -> void:
 
 func _process(_delta : float) -> void:
 	update_wave_label()
+	if player.weapon != elementWeapon:
+		elementWeapon = player.weapon
+		apply_test_element()
+		update_labels()
 
 func _unhandled_input(event : InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
@@ -38,6 +45,13 @@ func _unhandled_input(event : InputEvent) -> void:
 			item.upgrade_rarity()
 		if event.keycode == KEY_C:
 			item.upgrade_combat_level()
+		if event.keycode == KEY_Z:
+			waveManager.combatLevel += 1
+		if event.keycode == KEY_T and not testElements.is_empty():
+			elementIndex += 1
+			if elementIndex >= testElements.size():
+				elementIndex = -1
+			player.spawn_weapon()
 		if event.keycode == KEY_G:
 			waveManager.start_next_wave()
 		if event.keycode == KEY_V:
@@ -69,14 +83,14 @@ func update_labels() -> void:
 	var weaponName : String = item.weaponScene.resource_path.get_file().get_basename().capitalize()
 	rarityLabel.text = "Q " + weaponName + "  1-" + str(rarities.size()) + " " + item.rarity.rarityName
 	rarityLabel.modulate = item.rarity.color
-	var rarityText : String = "R Rarity up at max level"
+	var rarityText : String = "R Rarity up at level " + str(item.UPGRADES.rarityUpgradeLevel)
 	if item.can_upgrade_rarity():
 		rarityText = "R Upgrade to " + item.rarity.nextRarity.rarityName
 	elif item.rarityUpgraded or not item.rarity.nextRarity:
 		rarityText = "Rarity cannot upgrade"
 	upgradeLabel.text = "E Level " + str(item.level) + "/" + str(item.UPGRADES.maxLevel) + "  C Combat " + str(item.combatLevel)
 	upgradeLabel.text += "  Damage " + NumberFormatClass.format(player.weapon.get_damage())
-	upgradeLabel.text += "\n" + rarityText + "  V Attributes"
+	upgradeLabel.text += "\n" + rarityText + "  V Attributes  T Element " + get_element_name()
 	update_attribute_panel()
 
 func update_attribute_panel() -> void:
@@ -92,15 +106,30 @@ func update_attribute_panel() -> void:
 		text += "\n%s [color=#%s]%s[/color]" % [get_quality_bar(roll.quality), color.to_html(false), roll.get_description(level)]
 	attributeText.text = text
 
+func apply_test_element() -> void:
+	if elementIndex < 0 or not player.weapon:
+		return
+	var effect : WeaponEffectClass = testElements[elementIndex].duplicate()
+	player.weapon.activeEffects.append(effect)
+	effect.on_equip(player.weapon)
+
+func get_element_name() -> String:
+	if elementIndex < 0:
+		return "None"
+	return testElements[elementIndex].resource_path.get_file().get_basename().capitalize()
+
 func get_quality_bar(quality : float) -> String:
 	var filled : int = roundi(quality * 5.0)
 	return "[color=#bbbbbb]%s[/color][color=#444444]%s[/color]" % ["|".repeat(filled), "|".repeat(5 - filled)]
 
 func update_wave_label() -> void:
 	var waveText : String = str(waveManager.waveIndex + 1) + "/" + str(waveManager.waves.size())
+	var modifierChance : float = EnemyClass.MODIFIERS.get_chance(waveManager.combatLevel)
+	var enemyText : String = "  Z Enemy Lv " + str(waveManager.combatLevel) + " Mod " + AttributeScalingClass.format_number(modifierChance * 100.0) + "%"
 	if waveManager.isWaveRunning:
 		waveLabel.text = "Wave " + waveText + "  Enemies " + str(waveManager.aliveEnemies + waveManager.pendingSpawns)
 	elif waveManager.has_next_wave():
 		waveLabel.text = "G Start wave " + waveText
 	else:
 		waveLabel.text = "All waves cleared"
+	waveLabel.text += enemyText

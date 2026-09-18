@@ -16,7 +16,7 @@ config/features=PackedStringArray("4.7", "Mobile")
 
 [autoload]
 
-GameFeel="*res://autoload/game_feel.gd"
+GameFeel="*res://core/game_feel.gd"
 
 [display]
 
@@ -66,10 +66,9 @@ attack={
 
 [physics]
 
-common/physics_interpolation=true
 common/physics_jitter_fix=0.0
-
 3d/physics_engine="Jolt Physics"
+common/physics_interpolation=true
 
 [rendering]
 

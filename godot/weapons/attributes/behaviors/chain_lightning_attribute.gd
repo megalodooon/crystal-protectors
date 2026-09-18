@@ -2,7 +2,7 @@ extends AttributeClass
 class_name ChainLightningAttributeClass
 
 
-const LIGHTNING_SCENE := preload("res://vfx/lightning/lightning.tscn")
+const LIGHTNING_SCENE := preload("res://vfx/effects/lightning.tscn")
 
 @export var countScaling : AttributeScalingClass
 @export var jumpRange : float = 36.0

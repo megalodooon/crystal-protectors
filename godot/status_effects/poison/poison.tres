@@ -1,8 +1,8 @@
 [gd_resource type="Resource" script_class="PoisonEffectClass" format=3]
 
 [ext_resource type="Script" path="res://status_effects/poison/poison_effect.gd" id="1_poison"]
-[ext_resource type="Resource" path="res://damage/types/poison.tres" id="2_poison_type"]
-[ext_resource type="PackedScene" path="res://status_effects/poison/poison_bubbles.tscn" id="3_bubbles"]
+[ext_resource type="Resource" path="res://damage/poison.tres" id="2_poison_type"]
+[ext_resource type="PackedScene" path="res://status_effects/poison/poison_visual.tscn" id="3_bubbles"]
 
 [resource]
 script = ExtResource("1_poison")

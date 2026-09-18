@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://syrpd78moacd"]
 
 [ext_resource type="Script" uid="uid://dttya6kqeq481" path="res://test.gd" id="1_test"]
-[ext_resource type="PackedScene" uid="uid://bxgjh5il07bj3" path="res://player/base/player.tscn" id="2_player"]
-[ext_resource type="PackedScene" path="res://weapons/melee/slashing/wooden_sword.tscn" id="3_sword"]
+[ext_resource type="PackedScene" uid="uid://bxgjh5il07bj3" path="res://player/player.tscn" id="2_player"]
+[ext_resource type="PackedScene" path="res://weapons/slashing/wooden_sword.tscn" id="3_sword"]
 [ext_resource type="Resource" uid="uid://uawdk2x0kkvq" path="res://weapons/rarities/common.tres" id="4_common"]
 [ext_resource type="Resource" uid="uid://bd3ny53s6x1mp" path="res://weapons/rarities/uncommon.tres" id="5_uncommon"]
 [ext_resource type="Resource" uid="uid://cywkw6gp1tqc6" path="res://weapons/rarities/rare.tres" id="6_rare"]
@@ -10,24 +10,25 @@
 [ext_resource type="Resource" uid="uid://mdhadydield1" path="res://weapons/rarities/legendary.tres" id="8_legendary"]
 [ext_resource type="Resource" uid="uid://cd3jmqh6dfk0i" path="res://weapons/rarities/mythic.tres" id="9_mythic"]
 [ext_resource type="Resource" uid="uid://b7q7gwc0hjfgl" path="res://weapons/rarities/artifact.tres" id="10_artifact"]
-[ext_resource type="Script" uid="uid://dkhf1rkvog3oh" path="res://components/health/health_component.gd" id="11_health"]
-[ext_resource type="Script" uid="uid://iyol7ynmkhca" path="res://components/hurtbox/hurtbox_component.gd" id="12_hurtbox"]
-[ext_resource type="Texture2D" uid="uid://da3o6uce0fi14" path="res://player/base/player_placeholder.png" id="13_placeholder"]
+[ext_resource type="Script" uid="uid://dkhf1rkvog3oh" path="res://components/health_component.gd" id="11_health"]
+[ext_resource type="Script" uid="uid://iyol7ynmkhca" path="res://components/hurtbox_component.gd" id="12_hurtbox"]
+[ext_resource type="Texture2D" uid="uid://da3o6uce0fi14" path="res://player/player_placeholder.png" id="13_placeholder"]
 [ext_resource type="Script" uid="uid://b38xrlaoouxfl" path="res://weapons/rarities/rarity.gd" id="14_rarity"]
-[ext_resource type="PackedScene" path="res://weapons/melee/slashing/iron_sword.tscn" id="15_iron_sword"]
-[ext_resource type="PackedScene" path="res://weapons/melee/slashing/spear.tscn" id="16_spear"]
-[ext_resource type="PackedScene" path="res://weapons/melee/slashing/flame_sword.tscn" id="17_flame_sword"]
-[ext_resource type="Script" uid="uid://0got7glne0r5" path="res://components/status/status_component.gd" id="18_status"]
-[ext_resource type="PackedScene" path="res://weapons/melee/slashing/frost_scythe.tscn" id="19_frost_scythe"]
+[ext_resource type="PackedScene" path="res://weapons/slashing/iron_sword.tscn" id="15_iron_sword"]
+[ext_resource type="PackedScene" path="res://weapons/slashing/spear.tscn" id="16_spear"]
+[ext_resource type="PackedScene" path="res://weapons/slashing/flame_sword.tscn" id="17_flame_sword"]
+[ext_resource type="Script" uid="uid://0got7glne0r5" path="res://components/status_component.gd" id="18_status"]
+[ext_resource type="PackedScene" path="res://weapons/slashing/frost_scythe.tscn" id="19_frost_scythe"]
 [ext_resource type="Script" uid="uid://cmv37ih5m3oc3" path="res://weapons/base/weapon_item.gd" id="20_weapon_item"]
-[ext_resource type="Script" path="res://paths/base/path_network.gd" id="21_path_network"]
-[ext_resource type="Script" path="res://paths/base/enemy_path.gd" id="22_enemy_path"]
+[ext_resource type="Script" path="res://paths/path_network.gd" id="21_path_network"]
+[ext_resource type="Script" path="res://paths/enemy_path.gd" id="22_enemy_path"]
 [ext_resource type="Script" path="res://waves/wave_manager.gd" id="23_wave_manager"]
 [ext_resource type="Script" path="res://waves/wave.gd" id="24_wave"]
 [ext_resource type="Script" path="res://waves/spawn_group.gd" id="25_spawn_group"]
-[ext_resource type="PackedScene" path="res://enemies/basic/regular_enemy.tscn" id="26_regular_enemy"]
-[ext_resource type="PackedScene" path="res://enemies/basic/big_enemy.tscn" id="27_big_enemy"]
-[ext_resource type="PackedScene" path="res://enemies/basic/small_enemy.tscn" id="28_small_enemy"]
+[ext_resource type="PackedScene" path="res://enemies/regular_enemy.tscn" id="26_regular_enemy"]
+[ext_resource type="PackedScene" path="res://enemies/big_enemy.tscn" id="27_big_enemy"]
+[ext_resource type="PackedScene" path="res://enemies/small_enemy.tscn" id="28_small_enemy"]
+[ext_resource type="Script" path="res://weapons/effects/weapon_effect.gd" id="29_weapon_effect"] [ext_resource type="Resource" path="res://weapons/effects/fire.tres" id="30_fire"] [ext_resource type="Resource" path="res://weapons/effects/frost.tres" id="31_frost"] [ext_resource type="Resource" path="res://weapons/effects/poison.tres" id="32_poison"] [ext_resource type="Resource" path="res://weapons/effects/lightning.tres" id="33_lightning"] [ext_resource type="Resource" path="res://weapons/effects/water.tres" id="34_water"]
 
 [sub_resource type="Resource" id="Resource_weapon_item"]
 script = ExtResource("20_weapon_item")
@@ -70,6 +71,7 @@ player = NodePath("Player")
 weapons = Array[PackedScene]([ExtResource("3_sword"), ExtResource("15_iron_sword"), ExtResource("16_spear"), ExtResource("17_flame_sword"), ExtResource("19_frost_scythe")])
 rarities = Array[ExtResource("14_rarity")]([ExtResource("4_common"), ExtResource("5_uncommon"), ExtResource("6_rare"), ExtResource("7_epic"), ExtResource("8_legendary"), ExtResource("9_mythic"), ExtResource("10_artifact")])
 waveManager = NodePath("WaveManager")
+testElements = Array[ExtResource("29_weapon_effect")]([ExtResource("30_fire"), ExtResource("31_frost"), ExtResource("32_poison"), ExtResource("33_lightning"), ExtResource("34_water")])
 enemySpriteScales = Dictionary[PackedScene, float]({
 ExtResource("27_big_enemy"): 1.5,
 ExtResource("28_small_enemy"): 0.65

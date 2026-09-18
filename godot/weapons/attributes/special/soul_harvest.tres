@@ -2,9 +2,9 @@
 
 [ext_resource type="Script" path="res://weapons/attributes/behaviors/projectile_attribute.gd" id="1_attribute"]
 [ext_resource type="Script" path="res://weapons/attributes/base/attribute_scaling.gd" id="2_scaling"]
-[ext_resource type="PackedScene" path="res://weapons/projectiles/spirit_orb/spirit_orb.tscn" id="3_projectile"]
-[ext_resource type="PackedScene" path="res://vfx/soul_release/soul_release.tscn" id="4_effect"]
-[ext_resource type="PackedScene" path="res://weapons/auras/shadow/weapon_shadow.tscn" id="5_aura"]
+[ext_resource type="PackedScene" path="res://weapons/projectiles/spirit_orb.tscn" id="3_projectile"]
+[ext_resource type="PackedScene" path="res://vfx/effects/soul_release.tscn" id="4_effect"]
+[ext_resource type="PackedScene" path="res://weapons/auras/shadow_aura.tscn" id="5_aura"]
 
 [sub_resource type="Resource" id="Resource_scaling"]
 script = ExtResource("2_scaling")

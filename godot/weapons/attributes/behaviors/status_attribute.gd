@@ -16,6 +16,9 @@ static func get_statuses(weapon : WeaponClass, chosen : Array[AttributeClass]) -
 		var statusAttribute : StatusAttributeClass = attribute as StatusAttributeClass
 		if statusAttribute and statusAttribute.element and statusAttribute.element.status:
 			statuses.append(statusAttribute.element.status)
+		var debuffAttribute : DebuffAttributeClass = attribute as DebuffAttributeClass
+		if debuffAttribute and debuffAttribute.status:
+			statuses.append(debuffAttribute.status)
 	return statuses
 
 static func cancels(status : StatusEffectClass, other : StatusEffectClass) -> bool:

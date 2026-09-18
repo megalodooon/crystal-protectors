@@ -1,0 +1,60 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://paths/path_dot.gd" id="1_dot"]
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_add"]
+blend_mode = 1
+
+[sub_resource type="Gradient" id="Gradient_glow"]
+offsets = PackedFloat32Array(0, 0.25, 1)
+colors = PackedColorArray(1, 1, 1, 0.9, 1, 1, 1, 0.45, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_glow"]
+gradient = SubResource("Gradient_glow")
+width = 32
+height = 32
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 0)
+
+[sub_resource type="Gradient" id="Gradient_core"]
+offsets = PackedFloat32Array(0, 0.45, 0.8)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_core"]
+gradient = SubResource("Gradient_core")
+width = 16
+height = 16
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 0)
+
+[sub_resource type="Gradient" id="Gradient_ring"]
+offsets = PackedFloat32Array(0, 0.7, 0.85, 1)
+colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_ring"]
+gradient = SubResource("Gradient_ring")
+width = 32
+height = 32
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 0)
+
+[node name="PathDot" type="Node2D"]
+texture_filter = 2
+script = ExtResource("1_dot")
+
+[node name="Glow" type="Sprite2D" parent="."]
+material = SubResource("CanvasItemMaterial_add")
+scale = Vector2(0.7, 0.7)
+texture = SubResource("GradientTexture2D_glow")
+
+[node name="Ring" type="Sprite2D" parent="."]
+material = SubResource("CanvasItemMaterial_add")
+texture = SubResource("GradientTexture2D_ring")
+
+[node name="Core" type="Sprite2D" parent="."]
+material = SubResource("CanvasItemMaterial_add")
+scale = Vector2(0.5, 0.5)
+texture = SubResource("GradientTexture2D_core")

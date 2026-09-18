@@ -1,0 +1,179 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://status_effects/base/status_visual.gd" id="1_visual"]
+[ext_resource type="Material" path="res://vfx/shared/add_material.tres" id="2_add"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_dot.tres" id="3_dot"]
+[ext_resource type="Texture2D" path="res://vfx/shared/streak.tres" id="4_streak"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_glow.tres" id="5_glow"]
+[ext_resource type="Texture2D" path="res://vfx/shared/flash_glow.tres" id="6_flash"]
+[ext_resource type="Script" path="res://vfx/base/vfx_flash.gd" id="7_flash"]
+[ext_resource type="Script" path="res://vfx/base/vfx_arcs.gd" id="8_arcs"]
+[ext_resource type="Script" path="res://vfx/base/vfx_spikes.gd" id="9_spikes"]
+[ext_resource type="Curve" path="res://vfx/shared/twinkle_curve.tres" id="10_twinkle"]
+[ext_resource type="Curve" path="res://vfx/shared/shrink_curve.tres" id="11_shrink"]
+
+[sub_resource type="Gradient" id="Gradient_spark"]
+offsets = PackedFloat32Array(0, 0.25, 1)
+colors = PackedColorArray(1, 1, 0.9, 1, 1, 0.9, 0.4, 1, 1, 0.65, 0.15, 0)
+
+[sub_resource type="Gradient" id="Gradient_zap"]
+offsets = PackedFloat32Array(0, 0.3, 1)
+colors = PackedColorArray(1, 1, 0.95, 0.9, 1, 0.9, 0.45, 0.5, 1, 0.8, 0.3, 0)
+
+[node name="ShockVisual" type="Node2D"]
+z_index = 1
+script = ExtResource("1_visual")
+
+[node name="Loop" type="Node2D" parent="."]
+
+[node name="Glow" type="Sprite2D" parent="Loop"]
+z_index = -2
+texture_filter = 2
+material = ExtResource("2_add")
+scale = Vector2(0.6, 0.7)
+modulate = Color(1, 0.85, 0.3, 0.35)
+texture = ExtResource("5_glow")
+script = ExtResource("7_flash")
+duration = 0.12
+startScale = 0.9
+endScale = 1.05
+loop = true
+
+[node name="Arcs" type="Node2D" parent="Loop"]
+texture_filter = 2
+material = ExtResource("2_add")
+script = ExtResource("8_arcs")
+count = 3
+innerRadius = 3.0
+outerRadius = 9.0
+duration = 0.22
+flickerTime = 0.05
+width = 0.7
+color = Color(1, 0.9, 0.45, 1)
+loop = true
+
+[node name="Sparks" type="CPUParticles2D" parent="Loop"]
+texture_filter = 2
+material = ExtResource("2_add")
+amount = 6
+texture = ExtResource("4_streak")
+lifetime = 0.15
+randomness = 0.6
+emission_shape = 3
+emission_rect_extents = Vector2(5, 6)
+particle_flag_align_y = true
+spread = 180.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 20.0
+initial_velocity_max = 45.0
+scale_amount_min = 0.2
+scale_amount_max = 0.4
+color_ramp = SubResource("Gradient_spark")
+
+[node name="Crackle" type="CPUParticles2D" parent="Loop"]
+texture_filter = 2
+material = ExtResource("2_add")
+amount = 5
+texture = ExtResource("3_dot")
+lifetime = 0.25
+randomness = 0.6
+emission_shape = 3
+emission_rect_extents = Vector2(6, 7)
+gravity = Vector2(0, 0)
+scale_amount_min = 0.25
+scale_amount_max = 0.4
+scale_amount_curve = ExtResource("10_twinkle")
+color_ramp = SubResource("Gradient_spark")
+
+[node name="Pulse" type="Node2D" parent="."]
+
+[node name="ZapGlow" type="CPUParticles2D" parent="Pulse"]
+texture_filter = 2
+material = ExtResource("2_add")
+emitting = false
+amount = 1
+texture = ExtResource("5_glow")
+lifetime = 0.18
+one_shot = true
+gravity = Vector2(0, 0)
+scale_amount_min = 0.7
+scale_amount_max = 0.7
+scale_amount_curve = ExtResource("11_shrink")
+color_ramp = SubResource("Gradient_zap")
+
+[node name="ZapSparks" type="CPUParticles2D" parent="Pulse"]
+texture_filter = 2
+material = ExtResource("2_add")
+emitting = false
+amount = 8
+texture = ExtResource("4_streak")
+lifetime = 0.2
+one_shot = true
+explosiveness = 1.0
+randomness = 0.4
+particle_flag_align_y = true
+spread = 180.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 50.0
+initial_velocity_max = 85.0
+damping_min = 200.0
+damping_max = 260.0
+scale_amount_min = 0.3
+scale_amount_max = 0.55
+scale_amount_curve = ExtResource("11_shrink")
+color_ramp = SubResource("Gradient_spark")
+
+[node name="Burst" type="Node2D" parent="."]
+
+[node name="Flash" type="Sprite2D" parent="Burst"]
+texture_filter = 2
+material = ExtResource("2_add")
+scale = Vector2(0.7, 0.7)
+modulate = Color(1, 0.95, 0.6, 1)
+texture = ExtResource("6_flash")
+script = ExtResource("7_flash")
+duration = 0.18
+startScale = 0.3
+endScale = 1.1
+
+[node name="Spikes" type="Node2D" parent="Burst"]
+texture_filter = 2
+material = ExtResource("2_add")
+script = ExtResource("9_spikes")
+count = 6
+length = 12.0
+width = 1.2
+duration = 0.2
+color = Color(1, 0.9, 0.4, 1)
+
+[node name="BurstArcs" type="Node2D" parent="Burst"]
+texture_filter = 2
+material = ExtResource("2_add")
+script = ExtResource("8_arcs")
+count = 5
+innerRadius = 2.0
+outerRadius = 14.0
+duration = 0.25
+width = 0.9
+color = Color(1, 0.9, 0.45, 1)
+
+[node name="Sparks" type="CPUParticles2D" parent="Burst"]
+texture_filter = 2
+material = ExtResource("2_add")
+amount = 12
+texture = ExtResource("4_streak")
+lifetime = 0.28
+one_shot = true
+explosiveness = 1.0
+randomness = 0.4
+particle_flag_align_y = true
+spread = 180.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 60.0
+initial_velocity_max = 110.0
+damping_min = 220.0
+damping_max = 300.0
+scale_amount_min = 0.35
+scale_amount_max = 0.65
+scale_amount_curve = ExtResource("11_shrink")
+color_ramp = SubResource("Gradient_spark")

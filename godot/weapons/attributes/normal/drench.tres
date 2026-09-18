@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="DebuffAttributeClass" format=3]
+
+[ext_resource type="Script" path="res://weapons/attributes/behaviors/debuff_attribute.gd" id="1_attribute"]
+[ext_resource type="Script" path="res://weapons/attributes/base/attribute_scaling.gd" id="2_scaling"]
+[ext_resource type="Resource" path="res://status_effects/water/wet.tres" id="3_status"]
+[ext_resource type="PackedScene" path="res://weapons/auras/water_aura.tscn" id="4_aura"]
+
+[sub_resource type="Resource" id="Resource_scaling"]
+script = ExtResource("2_scaling")
+minBase = 0.15
+maxBase = 0.2
+perStep = 0.004
+percent = true
+
+[sub_resource type="Resource" id="Resource_chance"]
+script = ExtResource("2_scaling")
+minBase = 0.12
+maxBase = 0.16
+perStep = 0.002
+percent = true
+
+[resource]
+script = ExtResource("1_attribute")
+status = ExtResource("3_status")
+attributeName = "Drench"
+description = "{chance}% Wet: +{value}% lightning dmg taken"
+scaling = SubResource("Resource_scaling")
+trigger = 2
+chanceScaling = SubResource("Resource_chance")
+auraScene = ExtResource("4_aura")
+weight = 0.8

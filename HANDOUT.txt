@@ -7,7 +7,7 @@ project that a fresh chat would need.
 Keep it short: only write down what matters. Small details
 that are easy to see in the project do not belong here.
 
-Last updated: 2026-09-17
+Last updated: 2026-09-18
 
 
 --------------------------------------------------------------
@@ -26,25 +26,26 @@ custom weapons with insane abilities, incredibly rare.
 Higher rarity = cooler attack effects.
 
 Weapon progression (agreed, like Dungeon Defenders 2):
-- Upgrade level 0 to 15. Levels raise damage and attributes.
-- At max level a weapon can upgrade its rarity ONCE (common
-  wooden sword -> uncommon). Its level goes back to 0 and can be
-  leveled to 15 again. Costs coins + crafting materials
-  (not implemented yet).
+- Every weapon levels 0 to 30. Levels raise damage (+8% each) and
+  attributes (attribute level = weapon level).
+- From level 15 a weapon may upgrade its rarity ONCE (common wooden
+  sword -> uncommon). The level is KEPT. Leveling on without the
+  rarity upgrade is always allowed (missing requirements never block
+  leveling). Costs coins + crafting materials (not implemented yet).
 - Attributes: random from a pool, values roll too (quality 0-1).
   Slots: common 1, uncommon 2, rare 3, epic 4, legendary+ 5 (max 5).
   Special attributes (life steal, blade waves, burn...) only on
   legendary+: legendary up to 1, mythic up to 2, artifact up to 2.
   Artifacts = custom fixed attributes + rollable ones.
   Rarity upgrade keeps all attributes and rolls the new slot.
-- Attribute level 0-30 = upgrade level, +15 once the rarity was
-  upgraded. Mythic/artifact (cannot upgrade) count as upgraded, so
-  they start at 15. Combat level does NOT affect attributes.
-  Some attributes step every few levels with a cap (blade waves:
-  +1 at level 15, max 2).
-- Combat level (separate from upgrade level): later islands drop
-  higher combat level gear and have stronger enemies. Old weapons
-  can have their combat level raised at the blacksmith.
+- Combat level does NOT affect attributes. Some attributes step
+  every few levels with a cap (blade waves: +1 at level 15, max 2).
+- Combat level (separate from upgrade level): about 20 combat levels
+  from the first island to the end. Later islands drop higher combat
+  level gear and have stronger enemies (more health, and a small,
+  slowly growing chance to spawn with a modifier like Fortified).
+  Old weapons can have their combat level raised at the blacksmith.
+- Main elements (developer): fire, frost, poison, lightning, water.
 - Hub area: blacksmith, shops, NPCs and other systems (not built).
 
 The full vision belongs to the developer and is not written
@@ -84,16 +85,34 @@ Every single script must be written in the developer's own
 coding style (section 5). Follow it exactly.
 
 [Folders]
-- Every file lives in the folder of its system. No loose files.
-- A folder holds either subfolders or files, never both
-  (so base scripts go in a "base" folder next to content folders).
+- Keep the folder count LOW (developer: too many folders is messy).
+  One folder per system, files flat inside it. No folder per item
+  (no vfx/nova/nova.tscn: it is vfx/effects/nova.tscn). Only split
+  a system when it has clearly different groups (attributes: base,
+  behaviors, normal, special).
+- A folder holds either subfolders or files, never both.
+- Layout (godot/):
+  core/ (GameFeel autoload, NumberFormat, combat scaling),
+  components/, damage/ (damage type script + types),
+  enemies/ (enemy scenes + modifier chances), paths/, player/,
+  waves/, status_effects/ (base, fire, frost, poison, lightning,
+  water, debuffs, modifiers), vfx/ (base = parts, shared = textures
+  and curves, effects = one-shot effect scenes, buffs),
+  weapons/ (attacks, attributes/{base, behaviors, normal, special},
+  auras, base, effects, enchant, projectiles, rarities, slashing,
+  spawns).
+- Moving files: move the file with its .uid/.import and replace the
+  res:// path in every .tscn/.tres/.gd/.godot file.
 - Exception: godot/test.tscn + test.gd sit in the project root on
   purpose. Main scene, used to test new stuff. Q cycles the test
   weapons (weapons list), keys 1-7 = new item of that rarity
   (level 0, random attributes), E level up, R upgrade rarity,
-  C combat level +1, G start next wave, V show/hide attribute panel
-  (5 bars in front = roll quality, specials in rarity color),
-  X reroll attributes. The starting item rolls attributes on start.
+  C weapon combat level +1, Z enemy combat level +1 (label shows the
+  modifier chance), T cycles a test element on the held weapon
+  (testElements: fire, frost, poison, lightning, water), G start next
+  wave, V show/hide attribute panel (5 bars in front = roll quality,
+  specials in rarity color), X reroll attributes. The starting item
+  rolls attributes on start.
   Has a Camera2D, two hit dummies (top right, out of the paths),
   labels (UpgradeLabel shows level, combat level, damage; WaveLabel),
   a PathNetwork (PathWest on; PathNorth = its own spawn in the
@@ -173,7 +192,7 @@ Example: godot/weapons/base/weapon.gd
 --------------------------------------------------------------
 6. SYSTEMS BUILT SO FAR
 --------------------------------------------------------------
-[Player]  godot/player/base/player.tscn + player.gd  (PlayerClass)
+[Player]  godot/player/player.tscn + player.gd  (PlayerClass)
 - Base player = the player with no class chosen.
   Classes = inherited scenes of player.tscn.
 - Scene: Visuals/Sprite2D (body), HandPivot/Hand/Sprite2D (hand),
@@ -210,7 +229,7 @@ Example: godot/weapons/base/weapon.gd
   rotation). Sprite2D origin is at the feet (offset -8).
   States pick the animation (MoveState/AttackState).
 
-[Components]  godot/components/<name>/
+[Components]  godot/components/  (one script per component, flat)
 - HealthComponentClass: maxHealth. take_damage(), heal().
   Signals: health_changed(currentHealth, maxHealth), died.
 - MovementComponentClass: speed, acceleration, deceleration,
@@ -221,8 +240,10 @@ Example: godot/weapons/base/weapon.gd
   Unique movement feel: extend it and override move().
 - HurtboxComponentClass (Area2D): can be hit. Exports healthComponent,
   statusComponent, showDamageNumbers. take_damage(amount, damageType,
-  isCrit) multiplies by the statuses' damage taken multiplier (Sunder)
-  and spawns a floating DamageNumber. apply_status(effect) passes
+  isCrit) multiplies by the statuses' damage taken multiplier for that
+  damage type (Sunder, Wet vs lightning, Fortified) and spawns a
+  floating DamageNumber. static find_in_radius(world, center, radius,
+  layer) = every hurtbox in a circle (attributes and Shock use it). apply_status(effect) passes
   status effects to its statusComponent (none = ignored).
   knockback(impulse) adds to the parent CharacterBody2D velocity.
   is_dead() = health at 0. take_damage records lastHitKilled (this
@@ -236,8 +257,10 @@ Example: godot/weapons/base/weapon.gd
   StatusVisualClass visual. When the effect ends: stop() (or particles
   stop emitting) and the visual is freed 1s later.
   Signals: effect_added, effect_removed. has_effect(name).
-  get_damage_taken_multiplier() / get_speed_multiplier() multiply the
-  values of every active effect.
+  get_harmful_effects() = active effects that are not beneficial
+  (Contagion and Opportunist use it, so enemy modifiers never count).
+  get_damage_taken_multiplier(damageType) / get_speed_multiplier()
+  multiply the values of every active effect.
 - HitboxComponentClass (Area2D): damages hurtboxes it touches.
   Exports damage, damageType, critChance, critMultiplier (crit is
   rolled per hit), maxHits (0 = unlimited). Attacks fill these via
@@ -245,13 +268,13 @@ Example: godot/weapons/base/weapon.gd
   collected and hit nearest first (deferred), so maxHits picks the
   closest enemies. damageModifier (Callable, set by the weapon) changes
   damage per target before crit (first strike etc.). hitCount must be
-  reset when a hitbox is reused (MeleeAttack does). Hurtboxes at 0 HP
+  reset when a hitbox is reused. Hurtboxes at 0 HP
   are still hit (test dummies reach 0 at high damage; skipping them
   made the slash stop hitting). Kills are counted once via
   lastHitKilled instead.
   Signal: hit(hurtbox, damage) (emitted in the deferred resolve).
 
-[State machine]  godot/components/state_machine/
+[State machine]  godot/components/state.gd, state_machine.gd
 - StateMachineClass node: children are states. initialState export.
   Runs the current state's physics_update().
 - StateClass: enter(), exit(), physics_update(delta).
@@ -259,7 +282,7 @@ Example: godot/weapons/base/weapon.gd
   otherState is an @export StateClass set in the inspector.
 - States get their character with:
   @onready var player : PlayerClass = owner
-- Player states: godot/player/states/
+- Player states: godot/player/ (move_state.gd, attack_state.gd)
   MoveState -> AttackState while "attack" is held (needs weapon).
   AttackState: canMove export, back to MoveState on release.
 
@@ -304,34 +327,33 @@ Example: godot/weapons/base/weapon.gd
   get_color() = first attack's color (slash = blade color).
   A weapon scene is the TEMPLATE; its damage is the damage at
   upgrade level 0, combat level 1, rarity multiplier 1.
-- Weapon scenes live by category: weapons/melee/slashing/
-  (png + tscn together). Hammers etc. get their own category.
+- Weapon scenes live by category: weapons/slashing/ (png + tscn
+  together). Hammers etc. get their own folder (weapons/smashing/).
   Existing: wooden_sword, iron_sword, spear (360 spin), flame_sword
   (physical hits + fire effect; only the burn deals fire damage),
   frost_scythe (physical hits + frost effect).
-- Attacks (attacks/<type>/): nodes placed inside the weapon scene.
+- Attacks (weapons/attacks/): nodes placed inside the weapon scene.
   Node position = where the attack comes from.
-  * AttackClass (base/): damageMultiplier, weapon. perform(),
+  * AttackClass (attack.gd): damageMultiplier, weapon. perform(),
     get_attack_type(), get_color().
     Hits must be passed to register_hit(hurtbox, damage) so
     effects hear about them (connect hitbox/projectile "hit").
-  * MeleeAttackClass (melee/): plain hitbox attack, no visuals.
-  * ProjectileAttackClass (projectile/): projectileScene,
-    projectileCount, spreadAngle.
-  * SlashAttackClass (slash/): see [Slash] below.
-  Attack types = AttackTypeClass .tres in attacks/types/ (slash,
-  melee, projectile). Each attack script returns its type from
+  * SlashAttackClass (slash_attack.gd): see [Slash] below. The only
+    attack so far (unused melee/projectile attacks were removed).
+  Attack types = AttackTypeClass .tres (<name>_type.tres, only
+  slash_type.tres now). Each attack script returns its type from
   get_attack_type() (const ATTACK_TYPE preload). Attributes use them.
   New attack type = script extending AttackClass, override perform()
-  and get_attack_type(), + a new .tres in attacks/types/.
+  and get_attack_type(), + a new <name>_type.tres.
   Each attack type with visuals (hammer smash etc.) gets its own
   style resource on RarityClass, like slashStyle.
-- ProjectileClass (projectiles/base/): script for projectile scenes
-  (Area2D root, extends HitboxComponentClass). speed, lifetime, color
-  (set by the spawner). Destroyed on hit or on a wall.
-  projectiles/slash_wave/: SlashWaveClass, glowing crescent drawn in
+- ProjectileClass (projectiles/projectile.gd): script for projectile
+  scenes (Area2D root, extends HitboxComponentClass). speed, lifetime,
+  color (set by the spawner). Destroyed on hit or on a wall.
+  slash_wave.tscn: SlashWaveClass, glowing crescent drawn in
   _draw + trail, hit spark on hit, fades out, maxHits 1.
-  projectiles/spirit_orb/: SpiritOrbClass homing orb (turnSpeed,
+  meteor.tscn: MeteorClass (Meteor attribute).
+  spirit_orb.tscn: SpiritOrbClass homing orb (turnSpeed,
   seekRange: turns toward the nearest hurtbox on its mask), glow +
   core + trail, hit spark, fades out.
 - RarityClass (rarities/): Resource with rarityName, color,
@@ -349,7 +371,7 @@ Example: godot/weapons/base/weapon.gd
   1, uncommon 1.1, rare 1.2, epic 1.35, legendary 1.5, mythic 1.7,
   artifact 2. Rarity power should come from slots and specials more
   than raw damage.
-- Effects (effects/, base script in effects/base/): custom behavior
+- Effects (effects/, base script weapon_effect.gd): custom behavior
   for weapons AND rarities. WeaponEffectClass Resource with
   on_equip(weapon) (in _ready, for weapon visuals), on_attack(weapon),
   on_hit(weapon, hurtbox, damage) and uses_stat(stat) (lets boost
@@ -361,17 +383,21 @@ Example: godot/weapons/base/weapon.gd
   collected in _ready).
   "hit" is emitted deferred, so on_hit can safely spawn nodes.
 - Elemental weapon effects = StatusOnHitEffectClass .tres
-  (effects/status_on_hit/): status (StatusEffect added on hit with
-  weapon.add_hit_status, scale_power(weapon.get_status_power()) if
-  scaleWithPower), chance (per hit; fire/frost/poison use 0.4, the
+  (effects/status_on_hit_effect.gd): status (StatusEffect added on hit
+  with weapon.add_hit_status, scale_power(weapon.get_status_power()) if
+  scaleWithPower), chance (per hit; all elements use 0.4, the
   developer wants effects to be a chance, never a guarantee) and
-  auraScene (spawned under the sprite on equip). Aura scenes use
+  auraScene (spawned under the sprite on equip).
+  effects/: fire.tres (burn + fire_aura), frost.tres (frost +
+  frost_aura), poison.tres (poison + poison_aura), lightning.tres
+  (shock + electric_aura), water.tres (wet + water_aura, no power
+  scaling: wet deals no damage). Flame sword and frost scythe use fire
+  and frost; the others are used by attributes and the test T key.
+- Auras (weapons/auras/, <name>_aura.tscn + weapon_aura.gd):
   WeaponAuraClass: any Sprite2D child gets the weapon texture (glow via
   enchant.gdshader), any CPUParticles2D child emits from the blade
-  pixels. effects/fire/fire.tres (burn + weapon_flames.tscn),
-  effects/frost/frost.tres (frost + weapon_frost.tscn),
-  effects/poison/poison.tres (poison + weapon_poison.tscn, no weapon
-  uses it by default yet). New element = new aura scene + .tres.
+  pixels. fire, frost, poison, electric, water, arcane, blood,
+  explosive, shadow, steel. New element = new aura + effect .tres.
 - WeaponClass.get_sprite() = first Visuals Sprite2D.
   WeaponClass.get_pixel_points(texture, bladeOnly) = opaque pixel
   positions for particle emission (bladeOnly keeps the top-right half,
@@ -380,27 +406,28 @@ Example: godot/weapons/base/weapon.gd
   data in instead.
 - Totally different attacking: new attack type, or extend WeaponClass.
 
-[Weapon items + upgrades]  godot/weapons/base/weapon_item.gd,
-                           godot/weapons/upgrades/
+[Weapon items + upgrades]  godot/weapons/base/ (weapon_item.gd, weapon_upgrades.gd/.tres)
 - WeaponItemClass (Resource) = ONE owned copy of a weapon: the
   thing inventories, loot drops and saves will hold. Exports
   weaponScene, rarity, level, combatLevel, rarityUpgraded, attributes
   (Array[AttributeRollClass]). Runes go on the item later.
 - create_weapon() instantiates weaponScene with item, attributes and
   rarity set.
-- level_up() (up to maxLevel), upgrade_rarity() (only at max level,
-  only once, needs rarity.nextRarity, resets level to 0, keeps
-  attributes and rolls the new slot), upgrade_combat_level(amount),
-  randomize_attributes() (fixed + fresh random rolls).
+- level_up() (up to maxLevel 30, never blocked by the rarity
+  upgrade), upgrade_rarity() (from rarityUpgradeLevel 15, only once,
+  needs rarity.nextRarity, KEEPS the level and attributes and rolls
+  the new slot), upgrade_combat_level(amount), randomize_attributes()
+  (fixed + fresh random rolls).
   can_level_up() / can_upgrade_rarity() hold the rules: add coin and
   material checks there later. Every change calls emit_changed().
   The player respawns the weapon when rarity or attributes change.
 - get_damage_multiplier() = upgrade level x combat level.
-  get_attribute_level() = level (+ maxLevel if rarityUpgraded or the
-  rarity has no nextRarity), max get_max_attribute_level() = 30.
+  get_attribute_level() = level (0-30, same for every rarity).
 - WeaponUpgradesClass (weapon_upgrades.tres, one shared file,
-  preloaded by the item as UPGRADES): maxLevel (15), damagePerLevel
-  (0.03 = +3% each, x1.45 at max). Upgrade costs go here later.
+  preloaded by the item as UPGRADES): maxLevel (30),
+  rarityUpgradeLevel (15), damagePerLevel (0.08 = +8% each, x3.4 at
+  30; +3% felt useless: whole damage numbers did not even change).
+  Upgrade costs go here later.
 
 [Attributes]  godot/weapons/attributes/
 - AttributeClass (base/attribute.gd) = one attribute definition, a
@@ -488,7 +515,8 @@ Example: godot/weapons/base/weapon.gd
   * StatusAttributeClass (element = a StatusOnHitEffect .tres: status
     damage = weapon damage x status power x value, adds the element aura
     unless the weapon already has it, never rolls with a status that
-    cancels another one: burn vs frost).
+    cancels another one: burn vs frost, burn vs wet; checks weapon
+    effects, status and debuff attributes).
   * DebuffAttributeClass (status .tres; value = set_strength(value),
     damageFromHit = set_damage(hit damage x value x (1 + Status
     Damage)), no scaling = status used as is; radius 0 = the hit target,
@@ -510,23 +538,24 @@ Example: godot/weapons/base/weapon.gd
     ChainLightningAttributeClass (countScaling jumps to the nearest new
     enemy within jumpRange, damage = hit damage x value; {count}),
     DoubleStrikeAttributeClass (performs matching attacks again after
-    delay), LifeStealAttributeClass (life orb flies to the wielder and
+    delay), LifeStealAttributeClass (life orb (spawns/life_orb) flies to the wielder and
     heals), IdleDamageAttributeClass (idleTime since the last attack),
     ChanceDamageAttributeClass (chance for bonus hit damage),
     MarkAttributeClass (applies Mark; the next hit consumes it for
     bonus damage), MeteorAttributeClass (meteor falls on the nearest
     enemy, area fire damage), BladeStormAttributeClass (spinning blades
-    around the wielder for duration, spawns/blade_storm/),
+    around the wielder for duration, spawns/blade_storm.tscn),
     ZoneAttributeClass (StatusZoneClass cloud that applies a status
-    every tick, spawns/plague_cloud/).
-- AttributePoolClass (pool/attribute_pool.tres, preloaded by the item
+    every tick, spawns/plague_cloud.tscn).
+- AttributePoolClass (base/attribute_pool.tres, preloaded by the item
   as ATTRIBUTE_POOL): attributes (every rollable attribute),
   maxAttributes (5). roll_attributes(item, kept): weapon
   fixedAttributes first (copied), then kept ones, then random picks
   (weighted, no duplicates, inRandomPool, can_roll, specials only up to
   rarity.maxSpecialAttributes; fixed specials count too).
   New attribute = .tres (+ behavior script if it does something new)
-  and add it to attribute_pool.tres.
+  and add it to attribute_pool.tres (the pool lists every .tres in
+  normal/ and special/, sorted by name).
 - BALANCE RULE (developer): attributes must not be op, and weapons
   felt way too strong (twice). Level 0 values are small and grow about
   3-4x by attribute level 30. Targets at level 30 with a perfect roll:
@@ -536,7 +565,7 @@ Example: godot/weapons/base/weapon.gd
   the hit. One normal attribute is worth about +12% damage, a special
   about +20%. Tradeoff penalties shrink a little with level. Counts are
   capped low (+1 at level 15-20, never more).
-- 80 attributes (47 normal, 33 special). Exact numbers live in the
+- 83 attributes (48 normal, 35 special). Exact numbers live in the
   .tres files. Value = level 0 worst-best (level 30 best).
 - Normal (all attack types unless noted):
   Damage 2-3% (12%), Crit Chance 1-2% (8%), Crit Damage 6-10% (28%),
@@ -549,8 +578,9 @@ Example: godot/weapons/base/weapon.gd
   (kills: move speed 3s) 6-9% (18%), Lucky 4-6% (15%), Wide Impact 5-8%
   (20%), Momentum / Steadfast 5-8% (23%), Duelist 6-10% (28%), Brawler
   (x4) 1.5-2% (5%), Wind Up (x5) 0.8-1% (3.1%), Precision (x4) 0.8-1%
-  (3.1%), Lacerate (HIT 10-14% (23%): bleed 15-20% (35%) of the hit),
-  Relentless (KILL 8-12% (21%): reset attack), Heavy Blade (+8-10% (19%)
+  (3.1%), Relentless (KILL 8-12% (21%): reset attack), Jolt (HIT 10-14% (20%):
+  shock 2-3% (7.5%) per tick), Drench (HIT 12-16% (22%): wet, +15-20%
+  (32%) lightning damage taken), Heavy Blade (+8-10% (19%)
   damage, -7..-5% attack speed), Featherweight (+8-10% (19%) attack
   speed, -7..-5% damage), Reckless (+15-20% (35%) crit damage, -2..-1.5%
   crit chance), Colossus [slash] (+6-9% (18%) size, -7..-5% attack
@@ -584,13 +614,16 @@ Example: godot/weapons/base/weapon.gd
   (23.5%): x1 (x2 at 20) 25-30% (39%)), Meteor (ATTACK 6-8% (12.5%):
   30-35% (45.5%)), Blade Storm (KILL 15-20% (32%): 6-8% (12.5%) per
   tick), Death Mark (HIT 10-14% (21.5%): next hit +25-30% (42%)), Soul
-  Harvest (KILL 20-25% (37%): 2 orbs 20-25% (34%)), Combustion (CRIT
+  Harvest (KILL 20-25% (37%): 2 orbs 20-25% (34%)), Electrify (HIT 20-25%
+  (34%): shock 4-6% (13.5%) per tick), Deluge (HIT 15-20% (29%): wet
+  everyone within 28, +25-30% (42%) lightning damage taken),
+  Combustion (CRIT
   30-40% (55%): burn around 4-5% (11%)), Ice Spikes (HIT 8-10% (16%):
   25-30% (42%) + slow), Plague Cloud (KILL 20-25% (37%): poison 1.3-1.6%
   (3.4%)), Overload (CRIT 30-40% (52%): lightning x3 20-25% (34%)).
 - SlashAttack maxTargets (3, spear 4) + Cleave = enemies per slash.
 
-[Combat level]  godot/combat_level/
+[Combat level]  godot/core/combat_scaling.gd/.tres
 - CombatScalingClass (combat_scaling.tres, preloaded by the item as
   COMBAT_SCALING): growthPerLevel (0.1). get_multiplier(combatLevel)
   = (1 + growth) ^ (combatLevel - 1), so combat level 1 = x1 and
@@ -599,7 +632,8 @@ Example: godot/weapons/base/weapon.gd
   combatLevel set by the wave manager), so a weapon matching the
   island's combat level always feels the same, and old low level
   weapons fall behind. Balance weapons against enemies at combat
-  level 1 (regular enemy 40 HP, wooden sword 10 damage).
+  level 1 (regular enemy 40 HP, wooden sword 10 damage). Combat level
+  20 = x6.1 health.
 
 [Enchant]  godot/weapons/enchant/
 - RarityClass enchantStyle (EnchantStyleClass, embedded): glowStrength,
@@ -614,7 +648,7 @@ Example: godot/weapons/base/weapon.gd
   CPUParticles2D emitted from the sprite's opaque pixels, world
   coords so they trail). Color = rarity color.
 
-[Slash]  godot/weapons/attacks/slash/
+[Slash]  godot/weapons/attacks/ (slash_attack.gd, slash.gd/.tscn/.gdshader, slash_style.gd)
 - SlashAttackClass node in a weapon: radius (middle of the swept
   band, from wielder center), size (band thickness), curve (arc
   degrees), maxTargets, raritySizeGrowth, styleOverride (custom style,
@@ -663,8 +697,8 @@ Example: godot/weapons/base/weapon.gd
   camelCase uniforms, //------------------------// separator).
 
 [VFX]  godot/vfx/
-- hit_spark/: HitSparkClass star burst (drawn spikes + flash +
-  spark particles + glowing orbs). Vars: color, strength,
+- effects/hit_spark.tscn: HitSparkClass star burst (drawn spikes +
+  flash + spark particles + glowing orbs). Vars: color, strength,
   sparkAmount, orbAmount, angle.
 - QUALITY BAR (developer): every effect must be as juicy as the
   burn, frost and poison visuals: layered glow + flash + particles,
@@ -684,49 +718,57 @@ Example: godot/weapons/base/weapon.gd
   SHARD shapes orbiting), VfxReticleClass (corner brackets).
   vfx/shared/: additive material, soft dot/glow, flash, streak, pixel,
   bubble textures and puff/shrink/twinkle curves. Reuse them.
-- One folder per effect: splash, explosion, nova, crit_burst, smite,
+- vfx/effects/ holds every effect scene (no folder per effect):
+  splash, water_splash, explosion, nova, crit_burst, smite,
   thunderclap, time_warp, contagion, vortex, repulse, execute,
   heavy_impact, spark_burst, reset_flash, ice_spikes, mark_burst,
-  shrapnel_burst, soul_release, cast_flash, heal_burst, life_orb.
+  shrapnel_burst, soul_release, cast_flash, heal_burst, hit_spark,
+  lightning, damage_number.
   Kept subtle: several at once must not blow out to white.
-- Buff visuals (vfx/buffs/<name>/): BuffVisualClass on the wielder,
-  tiers (particle emitters turned on by stack count), stop() fades.
-- Weapon auras (weapons/auras/: arcane, blood, electric, explosive,
-  shadow, steel) = WeaponAuraClass scenes set as attribute auraScene.
-- lightning/: LightningClass jagged bolt between points (global
+- Buff visuals (vfx/buffs/<name>_buff.tscn): BuffVisualClass on the
+  wielder, tiers (particle emitters turned on by stack count), stop()
+  fades.
+- effects/lightning.tscn: LightningClass jagged bolt between points (global
   positions, node sits at the scene origin), drawn with draw_polyline
   (glow + colored + white core, additive), re-jagged every flickerTime,
-  fades over duration. Vars: points, color. Used by Chain Lightning
-  and Smite (bolt from above the target).
+  fades over duration. Vars: points, color. Used by Chain Lightning,
+  Smite (bolt from above the target) and Shock (arc to a neighbour).
 
 [Status effects]  godot/status_effects/
+- Folders: base/ (status_effect, status_interaction,
+  remove_interaction, status_visual), one folder per MAIN element
+  (fire, frost, poison, lightning, water), debuffs/ (slow, stun,
+  sunder, fear, mark), modifiers/ (enemy spawn modifiers).
 - StatusEffectClass (base/): Resource with effectName, duration,
-  tickInterval, visualScene (spawned on the target while active),
+  tickInterval, permanent (never runs out: enemy modifiers),
+  beneficial (not a debuff: Contagion/Opportunist ignore it),
+  visualScene (spawned on the target while active),
   interactions. on_apply(), on_tick(), on_remove(), refresh(newEffect),
   combine(other) (merge two of the same effect from ONE hit, e.g. add
   damage), scale_power(multiplier), set_damage(amount) (used by
   status attributes), set_strength(amount) (non-damage value, used by
-  debuff attributes), get_damage_taken_multiplier() and
+  debuff attributes), get_damage_taken_multiplier(damageType) and
   get_speed_multiplier() (default 1, read through the StatusComponent
-  by the hurtbox and movement component).
+  by the hurtbox and movement component), pulse_visual().
   "status" = the StatusComponentClass it is on.
   Applied copies are duplicated (only exported vars are copied).
   New effect = script extending it + a .tres in its own folder.
 - StatusVisualClass (base/status_visual.gd): root of the new status
   visuals. Children: Loop (fades in, particles stop on stop()), Burst
   (one-shot on apply), Pulse (one-shot particles restarted by pulse():
-  on refresh, and bleed calls it every tick).
+  on refresh, and on Shock / Regenerating ticks).
 - Interactions (expandable): StatusInteractionClass (base/) on an
   effect's interactions list: triggerEffects (effect names being
   applied), triggerDamageTypes (damage taken), blockTriggerEffect
   (stop the incoming effect). trigger(effect) = what happens to the
-  effect that owns it. RemoveInteractionClass (interactions/) removes
+  effect that owns it. RemoveInteractionClass (base/) removes
   it. New reaction (bonus damage, spread, ...) = script extending
   StatusInteractionClass, add it in the .tres. The interaction lives
   on the effect that gets affected.
-- Burn (burn/): BurnEffectClass damagePerTick, damageType (fire).
-  burn.tres = 3s, tick 0.5s, burn_flames.tscn on the target.
-  Removed (and blocks it) when Frost is applied; ice damage removes it.
+- Burn (fire/): BurnEffectClass damagePerTick, damageType (fire).
+  burn.tres = 3s, tick 0.5s, burn_visual.tscn on the target.
+  Removed (and blocks it) when Frost or Wet is applied; ice damage
+  removes it.
 - Frost (frost/): FrostEffectClass build-up. Each hit = 1 stack
   (frost_visual.tscn: FrostVisualClass copies status.sprite into an
   Overlay with frost_overlay.gdshader that freezes the sprite from the
@@ -740,44 +782,58 @@ Example: godot/weapons/base/weapon.gd
 - Poison (poison/): PoisonEffectClass damagePerStack, maxStacks (5),
   damageType (poison). Every hit adds a stack and refreshes (4s,
   tick 0.5s); tick damage = damagePerStack x stacks.
-  poison_bubbles.tscn on the target. No interactions.
-- Slow (slow/): SlowEffectClass slowAmount (0-1, speed multiplier =
+  poison_visual.tscn on the target. No interactions.
+- Shock (lightning/): ShockEffectClass damagePerTick, damageType
+  (lightning), jumpRange (30), jumpDamage (0.5), boltScene. Every tick
+  (0.6s, 3s) it zaps the target and arcs to the nearest other enemy
+  for half damage (lightning bolt). shock_visual.tscn (flickering
+  arcs, sparks, zap Pulse per tick).
+- Wet (water/): WetEffectClass slowAmount (0.15), amplifiedType
+  (lightning) + amplifiedBonus (0.25, set_strength): wet targets take
+  more lightning damage. 4s, no damage. Burn on a wet target: both
+  cancel (steam); fire damage dries it. wet_visual.tscn (puddle,
+  drips, shine, splash burst).
+- Slow (debuffs/): SlowEffectClass slowAmount (0-1, speed multiplier =
   1 - slowAmount, refresh/combine keep the highest). slow.tres 1.5s,
   slow_visual.tscn (purple puddle, falling gravity streaks, tar).
-- Stun (stun/): stun.tres uses SlowEffectClass with slowAmount 1,
+- Stun (debuffs/): stun.tres uses SlowEffectClass with slowAmount 1,
   0.5s, stun_visual.tscn (head glow, orbiting stars, twinkles).
-- Sunder (sunder/): SunderEffectClass damageTakenBonus (target takes
+- Sunder (debuffs/): SunderEffectClass damageTakenBonus (target takes
   x (1 + bonus) damage from everything; refresh keeps highest, combine
   adds). sunder.tres 3s, sunder_visual.tscn (orbiting hot shards,
   embers, metal flakes).
-- Fear (fear/): FearEffectClass fleeSpeed (speed multiplier =
+- Fear (debuffs/): FearEffectClass fleeSpeed (speed multiplier =
   -fleeSpeed: enemies walk backwards along their path, then return).
   fear.tres 1s, fear_visual.tscn (shadow, smoke, wisps, sweat drops).
-- Bleed (bleed/): BleedEffectClass totalDamage dealt spread over the
-  remaining ticks (refresh adds the new damage to what is left, combine
-  adds), damageType bleed (red). bleed.tres 3s, tick 0.5s,
-  bleed_visual.tscn (blood pool at the feet, drips, a blood spurt
-  Pulse on every tick, gash + spray on apply).
-- Mark (mark/): MarkEffectClass bonus (Death Mark: the next weapon hit
+- Bleed was removed (the developer did not like it). Do not bring it back.
+- Mark (debuffs/): MarkEffectClass bonus (Death Mark: the next weapon hit
   consumes it for +bonus damage). mark.tres 4s, mark_visual.tscn
   (corner bracket reticle, motes).
+- Modifiers (modifiers/): enemy spawn modifiers. ONE script,
+  ModifierEffectClass: damageTaken (multiplier), speed (multiplier),
+  regeneration (max health fraction per second, heals on ticks).
+  permanent + beneficial. fortified.tres (x0.7 damage taken, orbiting
+  steel plates), swift.tres (x1.4 speed, wind trail), regenerating.tres
+  (3%/s, green motes, heal Pulse). New modifier = new .tres + visual,
+  add it to enemies/enemy_modifiers.tres. Modifier visuals are subtle
+  (they last forever) and never change the sprite.
 - Targets need a StatusComponent (+ hurtbox statusComponent set) to
   receive effects. Test dummies have one.
 
 [Damage types]  godot/damage/
-- DamageTypeClass (base/damage_type.gd): typeName, color, critColor.
-- New damage type = new .tres in damage/types/ (physical, fire, ice,
-  poison, lightning, bleed exist). Set it on a weapon (damageType).
-- vfx/damage_number/: DamageNumberClass pops, rises, fades. Crit =
+- DamageTypeClass (damage/damage_type.gd): typeName, color, critColor.
+- New damage type = new .tres in damage/ (physical, fire, ice,
+  poison, lightning exist). Set it on a weapon (damageType).
+- vfx/effects/damage_number.tscn: DamageNumberClass pops, rises, fades. Crit =
   bigger, critColor, "!" suffix. Text via NumberFormatClass.
 
-[Utils]  godot/utils/
+[Utils]  godot/core/number_format.gd
 - NumberFormatClass.format(value) (static): whole number below
   100000 ("99999"), above that max 2 decimals + suffix k/m/b/t/q
   ("100k", "125.33k", "7.32m", "5b"). Use it for every big number
   shown to the player (damage, later coins, stats).
 
-[GameFeel]  godot/autoload/game_feel.gd  (autoload "GameFeel")
+[GameFeel]  godot/core/game_feel.gd  (autoload "GameFeel")
 - hit_stop(seconds): Engine.time_scale = 0, restored by real time.
   Weapon cooldown timers ignore time scale, so hit stop does not
   slow the attack rhythm.
@@ -786,7 +842,7 @@ Example: godot/weapons/base/weapon.gd
   harness scene normally instead.
 
 [Paths]  godot/paths/
-- Level setup: a PathNetwork node (PathNetworkClass, base/) with
+- Level setup: a PathNetwork node (PathNetworkClass) with
   EnemyPath children (EnemyPathClass, extends Path2D). Draw the curve
   with the Path2D tools: first point = start, last point = end.
   Paths must be children of a PathNetwork.
@@ -811,9 +867,9 @@ Example: godot/weapons/base/weapon.gd
   play_preview() / stop_preview(). During a wave (stopped) the same
   paths stay visible, grayed out and transparent (waveOpacity).
   playOnStart export.
-- Look + timing: pulse/path_pulse_style.tres (PathPulseStyleClass),
+- Look + timing: path_pulse_style.tres (PathPulseStyleClass),
   the network's style export (default = that file).
-- pulse/path_pulse.tscn: spawned per path at runtime. Line
+- path_pulse.tscn: spawned per path at runtime. Line
   (MeshInstance2D, strip mesh built in code, path_pulse.gdshader
   additive), head halos drawn in _draw (headTexture), StartDot and
   EndDot (path_dot.tscn: glow, core, ring pop; shown when the pulse
@@ -826,19 +882,27 @@ Example: godot/weapons/base/weapon.gd
   must be below that (e.g. -10); characters stay at 0.
 
 [Enemies]  godot/enemies/
-- EnemyClass (base/enemy.gd + enemy.tscn, CharacterBody2D, layer
+- EnemyClass (enemy.gd + enemy.tscn, CharacterBody2D, layer
   Enemy): image export (empty = placeholder), flipSpeed,
-  healthComponent, movementComponent, pathFollowComponent. Visuals/
+  healthComponent, movementComponent, pathFollowComponent,
+  statusComponent. Visuals/
   Sprite2D like the player, walk animation, Hurtbox (Enemy Hurtbox) +
   StatusComponent. Health x COMBAT_SCALING.get_multiplier(combatLevel)
   (combatLevel set by the WaveManager). died -> die() (queue_free),
   reached_end -> on_reached_end() (queue_free for now, no crystal yet).
   Signals connected in the scene.
+- Spawn modifiers: EnemyModifiersClass (enemy_modifiers.gd/.tres,
+  preloaded by the enemy as MODIFIERS): modifiers list, startLevel (3),
+  chancePerLevel (0.012), maxChance (0.3). get_chance(combatLevel) =
+  (level - startLevel + 1) x chancePerLevel: 1.2% at 3, ~17% at 16,
+  ~22% at 20 (developer: very subtle, most enemies on late islands
+  still have none). roll_modifier() picks one at random; the enemy
+  applies it in _ready. Max one modifier per enemy.
 - New enemy = inherited scene of enemy.tscn, set stats on the
-  components. basic/: regular_enemy (40 hp, speed 22), big_enemy
+  components. regular_enemy (40 hp, speed 22), big_enemy
   (160 hp, speed 12, bigger hurtbox), small_enemy (10 hp, speed 40,
   smaller hurtbox).
-- PathFollowComponentClass (components/path_follow/): start(path,
+- PathFollowComponentClass (components/path_follow_component.gd): start(path,
   body) places the body at the path start. get_direction(body) moves a
   target point along the route, lookAhead px ahead of the body, and
   returns the direction to it (MovementComponent does the moving, so
@@ -942,4 +1006,13 @@ Input actions: left, right, up, down (WASD), attack (left mouse).
             frost changes the sprite (overlay shader removed), status
             visuals rebuilt (Loop/Burst/Pulse), bleed redone with
             spurts per tick. Weapons weakened: rarity x2 max, +3% per
-            level, elements 40%, stun 0.5s. All attributes rebalanced.
+            level, elements 40%, stun 0.5s. All attributes rebalanced.2026-09-18  Project reorganized: about 95 folders down to 36 (one
+            folder per system, files flat). Bleed, Lacerate and the
+            unused melee/projectile attacks removed. Main elements:
+            fire, frost, poison, lightning (Shock: arcs to neighbours)
+            and water (Wet: slows, amplifies lightning, cancels fire).
+            Jolt, Drench, Electrify, Deluge attributes (83 total).
+            Weapons level 0-30 (+8% damage each), rarity upgrade from
+            level 15 keeps the level. Enemy spawn modifiers (Fortified,
+            Swift, Regenerating) with a subtle combat level chance.
+            Test scene: T test element, Z enemy combat level.

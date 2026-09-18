@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ShockEffectClass" format=3]
+
+[ext_resource type="Script" path="res://status_effects/lightning/shock_effect.gd" id="1_shock"]
+[ext_resource type="Resource" path="res://damage/lightning.tres" id="2_lightning"]
+[ext_resource type="PackedScene" path="res://status_effects/lightning/shock_visual.tscn" id="3_visual"]
+[ext_resource type="PackedScene" path="res://vfx/effects/lightning.tscn" id="4_bolt"]
+
+[resource]
+script = ExtResource("1_shock")
+damageType = ExtResource("2_lightning")
+boltScene = ExtResource("4_bolt")
+effectName = "Shock"
+duration = 3.0
+tickInterval = 0.6
+visualScene = ExtResource("3_visual")
