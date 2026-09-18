@@ -564,7 +564,9 @@ Example: godot/weapons/base/weapon.gd
   kill up to about 60%, the trigger is rarer), proc damage 35-45% of
   the hit. One normal attribute is worth about +12% damage, a special
   about +20%. Tradeoff penalties shrink a little with level. Counts are
-  capped low (+1 at level 15-20, never more).
+  capped low (+1 at level 15-20, never more). Damage over time values
+  are % of weapon damage PER TICK and must stay visible at level 0
+  (a tick below 0.5 shows as 0: that looked like no damage).
 - 83 attributes (48 normal, 35 special). Exact numbers live in the
   .tres files. Value = level 0 worst-best (level 30 best).
 - Normal (all attack types unless noted):
@@ -579,7 +581,7 @@ Example: godot/weapons/base/weapon.gd
   (20%), Momentum / Steadfast 5-8% (23%), Duelist 6-10% (28%), Brawler
   (x4) 1.5-2% (5%), Wind Up (x5) 0.8-1% (3.1%), Precision (x4) 0.8-1%
   (3.1%), Relentless (KILL 8-12% (21%): reset attack), Jolt (HIT 10-14% (20%):
-  shock 2-3% (7.5%) per tick), Drench (HIT 12-16% (22%): wet, +15-20%
+  shock 16-24% (60%) per tick), Drench (HIT 12-16% (22%): wet, +15-20%
   (32%) lightning damage taken), Heavy Blade (+8-10% (19%)
   damage, -7..-5% attack speed), Featherweight (+8-10% (19%) attack
   speed, -7..-5% damage), Reckless (+15-20% (35%) crit damage, -2..-1.5%
@@ -589,16 +591,16 @@ Example: godot/weapons/base/weapon.gd
   30-40% (61%): slow 20-25% (34%)), Staggering Blows (CRIT 12-16% (25%):
   stun), Armor Break (CRIT 30-40% (61%): sunder 4-5% (9.5%)), Headhunter
   (kills x5) 2-3% (7.5%) crit damage, Static (HIT 10-14% (21.5%): zap
-  20-25% (37%)), Singe (HIT 10-14% (20%): burn 2-3% (7.5%)), Chill (HIT
+  20-25% (37%)), Singe (HIT 10-14% (20%): burn 16-24% (60%)), Chill (HIT
   12-16% (22%): frost, frostbite 15-20% (32%)), Venom (HIT 10-14% (20%):
-  poison 0.7-1% (2.5%)), Potency (effect damage) 5-8% (20%), Piercing +1
+  poison 5.6-8% (20%)), Potency (effect damage) 5-8% (20%), Piercing +1
   (+2 at 20), Volley +1, Sweeping [slash] (+8-10° (20°), -7..-5% damage),
   Juggernaut (+7-10% (20.5%) damage, -9..-6% move speed).
 - Special:
   Life Steal 0.8-1.2% (3%), Area Damage (HIT 12-16% (25%): 25-30% (39%)),
   Blade Waves [slash] (ATTACK 15-20% (29%): x1 (x2 at 15) 20-25% (34%)),
-  Burn (HIT 20-25% (34%): 4-6% (13.5%) per tick), Frostbite (HIT 25-30%
-  (39%): 25-30% (42%)), Poison (HIT 20-25% (34%): 1-1.3% (3.4%) per
+  Burn (HIT 20-25% (34%): 20-30% (67.5%) per tick), Frostbite (HIT 25-30%
+  (39%): 25-30% (42%)), Poison (HIT 20-25% (34%): 5-6.5% (17%) per
   stack), Double Strike [slash] (ATTACK 6-9% (18%)), Chain Lightning
   (HIT 10-14% (20%): 20-25% (34%), 2 jumps (3 at 20)), Sunder (HIT
   12-16% (25%): +5-6% (12%) damage taken), Culling (below 3-4% (6.4%)),
@@ -615,12 +617,12 @@ Example: godot/weapons/base/weapon.gd
   30-35% (45.5%)), Blade Storm (KILL 15-20% (32%): 6-8% (12.5%) per
   tick), Death Mark (HIT 10-14% (21.5%): next hit +25-30% (42%)), Soul
   Harvest (KILL 20-25% (37%): 2 orbs 20-25% (34%)), Electrify (HIT 20-25%
-  (34%): shock 4-6% (13.5%) per tick), Deluge (HIT 15-20% (29%): wet
+  (34%): shock 20-30% (67.5%) per tick), Deluge (HIT 15-20% (29%): wet
   everyone within 28, +25-30% (42%) lightning damage taken),
   Combustion (CRIT
-  30-40% (55%): burn around 4-5% (11%)), Ice Spikes (HIT 8-10% (16%):
-  25-30% (42%) + slow), Plague Cloud (KILL 20-25% (37%): poison 1.3-1.6%
-  (3.4%)), Overload (CRIT 30-40% (52%): lightning x3 20-25% (34%)).
+  30-40% (55%): burn around 20-25% (55%)), Ice Spikes (HIT 8-10% (16%):
+  25-30% (42%) + slow), Plague Cloud (KILL 20-25% (37%): poison 6.5-8%
+  (17%)), Overload (CRIT 30-40% (52%): lightning x3 20-25% (34%)).
 - SlashAttack maxTargets (3, spear 4) + Cleave = enemies per slash.
 
 [Combat level]  godot/core/combat_scaling.gd/.tres

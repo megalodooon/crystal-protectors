@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ll725ls6f3vv"
-path="res://.godot/imported/frost_scythe.png-556c6e07c91ecc0ad62dde684501ab0b.ctex"
+path="res://.godot/imported/frost_scythe.png-ad8d2d32ff7215e7b7608c0645224645.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://weapons/slashing/frost_scythe.png"
-dest_files=["res://.godot/imported/frost_scythe.png-556c6e07c91ecc0ad62dde684501ab0b.ctex"]
+dest_files=["res://.godot/imported/frost_scythe.png-ad8d2d32ff7215e7b7608c0645224645.ctex"]
 
 [params]
 

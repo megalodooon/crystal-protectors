@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://xtjrrk550blq"
-path="res://.godot/imported/iron_sword.png-423237fdc375094af17fef0893e79f50.ctex"
+path="res://.godot/imported/iron_sword.png-5701979fe9c06f3c400c28e688d88c81.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://weapons/slashing/iron_sword.png"
-dest_files=["res://.godot/imported/iron_sword.png-423237fdc375094af17fef0893e79f50.ctex"]
+dest_files=["res://.godot/imported/iron_sword.png-5701979fe9c06f3c400c28e688d88c81.ctex"]
 
 [params]
 

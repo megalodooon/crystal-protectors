@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cpuju76roxfgm"
-path="res://.godot/imported/hand_placeholder.png-91babf86af61879f1434d2b90ca4dd8d.ctex"
+path="res://.godot/imported/hand_placeholder.png-9dcd1a960b6710056a9f455800e49dc8.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://player/hand_placeholder.png"
-dest_files=["res://.godot/imported/hand_placeholder.png-91babf86af61879f1434d2b90ca4dd8d.ctex"]
+dest_files=["res://.godot/imported/hand_placeholder.png-9dcd1a960b6710056a9f455800e49dc8.ctex"]
 
 [params]
 

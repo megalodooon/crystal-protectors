@@ -6,9 +6,9 @@
 
 [sub_resource type="Resource" id="Resource_scaling"]
 script = ExtResource("2_scaling")
-minBase = 0.007
-maxBase = 0.01
-perStep = 0.0005
+minBase = 0.056
+maxBase = 0.08
+perStep = 0.004
 percent = true
 
 [sub_resource type="Resource" id="Resource_chance"]
