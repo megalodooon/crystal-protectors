@@ -85,7 +85,6 @@ func add_enchant() -> void:
 	enchant.color = rarity.color
 	enchant.texture = sprite.texture
 	enchant.points = get_pixel_points(sprite.texture)
-	enchant.space = wielder
 	sprite.add_child(enchant)
 
 func get_sprite() -> Sprite2D:
@@ -255,7 +254,6 @@ func add_aura(scene : PackedScene) -> void:
 	var aura : WeaponAuraClass = scene.instantiate()
 	aura.texture = sprite.texture
 	aura.points = get_pixel_points(sprite.texture, true)
-	aura.space = wielder
 	sprite.add_child(aura)
 
 func get_visual_holder() -> Node2D:

@@ -432,11 +432,9 @@ Example: godot/weapons/base/weapon.gd
   pixels. fire, frost, poison, electric, water, arcane, blood,
   explosive, shadow, steel, prismatic, holy, celestial, void, crystal.
   New element = new aura + effect .tres.
-  Particles live in the WIELDER's space (developer: they must move with
-  the character like the slash, but trail on swings and idle sway):
-  space = wielder, emitters become top_level + local_coords, follow the
-  wielder and get their emission points moved every physics frame.
-  No wielder = plain world particles. EnchantClass extends it.
+  Particles are world space (local_coords off): they stay where they
+  spawn and do NOT move with the player (developer, 2026-09-18; a
+  wielder-space version was tried and rejected). EnchantClass extends it.
   Particles use soft_dot / sparkle.png, never bare square pixels.
 - WeaponClass.get_sprite() = first Visuals Sprite2D.
   WeaponClass.get_pixel_points(texture, bladeOnly) = opaque pixel
@@ -777,7 +775,7 @@ Example: godot/weapons/base/weapon.gd
   Visuals Sprite2D: Glow (enchant.gdshader: slow pulsing halo,
   additive, Linear; no shimmer band, the developer disliked it) and
   Motes + Sparkles (CPUParticles2D emitted from the sprite's opaque
-  pixels, in the wielder's space like auras; amount = scene amount x
+  pixels, world space like auras; amount = scene amount x
   particleAmount / 4). Color = rarity color.
 
 [Slash]  godot/weapons/attacks/ (slash_attack.gd, slash.gd/.tscn/.gdshader, slash_style.gd)
