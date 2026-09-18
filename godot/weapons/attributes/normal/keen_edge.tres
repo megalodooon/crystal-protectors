@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="TradeoffAttributeClass" format=3]
+
+[ext_resource type="Script" path="res://weapons/attributes/behaviors/tradeoff_attribute.gd" id="1_attribute"]
+[ext_resource type="Script" path="res://weapons/attributes/base/attribute_scaling.gd" id="2_scaling"]
+
+[sub_resource type="Resource" id="Resource_scaling"]
+script = ExtResource("2_scaling")
+minBase = 0.025
+maxBase = 0.03
+perStep = 0.0025
+percent = true
+
+[sub_resource type="Resource" id="Resource_second"]
+script = ExtResource("2_scaling")
+minBase = -0.2
+maxBase = -0.15
+perStep = 0.002
+percent = true
+
+[resource]
+script = ExtResource("1_attribute")
+secondStat = 3
+secondScaling = SubResource("Resource_second")
+attributeName = "Keen Edge"
+description = "+{value}% Crit Chance, {second}% Crit Dmg"
+stat = 2
+scaling = SubResource("Resource_scaling")

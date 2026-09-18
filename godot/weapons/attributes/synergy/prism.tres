@@ -1,0 +1,43 @@
+[gd_resource type="Resource" script_class="BeamAttributeClass" format=3]
+
+[ext_resource type="Script" path="res://weapons/attributes/behaviors/beam_attribute.gd" id="1_attribute"]
+[ext_resource type="Script" path="res://weapons/attributes/base/attribute_scaling.gd" id="2_scaling"]
+[ext_resource type="Resource" path="res://weapons/attributes/special/sunlance.tres" id="3_res"]
+[ext_resource type="Resource" path="res://weapons/attributes/special/wild_magic.tres" id="4_res"]
+[ext_resource type="Resource" path="res://damage/holy.tres" id="5_res"]
+[ext_resource type="PackedScene" path="res://vfx/effects/sunlance.tscn" id="6_res"]
+
+[sub_resource type="Resource" id="Resource_scaling"]
+script = ExtResource("2_scaling")
+minBase = 0.25
+maxBase = 0.3
+perStep = 0.004
+percent = true
+
+[sub_resource type="Resource" id="Resource_chance"]
+script = ExtResource("2_scaling")
+minBase = 0.5
+maxBase = 0.6
+perStep = 0.005
+percent = true
+
+[sub_resource type="Resource" id="Resource_count"]
+script = ExtResource("2_scaling")
+minBase = 3.0
+maxBase = 3.0
+wholeNumber = true
+
+[resource]
+script = ExtResource("1_attribute")
+countScaling = SubResource("Resource_count")
+spreadAngle = 40.0
+damageType = ExtResource("5_res")
+colors = Array[Color]([Color(1, 0.4, 0.55, 1), Color(0.45, 1, 0.55, 1), Color(0.5, 0.6, 1, 1)])
+attributeName = "Prism"
+description = "Prism: {chance}% Sunlance splits into {count} beams {value}%"
+scaling = SubResource("Resource_scaling")
+trigger = 5
+chanceScaling = SubResource("Resource_chance")
+effectScene = ExtResource("6_res")
+requiredAttributes = Array[Resource]([ExtResource("3_res"), ExtResource("4_res")])
+procSource = ExtResource("3_res")

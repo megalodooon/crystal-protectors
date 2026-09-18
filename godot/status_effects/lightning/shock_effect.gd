@@ -51,6 +51,9 @@ func combine(other : StatusEffectClass) -> void:
 	if otherShock:
 		damagePerTick += otherShock.damagePerTick
 
+func get_remaining_damage() -> float:
+	return damagePerTick * ceili(timeLeft / tickInterval)
+
 func scale_power(multiplier : float) -> void:
 	damagePerTick *= multiplier
 

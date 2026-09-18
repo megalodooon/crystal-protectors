@@ -1,0 +1,74 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://weapons/auras/weapon_aura.gd" id="1_aura"]
+[ext_resource type="Shader" path="res://weapons/enchant/enchant.gdshader" id="2_glow"]
+[ext_resource type="Material" path="res://vfx/shared/add_material.tres" id="3_add"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_dot.tres" id="4_dot"]
+[ext_resource type="Texture2D" path="res://vfx/shared/sparkle.png" id="5_sparkle"]
+[ext_resource type="Curve" path="res://vfx/shared/twinkle_curve.tres" id="6_twinkle"]
+[ext_resource type="Curve" path="res://vfx/shared/shrink_curve.tres" id="7_shrink"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_glow"]
+shader = ExtResource("2_glow")
+shader_parameter/glowColor = Color(1, 0.75, 0.95, 1)
+shader_parameter/strength = 0.5
+shader_parameter/glowSize = 2.0
+shader_parameter/pulseSpeed = 4.0
+
+[sub_resource type="Gradient" id="Gradient_rainbow"]
+offsets = PackedFloat32Array(0, 0.1, 0.3, 0.5, 0.7, 0.9, 1)
+colors = PackedColorArray(1, 0.3, 0.35, 0, 1, 0.35, 0.35, 0.9, 1, 0.9, 0.3, 0.9, 0.35, 1, 0.5, 0.85, 0.3, 0.75, 1, 0.8, 0.8, 0.35, 1, 0.6, 1, 0.4, 0.9, 0)
+
+[sub_resource type="Gradient" id="Gradient_sparkle"]
+offsets = PackedFloat32Array(0, 0.35, 0.7, 1)
+colors = PackedColorArray(1, 1, 1, 1, 0.6, 0.95, 1, 1, 1, 0.6, 1, 1, 1, 0.9, 0.5, 0)
+
+[node name="WeaponPrismatic" type="Node2D"]
+z_index = 1
+script = ExtResource("1_aura")
+
+[node name="Glow" type="Sprite2D" parent="."]
+texture_filter = 2
+material = SubResource("ShaderMaterial_glow")
+
+[node name="Motes" type="CPUParticles2D" parent="."]
+texture_filter = 2
+material = ExtResource("3_add")
+emitting = false
+amount = 9
+texture = ExtResource("4_dot")
+lifetime = 0.8
+randomness = 0.4
+local_coords = false
+emission_shape = 4
+spread = 180.0
+gravity = Vector2(0, -6)
+initial_velocity_min = 1.0
+initial_velocity_max = 4.0
+damping_min = 2.0
+damping_max = 4.0
+scale_amount_min = 0.25
+scale_amount_max = 0.45
+scale_amount_curve = ExtResource("7_shrink")
+color_ramp = SubResource("Gradient_rainbow")
+
+[node name="Sparkles" type="CPUParticles2D" parent="."]
+texture_filter = 2
+material = ExtResource("3_add")
+emitting = false
+amount = 4
+texture = ExtResource("5_sparkle")
+lifetime = 0.6
+randomness = 0.5
+local_coords = false
+emission_shape = 4
+spread = 180.0
+gravity = Vector2(0, -2)
+initial_velocity_min = 0.5
+initial_velocity_max = 2.0
+angle_min = -30.0
+angle_max = 30.0
+scale_amount_min = 0.3
+scale_amount_max = 0.5
+scale_amount_curve = ExtResource("6_twinkle")
+color_ramp = SubResource("Gradient_sparkle")

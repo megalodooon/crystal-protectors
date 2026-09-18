@@ -1,0 +1,138 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://vfx/base/vfx_effect.gd" id="1_effect"]
+[ext_resource type="Material" path="res://vfx/shared/add_material.tres" id="2_add"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_glow.tres" id="3_glow"]
+[ext_resource type="Texture2D" path="res://vfx/shared/flash_glow.tres" id="4_flash"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_dot.tres" id="5_dot"]
+[ext_resource type="Texture2D" path="res://vfx/shared/streak.tres" id="6_streak"]
+[ext_resource type="Curve" path="res://vfx/shared/shrink_curve.tres" id="7_shrink"]
+[ext_resource type="Curve" path="res://vfx/shared/puff_curve.tres" id="8_puff"]
+[ext_resource type="Script" path="res://vfx/base/vfx_flash.gd" id="9_flash"]
+[ext_resource type="Script" path="res://vfx/base/vfx_spikes.gd" id="10_spikes"]
+
+[sub_resource type="Gradient" id="Gradient_shadow"]
+offsets = PackedFloat32Array(0, 0.25, 1)
+colors = PackedColorArray(0.12, 0.03, 0.2, 0.9, 0.1, 0.02, 0.16, 0.7, 0.03, 0.01, 0.06, 0)
+
+[sub_resource type="Gradient" id="Gradient_flame"]
+offsets = PackedFloat32Array(0, 0.2, 0.6, 1)
+colors = PackedColorArray(1, 0.9, 1, 1, 0.8, 0.45, 1, 1, 0.5, 0.12, 0.9, 0.7, 0.2, 0.02, 0.4, 0)
+
+[node name="DoomBurst" type="Node2D"]
+z_index = 2
+script = ExtResource("1_effect")
+baseRadius = 16.0
+lifetime = 1.2
+shake = 1.4
+
+[node name="Collapse" type="Sprite2D" parent="."]
+texture_filter = 2
+scale = Vector2(1.2, 1.2)
+modulate = Color(0.08, 0.02, 0.14, 1)
+texture = ExtResource("3_glow")
+script = ExtResource("9_flash")
+duration = 0.16
+startScale = 1.3
+endScale = 0.25
+startAlpha = 0.9
+
+[node name="Glow" type="Sprite2D" parent="."]
+texture_filter = 2
+material = ExtResource("2_add")
+scale = Vector2(1.6, 1.6)
+modulate = Color(0.6, 0.15, 1, 0.85)
+texture = ExtResource("3_glow")
+script = ExtResource("9_flash")
+duration = 0.5
+delay = 0.12
+startScale = 0.3
+endScale = 1.0
+
+[node name="Flash" type="Sprite2D" parent="."]
+texture_filter = 2
+material = ExtResource("2_add")
+scale = Vector2(1.2, 1.2)
+modulate = Color(0.95, 0.8, 1, 1)
+texture = ExtResource("4_flash")
+script = ExtResource("9_flash")
+duration = 0.2
+delay = 0.12
+startScale = 0.3
+endScale = 1.3
+
+[node name="Star" type="Node2D" parent="."]
+texture_filter = 2
+material = ExtResource("2_add")
+script = ExtResource("10_spikes")
+count = 10
+length = 28.0
+width = 1.8
+duration = 0.35
+delay = 0.12
+color = Color(0.7, 0.35, 1, 1)
+lengthRandomness = 0.45
+alternate = 0.6
+
+[node name="Shadows" type="CPUParticles2D" parent="."]
+texture_filter = 2
+amount = 12
+texture = ExtResource("5_dot")
+lifetime = 0.7
+one_shot = true
+explosiveness = 0.9
+randomness = 0.4
+local_coords = true
+spread = 180.0
+gravity = Vector2(0, -20)
+initial_velocity_min = 25.0
+initial_velocity_max = 50.0
+damping_min = 60.0
+damping_max = 90.0
+scale_amount_min = 1.2
+scale_amount_max = 1.8
+scale_amount_curve = ExtResource("8_puff")
+color_ramp = SubResource("Gradient_shadow")
+
+[node name="Flames" type="CPUParticles2D" parent="."]
+texture_filter = 2
+material = ExtResource("2_add")
+amount = 18
+texture = ExtResource("5_dot")
+lifetime = 0.55
+one_shot = true
+explosiveness = 0.95
+randomness = 0.4
+local_coords = true
+spread = 180.0
+gravity = Vector2(0, -35)
+initial_velocity_min = 40.0
+initial_velocity_max = 80.0
+damping_min = 100.0
+damping_max = 140.0
+scale_amount_min = 0.5
+scale_amount_max = 0.9
+scale_amount_curve = ExtResource("7_shrink")
+color_ramp = SubResource("Gradient_flame")
+
+[node name="Streaks" type="CPUParticles2D" parent="."]
+texture_filter = 2
+material = ExtResource("2_add")
+amount = 10
+texture = ExtResource("6_streak")
+lifetime = 0.35
+one_shot = true
+explosiveness = 1.0
+randomness = 0.4
+local_coords = true
+particle_flag_align_y = true
+spread = 180.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 90.0
+initial_velocity_max = 140.0
+damping_min = 260.0
+damping_max = 340.0
+scale_amount_min = 0.4
+scale_amount_max = 0.7
+scale_amount_curve = ExtResource("7_shrink")
+color_ramp = SubResource("Gradient_flame")

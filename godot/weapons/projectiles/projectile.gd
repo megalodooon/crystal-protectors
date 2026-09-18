@@ -6,6 +6,7 @@ class_name ProjectileClass
 @export var lifetime : float = 2.0
 
 var color : Color = Color.WHITE
+var weapon : WeaponClass
 
 #------------------------#
 

@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="RandomEffectAttributeClass" format=3]
+
+[ext_resource type="Script" path="res://weapons/attributes/behaviors/random_effect_attribute.gd" id="1_attribute"]
+[ext_resource type="Script" path="res://weapons/attributes/base/attribute_scaling.gd" id="2_scaling"]
+[ext_resource type="Script" path="res://weapons/attributes/base/attribute.gd" id="3_res"]
+[ext_resource type="Resource" path="res://weapons/attributes/special/burn.tres" id="4_res"]
+[ext_resource type="Resource" path="res://weapons/attributes/special/poison.tres" id="5_res"]
+[ext_resource type="Resource" path="res://weapons/attributes/special/electrify.tres" id="6_res"]
+[ext_resource type="Resource" path="res://weapons/attributes/special/chain_lightning.tres" id="7_res"]
+[ext_resource type="Resource" path="res://weapons/attributes/special/smite.tres" id="8_res"]
+[ext_resource type="Resource" path="res://weapons/attributes/special/sunder.tres" id="9_res"]
+[ext_resource type="Resource" path="res://weapons/attributes/special/death_mark.tres" id="10_res"]
+[ext_resource type="PackedScene" path="res://vfx/effects/wild_magic.tscn" id="11_res"]
+[ext_resource type="PackedScene" path="res://weapons/auras/prismatic_aura.tscn" id="12_res"]
+
+[sub_resource type="Resource" id="Resource_chance"]
+script = ExtResource("2_scaling")
+minBase = 0.12
+maxBase = 0.16
+perStep = 0.0025
+percent = true
+
+[resource]
+script = ExtResource("1_attribute")
+options = Array[ExtResource("3_res")]([ExtResource("4_res"), ExtResource("5_res"), ExtResource("6_res"), ExtResource("7_res"), ExtResource("8_res"), ExtResource("9_res"), ExtResource("10_res")])
+attributeName = "Wild Magic"
+description = "{chance}% Wild Magic: a random special effect"
+trigger = 2
+chanceScaling = SubResource("Resource_chance")
+effectScene = ExtResource("11_res")
+auraScene = ExtResource("12_res")
+special = true
+inRandomPool = true
+weight = 0.6

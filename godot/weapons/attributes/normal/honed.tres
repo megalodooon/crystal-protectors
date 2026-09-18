@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="TradeoffAttributeClass" format=3]
+
+[ext_resource type="Script" path="res://weapons/attributes/behaviors/tradeoff_attribute.gd" id="1_attribute"]
+[ext_resource type="Script" path="res://weapons/attributes/base/attribute_scaling.gd" id="2_scaling"]
+[ext_resource type="Script" path="res://weapons/attacks/attack_type.gd" id="3_res"]
+[ext_resource type="Resource" path="res://weapons/attacks/slash_type.tres" id="4_res"]
+
+[sub_resource type="Resource" id="Resource_scaling"]
+script = ExtResource("2_scaling")
+minBase = 0.08
+maxBase = 0.1
+perStep = 0.003
+percent = true
+
+[sub_resource type="Resource" id="Resource_second"]
+script = ExtResource("2_scaling")
+minBase = -0.08
+maxBase = -0.06
+perStep = 0.0007
+percent = true
+
+[resource]
+script = ExtResource("1_attribute")
+secondStat = 6
+secondScaling = SubResource("Resource_second")
+attributeName = "Honed"
+description = "+{value}% Damage, {second}% Slash Size"
+stat = 1
+scaling = SubResource("Resource_scaling")
+attackTypes = Array[ExtResource("3_res")]([ExtResource("4_res")])

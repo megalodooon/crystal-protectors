@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="DebuffAttributeClass" format=3]
+
+[ext_resource type="Script" path="res://weapons/attributes/behaviors/debuff_attribute.gd" id="1_attribute"]
+[ext_resource type="Script" path="res://weapons/attributes/base/attribute_scaling.gd" id="2_scaling"]
+[ext_resource type="Resource" path="res://weapons/attributes/special/judgement.tres" id="3_res"]
+[ext_resource type="Resource" path="res://weapons/attributes/special/smite.tres" id="4_res"]
+[ext_resource type="Resource" path="res://status_effects/debuffs/stun.tres" id="5_res"]
+[ext_resource type="PackedScene" path="res://vfx/effects/divine_wrath.tscn" id="6_res"]
+
+[sub_resource type="Resource" id="Resource_chance"]
+script = ExtResource("2_scaling")
+minBase = 0.4
+maxBase = 0.5
+perStep = 0.005
+percent = true
+
+[resource]
+script = ExtResource("1_attribute")
+status = ExtResource("5_res")
+damageFromHit = false
+radius = 26.0
+attributeName = "Divine Wrath"
+description = "Divine Wrath: {chance}% Judgement stuns nearby {duration}s"
+trigger = 5
+chanceScaling = SubResource("Resource_chance")
+effectScene = ExtResource("6_res")
+requiredAttributes = Array[Resource]([ExtResource("3_res"), ExtResource("4_res")])
+procSource = ExtResource("3_res")

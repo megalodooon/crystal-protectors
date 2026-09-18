@@ -1,0 +1,106 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://vfx/base/vfx_effect.gd" id="1_effect"]
+[ext_resource type="Material" path="res://vfx/shared/add_material.tres" id="2_add"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_glow.tres" id="3_glow"]
+[ext_resource type="Texture2D" path="res://vfx/shared/flash_glow.tres" id="4_flash"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_dot.tres" id="5_dot"]
+[ext_resource type="Texture2D" path="res://vfx/shared/sparkle.png" id="6_sparkle"]
+[ext_resource type="Curve" path="res://vfx/shared/twinkle_curve.tres" id="7_twinkle"]
+[ext_resource type="Script" path="res://vfx/base/vfx_flash.gd" id="8_flash"]
+[ext_resource type="Script" path="res://vfx/base/vfx_spikes.gd" id="9_spikes"]
+
+[sub_resource type="Gradient" id="Gradient_coin"]
+offsets = PackedFloat32Array(0, 0.7, 1)
+colors = PackedColorArray(1, 0.95, 0.6, 1, 1, 0.75, 0.2, 1, 0.9, 0.5, 0.1, 0)
+
+[sub_resource type="Gradient" id="Gradient_glitter"]
+offsets = PackedFloat32Array(0, 0.2, 1)
+colors = PackedColorArray(1, 1, 1, 0, 1, 0.95, 0.7, 1, 1, 0.7, 0.2, 0)
+
+[sub_resource type="Curve" id="Curve_coin"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.75, 0.9), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[node name="Jackpot" type="Node2D"]
+z_index = 2
+script = ExtResource("1_effect")
+baseRadius = 0.0
+lifetime = 1.0
+shake = 0.6
+
+[node name="Glow" type="Sprite2D" parent="."]
+texture_filter = 2
+material = ExtResource("2_add")
+scale = Vector2(1.2, 1.2)
+modulate = Color(1, 0.75, 0.2, 0.8)
+texture = ExtResource("3_glow")
+script = ExtResource("8_flash")
+duration = 0.4
+startScale = 0.3
+endScale = 1.0
+
+[node name="Flash" type="Sprite2D" parent="."]
+texture_filter = 2
+material = ExtResource("2_add")
+modulate = Color(1, 0.95, 0.75, 1)
+texture = ExtResource("4_flash")
+script = ExtResource("8_flash")
+duration = 0.18
+startScale = 0.4
+endScale = 1.1
+
+[node name="Star" type="Node2D" parent="."]
+texture_filter = 2
+material = ExtResource("2_add")
+script = ExtResource("9_spikes")
+count = 8
+length = 22.0
+width = 1.7
+duration = 0.3
+color = Color(1, 0.82, 0.3, 1)
+randomAngles = false
+lengthRandomness = 0.0
+alternate = 0.45
+spin = 1.2
+
+[node name="Coins" type="CPUParticles2D" parent="."]
+texture_filter = 2
+material = ExtResource("2_add")
+amount = 10
+texture = ExtResource("5_dot")
+lifetime = 0.75
+one_shot = true
+explosiveness = 1.0
+randomness = 0.3
+local_coords = true
+direction = Vector2(0, -1)
+spread = 60.0
+gravity = Vector2(0, 220)
+initial_velocity_min = 45.0
+initial_velocity_max = 85.0
+scale_amount_min = 0.55
+scale_amount_max = 0.8
+scale_amount_curve = SubResource("Curve_coin")
+color_ramp = SubResource("Gradient_coin")
+
+[node name="Glitter" type="CPUParticles2D" parent="."]
+texture_filter = 2
+material = ExtResource("2_add")
+amount = 10
+texture = ExtResource("6_sparkle")
+lifetime = 0.8
+one_shot = true
+explosiveness = 0.85
+randomness = 0.5
+local_coords = true
+spread = 180.0
+gravity = Vector2(0, -10)
+initial_velocity_min = 15.0
+initial_velocity_max = 40.0
+damping_min = 40.0
+damping_max = 60.0
+scale_amount_min = 0.3
+scale_amount_max = 0.55
+scale_amount_curve = ExtResource("7_twinkle")
+color_ramp = SubResource("Gradient_glitter")

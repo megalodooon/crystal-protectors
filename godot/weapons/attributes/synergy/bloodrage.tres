@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="CooldownResetAttributeClass" format=3]
+
+[ext_resource type="Script" path="res://weapons/attributes/behaviors/cooldown_reset_attribute.gd" id="1_attribute"]
+[ext_resource type="Script" path="res://weapons/attributes/base/attribute_scaling.gd" id="2_scaling"]
+[ext_resource type="Resource" path="res://weapons/attributes/special/frenzy.tres" id="3_res"]
+[ext_resource type="Resource" path="res://weapons/attributes/special/bloodlust.tres" id="4_res"]
+[ext_resource type="PackedScene" path="res://vfx/effects/reset_flash.tscn" id="5_res"]
+
+[sub_resource type="Resource" id="Resource_chance"]
+script = ExtResource("2_scaling")
+minBase = 0.3
+maxBase = 0.4
+perStep = 0.005
+percent = true
+
+[resource]
+script = ExtResource("1_attribute")
+attributeName = "Bloodrage"
+description = "Bloodrage: {chance}% Frenzy resets your attack"
+trigger = 5
+chanceScaling = SubResource("Resource_chance")
+effectScene = ExtResource("5_res")
+requiredAttributes = Array[Resource]([ExtResource("3_res"), ExtResource("4_res")])
+procSource = ExtResource("3_res")

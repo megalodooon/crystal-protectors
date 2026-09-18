@@ -33,6 +33,7 @@ func on_proc(weapon : WeaponClass, roll : AttributeRollClass, hurtbox : HurtboxC
 		elif count > 1:
 			angle += deg_to_rad(lerpf(-spreadAngle / 2.0, spreadAngle / 2.0, float(i) / (count - 1)))
 		var projectile : ProjectileClass = projectileScene.instantiate()
+		projectile.weapon = weapon
 		weapon.setup_hitbox(projectile, damageMultiplier)
 		if projectile.maxHits > 0:
 			projectile.maxHits += pierce

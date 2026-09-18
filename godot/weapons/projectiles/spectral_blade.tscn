@@ -1,0 +1,81 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://weapons/projectiles/spectral_blade.gd" id="1_blade"]
+[ext_resource type="Material" path="res://vfx/shared/add_material.tres" id="2_add"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_glow.tres" id="3_glow"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_dot.tres" id="4_dot"]
+[ext_resource type="Shader" path="res://weapons/enchant/enchant.gdshader" id="5_enchant"]
+[ext_resource type="Curve" path="res://vfx/shared/shrink_curve.tres" id="6_shrink"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_blade"]
+radius = 7.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ghost"]
+resource_local_to_scene = true
+shader = ExtResource("5_enchant")
+shader_parameter/glowColor = Color(0.7, 0.85, 1, 1)
+shader_parameter/strength = 1.0
+shader_parameter/glowSize = 2.5
+shader_parameter/pulseSpeed = 18.0
+
+[sub_resource type="Gradient" id="Gradient_afterimage"]
+offsets = PackedFloat32Array(0, 1)
+colors = PackedColorArray(1, 1, 1, 0.45, 1, 1, 1, 0)
+
+[sub_resource type="Gradient" id="Gradient_trail"]
+offsets = PackedFloat32Array(0, 1)
+colors = PackedColorArray(1, 1, 1, 0.7, 1, 1, 1, 0)
+
+[node name="SpectralBlade" type="Area2D"]
+z_index = 2
+collision_layer = 0
+collision_mask = 16
+monitorable = false
+script = ExtResource("1_blade")
+speed = 150.0
+lifetime = 2.5
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_blade")
+
+[node name="Glow" type="Sprite2D" parent="."]
+z_index = -1
+texture_filter = 2
+material = ExtResource("2_add")
+scale = Vector2(0.75, 0.75)
+modulate = Color(0.7, 0.85, 1, 0.45)
+texture = ExtResource("3_glow")
+
+[node name="Afterimages" type="CPUParticles2D" parent="."]
+z_index = -1
+material = ExtResource("2_add")
+amount = 12
+lifetime = 0.16
+local_coords = false
+gravity = Vector2(0, 0)
+color_ramp = SubResource("Gradient_afterimage")
+
+[node name="Trail" type="CPUParticles2D" parent="."]
+z_index = -1
+texture_filter = 2
+material = ExtResource("2_add")
+amount = 24
+texture = ExtResource("4_dot")
+lifetime = 0.3
+local_coords = false
+emission_shape = 1
+emission_sphere_radius = 5.0
+gravity = Vector2(0, 0)
+scale_amount_min = 0.4
+scale_amount_max = 0.7
+scale_amount_curve = ExtResource("6_shrink")
+color_ramp = SubResource("Gradient_trail")
+
+[node name="Visuals" type="Node2D" parent="."]
+
+[node name="Ghost" type="Sprite2D" parent="Visuals"]
+texture_filter = 2
+material = SubResource("ShaderMaterial_ghost")
+
+[node name="Blade" type="Sprite2D" parent="Visuals"]
+modulate = Color(0.85, 0.95, 1, 0.9)

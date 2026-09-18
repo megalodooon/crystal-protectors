@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="RandomDamageAttributeClass" format=3]
+
+[ext_resource type="Script" path="res://weapons/attributes/behaviors/random_damage_attribute.gd" id="1_attribute"]
+[ext_resource type="Script" path="res://weapons/attributes/base/attribute_scaling.gd" id="2_scaling"]
+[ext_resource type="PackedScene" path="res://vfx/effects/jackpot.tscn" id="3_res"]
+
+[sub_resource type="Resource" id="Resource_scaling"]
+script = ExtResource("2_scaling")
+minBase = 0.4
+maxBase = 0.5
+perStep = 0.005
+percent = true
+
+[sub_resource type="Resource" id="Resource_chance"]
+script = ExtResource("2_scaling")
+minBase = 0.25
+maxBase = 0.3
+perStep = 0.0015
+percent = true
+
+[sub_resource type="Resource" id="Resource_second"]
+script = ExtResource("2_scaling")
+minBase = -0.14
+maxBase = -0.12
+perStep = 0.001
+percent = true
+
+[resource]
+script = ExtResource("1_attribute")
+secondScaling = SubResource("Resource_second")
+attributeName = "Double or Nothing"
+description = "{chance}% hits +{value}% dmg, others {second}%"
+scaling = SubResource("Resource_scaling")
+chanceScaling = SubResource("Resource_chance")
+effectScene = ExtResource("3_res")

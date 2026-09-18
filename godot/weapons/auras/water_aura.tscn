@@ -4,7 +4,6 @@
 [ext_resource type="Shader" path="res://weapons/enchant/enchant.gdshader" id="2_glow"]
 [ext_resource type="Material" path="res://vfx/shared/add_material.tres" id="3_add"]
 [ext_resource type="Texture2D" path="res://vfx/shared/soft_dot.tres" id="4_dot"]
-[ext_resource type="Texture2D" path="res://vfx/shared/pixel.tres" id="5_pixel"]
 [ext_resource type="Curve" path="res://vfx/shared/twinkle_curve.tres" id="6_twinkle"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_glow"]
@@ -31,9 +30,10 @@ texture_filter = 2
 material = SubResource("ShaderMaterial_glow")
 
 [node name="Drips" type="CPUParticles2D" parent="."]
+texture_filter = 2
 emitting = false
 amount = 4
-texture = ExtResource("5_pixel")
+texture = ExtResource("4_dot")
 lifetime = 0.6
 randomness = 0.5
 local_coords = false
@@ -43,8 +43,8 @@ spread = 10.0
 gravity = Vector2(0, 60)
 initial_velocity_min = 0.0
 initial_velocity_max = 2.0
-scale_amount_min = 0.5
-scale_amount_max = 0.7
+scale_amount_min = 0.3
+scale_amount_max = 0.45
 color_ramp = SubResource("Gradient_drip")
 
 [node name="Shine" type="CPUParticles2D" parent="."]

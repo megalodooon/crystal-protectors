@@ -1,0 +1,126 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://weapons/spawns/storm_cloud.gd" id="1_storm"]
+[ext_resource type="Material" path="res://vfx/shared/add_material.tres" id="2_add"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_glow.tres" id="3_glow"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_dot.tres" id="4_dot"]
+[ext_resource type="Texture2D" path="res://vfx/shared/streak.tres" id="5_streak"]
+[ext_resource type="Curve" path="res://vfx/shared/puff_curve.tres" id="6_puff"]
+[ext_resource type="Curve" path="res://vfx/shared/twinkle_curve.tres" id="7_twinkle"]
+[ext_resource type="PackedScene" path="res://vfx/effects/spark_burst.tscn" id="8_strike"]
+
+[sub_resource type="Gradient" id="Gradient_cloud"]
+offsets = PackedFloat32Array(0, 0.25, 0.75, 1)
+colors = PackedColorArray(0.08, 0.08, 0.13, 0, 0.09, 0.09, 0.15, 0.95, 0.07, 0.07, 0.12, 0.9, 0.05, 0.05, 0.09, 0)
+
+[sub_resource type="Gradient" id="Gradient_underglow"]
+offsets = PackedFloat32Array(0, 0.3, 1)
+colors = PackedColorArray(0.5, 0.65, 1, 0, 0.45, 0.6, 1, 0.5, 0.3, 0.4, 0.9, 0)
+
+[sub_resource type="Gradient" id="Gradient_rain"]
+offsets = PackedFloat32Array(0, 0.2, 1)
+colors = PackedColorArray(0.7, 0.85, 1, 0, 0.7, 0.85, 1, 0.55, 0.6, 0.75, 1, 0)
+
+[sub_resource type="Gradient" id="Gradient_crackle"]
+offsets = PackedFloat32Array(0, 0.3, 1)
+colors = PackedColorArray(1, 1, 1, 1, 0.75, 0.9, 1, 1, 0.5, 0.7, 1, 0)
+
+[node name="StormCloud" type="Node2D"]
+z_index = 3
+script = ExtResource("1_storm")
+tickInterval = 0.6
+fadeTime = 0.4
+strikeScene = ExtResource("8_strike")
+
+[node name="Visuals" type="Node2D" parent="."]
+position = Vector2(0, -28)
+
+[node name="Shade" type="Sprite2D" parent="Visuals"]
+texture_filter = 2
+scale = Vector2(1.6, 0.6)
+modulate = Color(0.04, 0.04, 0.08, 0.75)
+texture = ExtResource("3_glow")
+
+[node name="Cloud" type="CPUParticles2D" parent="Visuals"]
+texture_filter = 2
+amount = 22
+texture = ExtResource("4_dot")
+lifetime = 1.3
+preprocess = 1.0
+randomness = 0.4
+local_coords = true
+emission_shape = 3
+emission_rect_extents = Vector2(13, 2.5)
+spread = 180.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 1.0
+initial_velocity_max = 4.0
+scale_amount_min = 2.6
+scale_amount_max = 3.6
+scale_amount_curve = ExtResource("6_puff")
+color_ramp = SubResource("Gradient_cloud")
+
+[node name="Underglow" type="CPUParticles2D" parent="Visuals"]
+texture_filter = 2
+material = ExtResource("2_add")
+amount = 8
+texture = ExtResource("4_dot")
+lifetime = 1.0
+preprocess = 1.0
+randomness = 0.4
+local_coords = true
+position = Vector2(0, 2)
+emission_shape = 3
+emission_rect_extents = Vector2(11, 1.5)
+gravity = Vector2(0, 0)
+initial_velocity_min = 1.0
+initial_velocity_max = 3.0
+scale_amount_min = 1.6
+scale_amount_max = 2.4
+scale_amount_curve = ExtResource("6_puff")
+color_ramp = SubResource("Gradient_underglow")
+
+[node name="Crackle" type="CPUParticles2D" parent="Visuals"]
+texture_filter = 2
+material = ExtResource("2_add")
+amount = 4
+texture = ExtResource("4_dot")
+lifetime = 0.2
+randomness = 0.6
+local_coords = true
+emission_shape = 3
+emission_rect_extents = Vector2(11, 2)
+gravity = Vector2(0, 0)
+scale_amount_min = 0.2
+scale_amount_max = 0.4
+scale_amount_curve = ExtResource("7_twinkle")
+color_ramp = SubResource("Gradient_crackle")
+
+[node name="Rain" type="CPUParticles2D" parent="Visuals"]
+texture_filter = 2
+material = ExtResource("2_add")
+amount = 12
+texture = ExtResource("5_streak")
+lifetime = 0.32
+randomness = 0.3
+local_coords = true
+position = Vector2(0, 3)
+emission_shape = 3
+emission_rect_extents = Vector2(11, 1)
+particle_flag_align_y = true
+direction = Vector2(0.15, 1)
+spread = 3.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 80.0
+initial_velocity_max = 100.0
+scale_amount_min = 0.15
+scale_amount_max = 0.25
+color_ramp = SubResource("Gradient_rain")
+
+[node name="Flash" type="Sprite2D" parent="Visuals"]
+texture_filter = 2
+material = ExtResource("2_add")
+scale = Vector2(1.8, 0.9)
+self_modulate = Color(1, 1, 1, 0)
+modulate = Color(0.75, 0.88, 1, 1)
+texture = ExtResource("3_glow")

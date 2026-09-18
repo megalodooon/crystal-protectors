@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="MeteorAttributeClass" format=3]
+
+[ext_resource type="Script" path="res://weapons/attributes/behaviors/meteor_attribute.gd" id="1_attribute"]
+[ext_resource type="Script" path="res://weapons/attributes/base/attribute_scaling.gd" id="2_scaling"]
+[ext_resource type="PackedScene" path="res://weapons/projectiles/judgement_sword.tscn" id="3_res"]
+[ext_resource type="Resource" path="res://damage/holy.tres" id="4_res"]
+[ext_resource type="PackedScene" path="res://weapons/auras/holy_aura.tscn" id="5_res"]
+
+[sub_resource type="Resource" id="Resource_scaling"]
+script = ExtResource("2_scaling")
+minBase = 0.35
+maxBase = 0.4
+perStep = 0.004
+percent = true
+
+[sub_resource type="Resource" id="Resource_chance"]
+script = ExtResource("2_scaling")
+minBase = 0.3
+maxBase = 0.4
+perStep = 0.005
+percent = true
+
+[resource]
+script = ExtResource("1_attribute")
+meteorScene = ExtResource("3_res")
+radius = 20.0
+damageType = ExtResource("4_res")
+attributeName = "Judgement"
+description = "{chance}% on crit: Judgement {value}%"
+scaling = SubResource("Resource_scaling")
+trigger = 3
+chanceScaling = SubResource("Resource_chance")
+auraScene = ExtResource("5_res")
+special = true
+inRandomPool = true
+weight = 0.6

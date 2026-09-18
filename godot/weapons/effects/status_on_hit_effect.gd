@@ -16,6 +16,9 @@ func uses_stat(stat : AttributeClass.Stat) -> bool:
 		return chance < 1.0
 	return stat == AttributeClass.Stat.STATUS_DURATION
 
+func get_status() -> StatusEffectClass:
+	return status
+
 func on_equip(weapon : WeaponClass) -> void:
 	weapon.add_aura(auraScene)
 

@@ -1,0 +1,165 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://status_effects/base/status_visual.gd" id="1_visual"]
+[ext_resource type="Material" path="res://vfx/shared/add_material.tres" id="2_add"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_glow.tres" id="3_glow"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_dot.tres" id="4_dot"]
+[ext_resource type="Texture2D" path="res://vfx/shared/flash_glow.tres" id="5_flash"]
+[ext_resource type="Curve" path="res://vfx/shared/shrink_curve.tres" id="6_shrink"]
+[ext_resource type="Curve" path="res://vfx/shared/puff_curve.tres" id="7_puff"]
+[ext_resource type="Script" path="res://vfx/base/vfx_flash.gd" id="8_flash"]
+[ext_resource type="Script" path="res://vfx/base/vfx_orbit.gd" id="9_orbit"]
+[ext_resource type="Script" path="res://vfx/base/vfx_spikes.gd" id="10_spikes"]
+
+[sub_resource type="Gradient" id="Gradient_smoke"]
+offsets = PackedFloat32Array(0, 0.3, 1)
+colors = PackedColorArray(0.08, 0.02, 0.12, 0, 0.1, 0.02, 0.16, 0.7, 0.03, 0.01, 0.06, 0)
+
+[sub_resource type="Gradient" id="Gradient_wisp"]
+offsets = PackedFloat32Array(0, 0.25, 1)
+colors = PackedColorArray(0.9, 0.6, 1, 0, 0.65, 0.25, 1, 0.9, 0.3, 0.05, 0.6, 0)
+
+[sub_resource type="Gradient" id="Gradient_drain"]
+offsets = PackedFloat32Array(0, 0.3, 1)
+colors = PackedColorArray(0.75, 0.4, 1, 0, 0.8, 0.5, 1, 1, 1, 0.9, 1, 0)
+
+[node name="DoomVisual" type="Node2D"]
+z_index = 1
+script = ExtResource("1_visual")
+
+[node name="Loop" type="Node2D" parent="."]
+
+[node name="Pool" type="Sprite2D" parent="Loop"]
+z_index = -3
+texture_filter = 2
+position = Vector2(0, 8)
+scale = Vector2(0.95, 0.32)
+modulate = Color(0.1, 0.02, 0.16, 0.8)
+texture = ExtResource("3_glow")
+script = ExtResource("8_flash")
+duration = 0.9
+startScale = 0.85
+endScale = 1.1
+loop = true
+
+[node name="Aura" type="Sprite2D" parent="Loop"]
+z_index = -2
+texture_filter = 2
+material = ExtResource("2_add")
+scale = Vector2(0.65, 0.8)
+modulate = Color(0.55, 0.12, 0.95, 0.5)
+texture = ExtResource("3_glow")
+script = ExtResource("8_flash")
+duration = 0.55
+startScale = 0.9
+endScale = 1.12
+loop = true
+
+[node name="Smoke" type="CPUParticles2D" parent="Loop"]
+z_index = -2
+texture_filter = 2
+amount = 8
+texture = ExtResource("4_dot")
+lifetime = 0.9
+randomness = 0.4
+emission_shape = 3
+emission_rect_extents = Vector2(6, 2)
+position = Vector2(0, 7)
+direction = Vector2(0, -1)
+spread = 20.0
+gravity = Vector2(0, -12)
+initial_velocity_min = 2.0
+initial_velocity_max = 6.0
+scale_amount_min = 0.7
+scale_amount_max = 1.1
+scale_amount_curve = ExtResource("7_puff")
+color_ramp = SubResource("Gradient_smoke")
+
+[node name="Wisps" type="CPUParticles2D" parent="Loop"]
+texture_filter = 2
+material = ExtResource("2_add")
+amount = 7
+texture = ExtResource("4_dot")
+lifetime = 0.7
+randomness = 0.5
+emission_shape = 3
+emission_rect_extents = Vector2(6, 3)
+position = Vector2(0, 6)
+direction = Vector2(0, -1)
+spread = 15.0
+gravity = Vector2(0, -20)
+initial_velocity_min = 4.0
+initial_velocity_max = 9.0
+tangential_accel_min = -10.0
+tangential_accel_max = 10.0
+scale_amount_min = 0.25
+scale_amount_max = 0.45
+scale_amount_curve = ExtResource("6_shrink")
+color_ramp = SubResource("Gradient_wisp")
+
+[node name="Drain" type="CPUParticles2D" parent="Loop"]
+texture_filter = 2
+material = ExtResource("2_add")
+amount = 6
+texture = ExtResource("4_dot")
+lifetime = 0.5
+randomness = 0.3
+local_coords = true
+emission_shape = 2
+emission_sphere_radius = 13.0
+gravity = Vector2(0, 0)
+radial_accel_min = -90.0
+radial_accel_max = -70.0
+scale_amount_min = 0.2
+scale_amount_max = 0.35
+color_ramp = SubResource("Gradient_drain")
+
+[node name="Crown" type="Node2D" parent="Loop"]
+texture_filter = 2
+material = ExtResource("2_add")
+position = Vector2(0, -13)
+script = ExtResource("9_orbit")
+shape = 1
+count = 5
+orbitSize = Vector2(7, 2)
+speed = 2.5
+size = 2.0
+color = Color(0.7, 0.3, 1, 1)
+twinkleSpeed = 5.0
+
+[node name="CrownGlow" type="Sprite2D" parent="Loop"]
+texture_filter = 2
+material = ExtResource("2_add")
+position = Vector2(0, -13)
+scale = Vector2(0.45, 0.22)
+modulate = Color(0.6, 0.2, 1, 0.55)
+texture = ExtResource("3_glow")
+script = ExtResource("8_flash")
+duration = 0.45
+startScale = 0.8
+endScale = 1.2
+loop = true
+
+[node name="Burst" type="Node2D" parent="."]
+
+[node name="Flash" type="Sprite2D" parent="Burst"]
+texture_filter = 2
+material = ExtResource("2_add")
+scale = Vector2(1.1, 1.1)
+modulate = Color(0.7, 0.35, 1, 1)
+texture = ExtResource("5_flash")
+script = ExtResource("8_flash")
+duration = 0.3
+startScale = 1.4
+endScale = 0.4
+
+[node name="Spikes" type="Node2D" parent="Burst"]
+texture_filter = 2
+material = ExtResource("2_add")
+script = ExtResource("10_spikes")
+count = 6
+length = 12.0
+width = 1.1
+duration = 0.3
+color = Color(0.65, 0.3, 1, 1)
+alternate = 0.5

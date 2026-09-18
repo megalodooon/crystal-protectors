@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" path="res://vfx/shared/soft_dot.tres" id="4_dot"]
 [ext_resource type="Texture2D" path="res://vfx/shared/streak.tres" id="5_streak"]
 [ext_resource type="Curve" path="res://vfx/shared/twinkle_curve.tres" id="6_twinkle"]
+[ext_resource type="Texture2D" path="res://vfx/shared/sparkle.png" id="9_sparkle"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_glow"]
 shader = ExtResource("2_glow")
@@ -31,7 +32,7 @@ texture_filter = 2
 material = ExtResource("3_add")
 emitting = false
 amount = 4
-texture = ExtResource("4_dot")
+texture = ExtResource("9_sparkle")
 lifetime = 0.5
 randomness = 0.6
 local_coords = false

@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" path="res://weapons/auras/weapon_aura.gd" id="1_aura"]
 [ext_resource type="Shader" path="res://weapons/enchant/enchant.gdshader" id="2_glow"]
+[ext_resource type="Texture2D" path="res://vfx/shared/sparkle.png" id="3_sparkle"]
+[ext_resource type="Curve" path="res://vfx/shared/twinkle_curve.tres" id="4_twinkle"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_glow"]
 shader = ExtResource("2_glow")
@@ -59,10 +61,12 @@ scale_amount_max = 0.4
 color_ramp = SubResource("Gradient_mist")
 
 [node name="Snow" type="CPUParticles2D" parent="."]
+texture_filter = 2
 material = SubResource("CanvasItemMaterial_add")
 emitting = false
 amount = 4
-lifetime = 0.7
+texture = ExtResource("3_sparkle")
+lifetime = 0.9
 randomness = 0.5
 local_coords = false
 emission_shape = 4
@@ -70,6 +74,11 @@ spread = 180.0
 gravity = Vector2(0, 10)
 initial_velocity_min = 1.0
 initial_velocity_max = 3.0
-scale_amount_min = 0.5
-scale_amount_max = 0.7
+damping_min = 2.0
+damping_max = 4.0
+angle_min = -45.0
+angle_max = 45.0
+scale_amount_min = 0.25
+scale_amount_max = 0.45
+scale_amount_curve = ExtResource("4_twinkle")
 color_ramp = SubResource("Gradient_snow")

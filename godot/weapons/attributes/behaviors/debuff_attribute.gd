@@ -5,16 +5,15 @@ class_name DebuffAttributeClass
 @export var status : StatusEffectClass
 @export var damageFromHit : bool = false
 @export var radius : float = 0.0
+@export_flags_2d_physics var targetLayer : int = 16
 
 #------------------------#
 
 func can_roll(weapon : WeaponClass, chosen : Array[AttributeClass]) -> bool:
-	if not status or not super(weapon, chosen):
-		return false
-	for other in StatusAttributeClass.get_statuses(weapon, chosen):
-		if StatusAttributeClass.cancels(other, status) or StatusAttributeClass.cancels(status, other):
-			return false
-	return true
+	return status and super(weapon, chosen)
+
+func get_status() -> StatusEffectClass:
+	return status
 
 func uses_stat(usedStat : Stat) -> bool:
 	if usedStat == Stat.STATUS_DURATION:
@@ -31,17 +30,23 @@ func get_description_values(quality : float, level : int) -> Dictionary:
 	return values
 
 func on_proc(weapon : WeaponClass, roll : AttributeRollClass, hurtbox : HurtboxComponentClass, damage : float) -> void:
-	if not hurtbox:
-		return
 	var value : float = roll.get_value(weapon.get_attribute_level())
 	if radius <= 0.0:
-		weapon.add_hit_status(create_status(weapon, value, damage))
-		spawn_effect(weapon, hurtbox.global_position)
+		if hurtbox:
+			weapon.add_hit_status(create_status(weapon, value, damage))
+			spawn_effect(weapon, hurtbox.global_position)
 		return
+	var center : Vector2 = weapon.get_origin()
+	var layer : int = targetLayer
+	var hitDamage : float = weapon.get_damage()
+	if hurtbox:
+		center = hurtbox.global_position
+		layer = hurtbox.collision_layer
+		hitDamage = damage
 	var areaRadius : float = radius * weapon.get_area_multiplier()
-	for target in get_hurtboxes_in_radius(weapon, hurtbox.global_position, areaRadius, hurtbox.collision_layer):
-		weapon.apply_status(target, create_status(weapon, value, damage))
-	spawn_effect(weapon, hurtbox.global_position, areaRadius)
+	for target in get_hurtboxes_in_radius(weapon, center, areaRadius, layer):
+		weapon.apply_status(target, create_status(weapon, value, hitDamage))
+	spawn_effect(weapon, center, areaRadius)
 
 func create_status(weapon : WeaponClass, value : float, damage : float) -> StatusEffectClass:
 	var newStatus : StatusEffectClass = status.duplicate()

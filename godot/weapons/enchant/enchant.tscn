@@ -2,17 +2,23 @@
 
 [ext_resource type="Script" path="res://weapons/enchant/enchant.gd" id="1_enchant"]
 [ext_resource type="Shader" path="res://weapons/enchant/enchant.gdshader" id="2_shader"]
+[ext_resource type="Material" path="res://vfx/shared/add_material.tres" id="3_add"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_dot.tres" id="4_dot"]
+[ext_resource type="Texture2D" path="res://vfx/shared/sparkle.png" id="5_sparkle"]
+[ext_resource type="Curve" path="res://vfx/shared/twinkle_curve.tres" id="6_twinkle"]
+[ext_resource type="Curve" path="res://vfx/shared/shrink_curve.tres" id="7_shrink"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_glow"]
 resource_local_to_scene = true
 shader = ExtResource("2_shader")
 
-[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_add"]
-blend_mode = 1
+[sub_resource type="Gradient" id="Gradient_mote"]
+offsets = PackedFloat32Array(0, 0.15, 0.6, 1)
+colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 0.8, 1, 1, 1, 0.45, 1, 1, 1, 0)
 
-[sub_resource type="Gradient" id="Gradient_twinkle"]
-offsets = PackedFloat32Array(0, 0.3, 1)
-colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 0.9, 1, 1, 1, 0)
+[sub_resource type="Gradient" id="Gradient_sparkle"]
+offsets = PackedFloat32Array(0, 0.25, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0)
 
 [node name="Enchant" type="Node2D"]
 show_behind_parent = true
@@ -22,18 +28,47 @@ script = ExtResource("1_enchant")
 texture_filter = 2
 material = SubResource("ShaderMaterial_glow")
 
-[node name="Particles" type="CPUParticles2D" parent="."]
-material = SubResource("CanvasItemMaterial_add")
+[node name="Motes" type="CPUParticles2D" parent="."]
+z_index = 1
+texture_filter = 2
+material = ExtResource("3_add")
 emitting = false
-amount = 1
-lifetime = 0.6
+amount = 6
+texture = ExtResource("4_dot")
+lifetime = 0.8
+randomness = 0.5
+local_coords = false
+emission_shape = 4
+direction = Vector2(0, -1)
+spread = 180.0
+gravity = Vector2(0, -6)
+initial_velocity_min = 1.0
+initial_velocity_max = 4.0
+damping_min = 2.0
+damping_max = 4.0
+scale_amount_min = 0.25
+scale_amount_max = 0.45
+scale_amount_curve = ExtResource("7_shrink")
+color_ramp = SubResource("Gradient_mote")
+
+[node name="Sparkles" type="CPUParticles2D" parent="."]
+z_index = 1
+texture_filter = 2
+material = ExtResource("3_add")
+emitting = false
+amount = 2
+texture = ExtResource("5_sparkle")
+lifetime = 0.7
 randomness = 0.5
 local_coords = false
 emission_shape = 4
 spread = 180.0
-gravity = Vector2(0, -5)
-initial_velocity_min = 1.0
-initial_velocity_max = 3.0
-scale_amount_min = 0.4
-scale_amount_max = 0.6
-color_ramp = SubResource("Gradient_twinkle")
+gravity = Vector2(0, -3)
+initial_velocity_min = 0.5
+initial_velocity_max = 2.0
+angle_min = -12.0
+angle_max = 12.0
+scale_amount_min = 0.3
+scale_amount_max = 0.5
+scale_amount_curve = ExtResource("6_twinkle")
+color_ramp = SubResource("Gradient_sparkle")

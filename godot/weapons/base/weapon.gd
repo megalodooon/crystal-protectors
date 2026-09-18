@@ -21,6 +21,7 @@ const ENCHANT_SCENE := preload("res://weapons/enchant/enchant.tscn")
 var wielder : Node2D
 var item : WeaponItemClass
 var attributes : Array[AttributeRollClass]
+var synergies : Array[AttributeRollClass]
 var canAttack : bool = true
 var isSwinging : bool = false
 var swingRotation : float = 0.0
@@ -46,7 +47,7 @@ func _ready() -> void:
 	add_enchant()
 	for effect in activeEffects:
 		effect.on_equip(self)
-	for roll in attributes:
+	for roll in get_rolls():
 		roll.attribute.on_equip(self, roll)
 
 func _exit_tree() -> void:
@@ -82,6 +83,7 @@ func add_enchant() -> void:
 	enchant.color = rarity.color
 	enchant.texture = sprite.texture
 	enchant.points = get_pixel_points(sprite.texture)
+	enchant.space = wielder
 	sprite.add_child(enchant)
 
 func get_sprite() -> Sprite2D:
@@ -96,6 +98,11 @@ func get_attacks() -> Array[AttackClass]:
 		if child is AttackClass:
 			attacks.append(child)
 	return attacks
+
+func get_rolls() -> Array[AttributeRollClass]:
+	var rolls : Array[AttributeRollClass] = attributes.duplicate()
+	rolls.append_array(synergies)
+	return rolls
 
 func get_all_effects() -> Array[WeaponEffectClass]:
 	var allEffects : Array[WeaponEffectClass] = effects.duplicate()
@@ -141,7 +148,7 @@ func attack() -> void:
 		attackNode.perform()
 	for effect in activeEffects:
 		effect.on_attack(self)
-	for roll in attributes:
+	for roll in get_rolls():
 		roll.attribute.on_attack(self, roll)
 	cooldownId += 1
 	get_tree().create_timer(get_attack_cooldown(), true, false, true).timeout.connect(end_cooldown.bind(cooldownId))
@@ -154,12 +161,17 @@ func reset_cooldown() -> void:
 	cooldownId += 1
 	canAttack = true
 
+func on_attribute_proc(source : AttributeRollClass, hurtbox : HurtboxComponentClass, hitDamage : float) -> void:
+	for roll in synergies:
+		if roll.attribute.procSource == source.attribute:
+			roll.attribute.try_proc(AttributeClass.Trigger.PROC, self, roll, hurtbox, hitDamage)
+
 func roll_chance(chance : float) -> bool:
 	return randf() < chance * (1.0 + get_stat(AttributeClass.Stat.EFFECT_CHANCE))
 
 func setup_hitbox(hitbox : HitboxComponentClass, damageMultiplier : float = 1.0) -> void:
 	var attackDamage : float = get_damage() * damageMultiplier
-	for roll in attributes:
+	for roll in get_rolls():
 		attackDamage = roll.attribute.modify_attack_damage(self, roll, attackDamage)
 	hitbox.damage = attackDamage
 	hitbox.damageType = damageType
@@ -168,7 +180,7 @@ func setup_hitbox(hitbox : HitboxComponentClass, damageMultiplier : float = 1.0)
 	hitbox.damageModifier = modify_hit_damage
 
 func modify_hit_damage(hurtbox : HurtboxComponentClass, hitDamage : float) -> float:
-	for roll in attributes:
+	for roll in get_rolls():
 		hitDamage = roll.attribute.modify_hit_damage(self, roll, hurtbox, hitDamage)
 	return hitDamage
 
@@ -179,13 +191,14 @@ func register_hit(hurtbox : HurtboxComponentClass, hitDamage : float) -> void:
 	var crit : bool = hurtbox.lastHitCrit
 	for effect in activeEffects:
 		effect.on_hit(self, hurtbox, hitDamage)
-	for roll in attributes:
+	var rolls : Array[AttributeRollClass] = get_rolls()
+	for roll in rolls:
 		roll.attribute.on_hit(self, roll, hurtbox, hitDamage)
 	if crit:
-		for roll in attributes:
+		for roll in rolls:
 			roll.attribute.on_crit(self, roll, hurtbox, hitDamage)
 	if killed:
-		for roll in attributes:
+		for roll in rolls:
 			roll.attribute.on_kill(self, roll, hurtbox, hitDamage)
 	apply_knockback(hurtbox)
 	for status : StatusEffectClass in hitStatuses.values():
@@ -219,12 +232,16 @@ func add_buff(roll : AttributeRollClass, stat : AttributeClass.Stat, duration : 
 
 func update_buffs(delta : float) -> void:
 	for roll : AttributeRollClass in buffs.keys():
-		var buff : AttributeBuffClass = buffs[roll]
-		buff.timeLeft -= delta
-		if buff.timeLeft <= 0.0:
-			if is_instance_valid(buff.visual):
-				buff.visual.stop()
-			buffs.erase(roll)
+		buffs[roll].timeLeft -= delta
+		if buffs[roll].timeLeft <= 0.0:
+			remove_buff(roll)
+
+func remove_buff(roll : AttributeRollClass) -> void:
+	if not buffs.has(roll):
+		return
+	if is_instance_valid(buffs[roll].visual):
+		buffs[roll].visual.stop()
+	buffs.erase(roll)
 
 func add_aura(scene : PackedScene) -> void:
 	var sprite : Sprite2D = get_sprite()
@@ -234,6 +251,7 @@ func add_aura(scene : PackedScene) -> void:
 	var aura : WeaponAuraClass = scene.instantiate()
 	aura.texture = sprite.texture
 	aura.points = get_pixel_points(sprite.texture, true)
+	aura.space = wielder
 	sprite.add_child(aura)
 
 func get_visual_holder() -> Node2D:
@@ -255,7 +273,7 @@ func get_attribute_level() -> int:
 func get_stat(stat : AttributeClass.Stat) -> float:
 	var total : float = 0.0
 	var level : int = get_attribute_level()
-	for roll in attributes:
+	for roll in get_rolls():
 		total += roll.attribute.get_stat_bonus(stat, roll.quality, level)
 	for buff : AttributeBuffClass in buffs.values():
 		if buff.stat == stat:

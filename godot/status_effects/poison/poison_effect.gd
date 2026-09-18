@@ -30,6 +30,9 @@ func combine(other : StatusEffectClass) -> void:
 	if otherPoison:
 		damagePerStack += otherPoison.damagePerStack
 
+func get_remaining_damage() -> float:
+	return damagePerStack * stacks * ceili(timeLeft / tickInterval)
+
 func scale_power(multiplier : float) -> void:
 	damagePerStack *= multiplier
 

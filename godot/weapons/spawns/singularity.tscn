@@ -1,0 +1,115 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://weapons/spawns/singularity.gd" id="1_singularity"]
+[ext_resource type="Material" path="res://vfx/shared/add_material.tres" id="2_add"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_glow.tres" id="3_glow"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_dot.tres" id="4_dot"]
+[ext_resource type="Texture2D" path="res://vfx/shared/streak.tres" id="5_streak"]
+[ext_resource type="Curve" path="res://vfx/shared/shrink_curve.tres" id="6_shrink"]
+[ext_resource type="Script" path="res://vfx/base/vfx_flash.gd" id="7_flash"]
+[ext_resource type="PackedScene" path="res://vfx/effects/singularity_collapse.tscn" id="8_collapse"]
+
+[sub_resource type="Gradient" id="Gradient_accretion"]
+offsets = PackedFloat32Array(0, 0.2, 0.75, 1)
+colors = PackedColorArray(0.5, 0.2, 1, 0, 0.6, 0.25, 1, 0.8, 0.95, 0.75, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="Gradient" id="Gradient_debris"]
+offsets = PackedFloat32Array(0, 0.3, 1)
+colors = PackedColorArray(0.7, 0.4, 1, 0, 0.8, 0.55, 1, 0.9, 1, 1, 1, 0)
+
+[sub_resource type="Curve" id="Curve_grow"]
+_data = [Vector2(0, 0.4), 0.0, 0.0, 0, 0, Vector2(0.7, 1), 0.0, 0.0, 0, 0, Vector2(1, 0.2), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[node name="Singularity" type="Node2D"]
+z_index = 2
+script = ExtResource("1_singularity")
+tickInterval = 0.3
+collapseScene = ExtResource("8_collapse")
+
+[node name="Visuals" type="Node2D" parent="."]
+
+[node name="Shadow" type="Sprite2D" parent="Visuals"]
+z_index = -3
+texture_filter = 2
+position = Vector2(0, 4)
+scale = Vector2(1.6, 0.6)
+modulate = Color(0.05, 0.01, 0.1, 0.6)
+texture = ExtResource("3_glow")
+
+[node name="Halo" type="Sprite2D" parent="Visuals"]
+texture_filter = 2
+material = ExtResource("2_add")
+scale = Vector2(1.7, 1.7)
+modulate = Color(0.5, 0.15, 1, 0.8)
+texture = ExtResource("3_glow")
+script = ExtResource("7_flash")
+duration = 0.5
+startScale = 0.9
+endScale = 1.1
+loop = true
+
+[node name="Accretion" type="CPUParticles2D" parent="Visuals"]
+texture_filter = 2
+material = ExtResource("2_add")
+amount = 60
+texture = ExtResource("4_dot")
+lifetime = 0.7
+randomness = 0.3
+local_coords = true
+emission_shape = 2
+emission_sphere_radius = 28.0
+gravity = Vector2(0, 0)
+orbit_velocity_min = 0.35
+orbit_velocity_max = 0.55
+radial_accel_min = -120.0
+radial_accel_max = -90.0
+scale_amount_min = 0.45
+scale_amount_max = 0.8
+scale_amount_curve = SubResource("Curve_grow")
+color_ramp = SubResource("Gradient_accretion")
+
+[node name="Debris" type="CPUParticles2D" parent="Visuals"]
+texture_filter = 2
+material = ExtResource("2_add")
+amount = 10
+texture = ExtResource("5_streak")
+lifetime = 0.45
+randomness = 0.4
+local_coords = true
+emission_shape = 2
+emission_sphere_radius = 32.0
+particle_flag_align_y = true
+gravity = Vector2(0, 0)
+orbit_velocity_min = 0.2
+orbit_velocity_max = 0.3
+radial_accel_min = -260.0
+radial_accel_max = -200.0
+scale_amount_min = 0.3
+scale_amount_max = 0.55
+scale_amount_curve = ExtResource("6_shrink")
+color_ramp = SubResource("Gradient_debris")
+
+[node name="Rim" type="Sprite2D" parent="Visuals"]
+texture_filter = 2
+material = ExtResource("2_add")
+scale = Vector2(0.95, 0.95)
+modulate = Color(0.9, 0.7, 1, 1)
+texture = ExtResource("3_glow")
+script = ExtResource("7_flash")
+duration = 0.25
+startScale = 0.92
+endScale = 1.05
+loop = true
+
+[node name="Core" type="Sprite2D" parent="Visuals"]
+texture_filter = 2
+scale = Vector2(0.62, 0.62)
+modulate = Color(0.02, 0, 0.04, 1)
+texture = ExtResource("3_glow")
+
+[node name="CoreCenter" type="Sprite2D" parent="Visuals"]
+texture_filter = 2
+scale = Vector2(0.4, 0.4)
+modulate = Color(0, 0, 0, 1)
+texture = ExtResource("3_glow")

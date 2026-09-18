@@ -15,6 +15,9 @@ const LIGHTNING_SCENE := preload("res://vfx/effects/lightning.tscn")
 
 #------------------------#
 
+func get_status() -> StatusEffectClass:
+	return status
+
 func uses_stat(usedStat : Stat) -> bool:
 	if usedStat == Stat.EFFECT_AREA or usedStat == Stat.EFFECT_DAMAGE:
 		return true

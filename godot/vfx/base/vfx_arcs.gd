@@ -7,7 +7,7 @@ class_name VfxArcsClass
 @export var outerRadius : float = 18.0
 @export var duration : float = 0.35
 @export var delay : float = 0.0
-@export var flickerTime : float = 0.04
+@export var flickerTime : float = 0.06
 @export var width : float = 1.0
 @export var color : Color = Color(1.0, 0.9, 0.4)
 @export var loop : bool = false
@@ -35,11 +35,9 @@ func _draw() -> void:
 	var progress : float = (elapsed - delay) / duration
 	if progress < 0.0 or progress > 1.0:
 		return
-	var fade : float = 1.0 - progress
+	var fade : float = 1.0 - progress * progress
 	for bolt in bolts:
-		draw_polyline(bolt, Color(color, fade * 0.3), width * 3.0)
-		draw_polyline(bolt, Color(color.lerp(Color.WHITE, 0.3), fade), width)
-		draw_polyline(bolt, Color(1.0, 1.0, 1.0, fade * 0.9), width * 0.4)
+		LightningClass.draw_layers(self, bolt, width * 0.7, color, fade, 0.9)
 
 func build_bolts() -> void:
 	bolts.clear()
@@ -47,4 +45,4 @@ func build_bolts() -> void:
 	var reach : float = lerpf(innerRadius, outerRadius, minf(progress * 2.5 + 0.3, 1.0))
 	for i in count:
 		var direction : Vector2 = Vector2.from_angle(TAU * i / maxi(count, 1) + randf_range(-0.35, 0.35))
-		bolts.append(LightningClass.create_bolt(direction * innerRadius, direction * reach * randf_range(0.7, 1.0), 3.0, 1.8))
+		bolts.append(LightningClass.create_bolt(direction * innerRadius, direction * reach * randf_range(0.7, 1.0), 2.0, 2.5))

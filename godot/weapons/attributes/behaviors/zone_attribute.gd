@@ -8,6 +8,9 @@ class_name ZoneAttributeClass
 
 #------------------------#
 
+func get_status() -> StatusEffectClass:
+	return status
+
 func uses_stat(usedStat : Stat) -> bool:
 	if usedStat == Stat.EFFECT_AREA or usedStat == Stat.STATUS_DAMAGE or usedStat == Stat.STATUS_DURATION:
 		return true

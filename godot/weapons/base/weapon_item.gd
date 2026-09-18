@@ -21,9 +21,13 @@ func create_weapon() -> WeaponClass:
 	for roll in attributes:
 		if roll and roll.attribute:
 			weapon.attributes.append(roll)
+	weapon.synergies = ATTRIBUTE_POOL.get_synergy_rolls(weapon.attributes)
 	if rarity:
 		weapon.rarity = rarity
 	return weapon
+
+func get_synergy_rolls() -> Array[AttributeRollClass]:
+	return ATTRIBUTE_POOL.get_synergy_rolls(attributes)
 
 func is_max_level() -> bool:
 	return level >= UPGRADES.maxLevel

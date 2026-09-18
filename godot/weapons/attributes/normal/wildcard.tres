@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="RandomBuffAttributeClass" format=3]
+
+[ext_resource type="Script" path="res://weapons/attributes/behaviors/random_buff_attribute.gd" id="1_attribute"]
+[ext_resource type="Script" path="res://weapons/attributes/base/attribute_scaling.gd" id="2_scaling"]
+[ext_resource type="PackedScene" path="res://vfx/buffs/bloodlust_buff.tscn" id="3_res"]
+[ext_resource type="PackedScene" path="res://vfx/buffs/frenzy_buff.tscn" id="4_res"]
+[ext_resource type="PackedScene" path="res://vfx/buffs/adrenaline_buff.tscn" id="5_res"]
+
+[sub_resource type="Resource" id="Resource_scaling"]
+script = ExtResource("2_scaling")
+minBase = 0.06
+maxBase = 0.09
+perStep = 0.003
+percent = true
+
+[sub_resource type="Resource" id="Resource_chance"]
+script = ExtResource("2_scaling")
+minBase = 0.15
+maxBase = 0.2
+perStep = 0.002
+percent = true
+
+[resource]
+script = ExtResource("1_attribute")
+buffStats = Array[int]([1, 4, 10])
+buffScenes = Array[PackedScene]([ExtResource("3_res"), ExtResource("4_res"), ExtResource("5_res")])
+duration = 3.0
+maxStacks = 1
+attributeName = "Wildcard"
+description = "{chance}% on attack: +{value}% random Dmg, Atk or Move Speed"
+scaling = SubResource("Resource_scaling")
+trigger = 1
+chanceScaling = SubResource("Resource_chance")

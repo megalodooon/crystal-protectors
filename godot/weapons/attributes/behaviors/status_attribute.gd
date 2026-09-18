@@ -6,34 +6,13 @@ class_name StatusAttributeClass
 
 #------------------------#
 
-static func get_statuses(weapon : WeaponClass, chosen : Array[AttributeClass]) -> Array[StatusEffectClass]:
-	var statuses : Array[StatusEffectClass] = []
-	for effect in weapon.get_all_effects():
-		var statusEffect : StatusOnHitEffectClass = effect as StatusOnHitEffectClass
-		if statusEffect and statusEffect.status:
-			statuses.append(statusEffect.status)
-	for attribute in chosen:
-		var statusAttribute : StatusAttributeClass = attribute as StatusAttributeClass
-		if statusAttribute and statusAttribute.element and statusAttribute.element.status:
-			statuses.append(statusAttribute.element.status)
-		var debuffAttribute : DebuffAttributeClass = attribute as DebuffAttributeClass
-		if debuffAttribute and debuffAttribute.status:
-			statuses.append(debuffAttribute.status)
-	return statuses
-
-static func cancels(status : StatusEffectClass, other : StatusEffectClass) -> bool:
-	for interaction in status.interactions:
-		if interaction.triggerEffects.has(other.effectName):
-			return true
-	return false
-
 func can_roll(weapon : WeaponClass, chosen : Array[AttributeClass]) -> bool:
-	if not element or not element.status or not super(weapon, chosen):
-		return false
-	for status in get_statuses(weapon, chosen):
-		if cancels(status, element.status) or cancels(element.status, status):
-			return false
-	return true
+	return element and element.status and super(weapon, chosen)
+
+func get_status() -> StatusEffectClass:
+	if not element:
+		return null
+	return element.status
 
 func uses_stat(usedStat : Stat) -> bool:
 	return usedStat == Stat.STATUS_DAMAGE or usedStat == Stat.STATUS_DURATION or super(usedStat)

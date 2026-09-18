@@ -42,6 +42,9 @@ func set_damage(_amount : float) -> void:
 func set_strength(_amount : float) -> void:
 	pass
 
+func get_remaining_damage() -> float:
+	return 0.0
+
 func get_damage_taken_multiplier(_damageType : DamageTypeClass) -> float:
 	return 1.0
 
@@ -60,4 +63,7 @@ func on_tick() -> void:
 	pass
 
 func on_remove() -> void:
+	pass
+
+func on_damage_taken(_amount : float, _damageType : DamageTypeClass) -> void:
 	pass

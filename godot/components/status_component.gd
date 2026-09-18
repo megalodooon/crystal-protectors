@@ -43,10 +43,11 @@ func apply_effect(effect : StatusEffectClass) -> void:
 	newEffect.on_apply()
 	effect_added.emit(newEffect)
 
-func on_damage_taken(damageType : DamageTypeClass) -> void:
-	if not damageType:
-		return
+func on_damage_taken(amount : float, damageType : DamageTypeClass) -> void:
 	for active : StatusEffectClass in activeEffects.values():
+		active.on_damage_taken(amount, damageType)
+		if not damageType:
+			continue
 		for interaction : StatusInteractionClass in active.interactions:
 			if interaction.triggerDamageTypes.has(damageType):
 				interaction.trigger(active)

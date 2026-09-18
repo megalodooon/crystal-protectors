@@ -1,0 +1,14 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://weapons/spawns/soul_link.gd" id="1_link"]
+[ext_resource type="Material" path="res://vfx/shared/add_material.tres" id="2_add"]
+[ext_resource type="PackedScene" path="res://vfx/effects/soul_bind.tscn" id="3_bind"]
+
+[node name="SoulLink" type="Node2D"]
+texture_filter = 2
+z_index = 2
+material = ExtResource("2_add")
+script = ExtResource("1_link")
+fadeTime = 0.25
+lingerTime = 0.1
+linkScene = ExtResource("3_bind")

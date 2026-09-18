@@ -58,6 +58,8 @@ func _unhandled_input(event : InputEvent) -> void:
 			attributePanel.visible = not attributePanel.visible
 		if event.keycode == KEY_X:
 			item.randomize_attributes()
+		if event.keycode == KEY_Y:
+			equip_random_synergy()
 		var index : int = event.keycode - KEY_1
 		if index >= 0 and index < rarities.size():
 			var newItem : WeaponItemClass = WeaponItemClass.new()
@@ -90,7 +92,7 @@ func update_labels() -> void:
 		rarityText = "Rarity cannot upgrade"
 	upgradeLabel.text = "E Level " + str(item.level) + "/" + str(item.UPGRADES.maxLevel) + "  C Combat " + str(item.combatLevel)
 	upgradeLabel.text += "  Damage " + NumberFormatClass.format(player.weapon.get_damage())
-	upgradeLabel.text += "\n" + rarityText + "  V Attributes  T Element " + get_element_name()
+	upgradeLabel.text += "\n" + rarityText + "  V Attributes  Y Synergy  T Element " + get_element_name()
 	update_attribute_panel()
 
 func update_attribute_panel() -> void:
@@ -104,7 +106,28 @@ func update_attribute_panel() -> void:
 		if roll.attribute.special:
 			color = item.rarity.color
 		text += "\n%s [color=#%s]%s[/color]" % [get_quality_bar(roll.quality), color.to_html(false), roll.get_description(level)]
+	for roll in item.get_synergy_rolls():
+		text += "\n[color=#ffd966]+ %s[/color]" % roll.get_description(level)
 	attributeText.text = text
+
+func equip_random_synergy() -> void:
+	var synergies : Array[AttributeClass] = WeaponItemClass.ATTRIBUTE_POOL.synergies
+	if synergies.is_empty() or rarities.is_empty():
+		return
+	var synergy : AttributeClass = synergies.pick_random()
+	var newItem : WeaponItemClass = WeaponItemClass.new()
+	newItem.weaponScene = player.weaponItem.weaponScene
+	newItem.rarity = rarities.back()
+	newItem.level = player.weaponItem.level
+	newItem.combatLevel = player.weaponItem.combatLevel
+	var kept : Array[AttributeRollClass] = []
+	for required in synergy.requiredAttributes:
+		var roll : AttributeRollClass = AttributeRollClass.new()
+		roll.attribute = required as AttributeClass
+		roll.quality = randf()
+		kept.append(roll)
+	newItem.attributes = WeaponItemClass.ATTRIBUTE_POOL.roll_attributes(newItem, kept)
+	player.equip_weapon(newItem)
 
 func apply_test_element() -> void:
 	if elementIndex < 0 or not player.weapon:

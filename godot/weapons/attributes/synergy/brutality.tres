@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="AttributeClass" format=3]
+
+[ext_resource type="Script" path="res://weapons/attributes/base/attribute.gd" id="1_attribute"]
+[ext_resource type="Script" path="res://weapons/attributes/base/attribute_scaling.gd" id="2_scaling"]
+[ext_resource type="Resource" path="res://weapons/attributes/special/overwhelm.tres" id="3_res"]
+[ext_resource type="Resource" path="res://weapons/attributes/special/rend.tres" id="4_res"]
+
+[sub_resource type="Resource" id="Resource_scaling"]
+script = ExtResource("2_scaling")
+minBase = 0.2
+maxBase = 0.25
+perStep = 0.005
+percent = true
+
+[resource]
+script = ExtResource("1_attribute")
+attributeName = "Brutality"
+description = "Brutality: +{value}% Crit Damage"
+stat = 3
+scaling = SubResource("Resource_scaling")
+requiredAttributes = Array[Resource]([ExtResource("3_res"), ExtResource("4_res")])

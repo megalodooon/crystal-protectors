@@ -64,9 +64,11 @@ scale_amount_curve = SubResource("Curve_shrink")
 color_ramp = SubResource("Gradient_mist")
 
 [node name="Drips" type="CPUParticles2D" parent="."]
+texture_filter = 2
 material = SubResource("CanvasItemMaterial_add")
 emitting = false
 amount = 3
+texture = SubResource("GradientTexture2D_soft")
 lifetime = 0.7
 randomness = 0.5
 local_coords = false
@@ -76,6 +78,7 @@ spread = 10.0
 gravity = Vector2(0, 40)
 initial_velocity_min = 0.0
 initial_velocity_max = 2.0
-scale_amount_min = 0.5
-scale_amount_max = 0.8
+scale_amount_min = 0.3
+scale_amount_max = 0.45
+scale_amount_curve = SubResource("Curve_shrink")
 color_ramp = SubResource("Gradient_drip")

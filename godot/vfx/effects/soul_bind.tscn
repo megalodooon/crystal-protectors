@@ -1,0 +1,85 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://vfx/base/vfx_effect.gd" id="1_effect"]
+[ext_resource type="Material" path="res://vfx/shared/add_material.tres" id="2_add"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_glow.tres" id="3_glow"]
+[ext_resource type="Texture2D" path="res://vfx/shared/flash_glow.tres" id="4_flash"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_dot.tres" id="5_dot"]
+[ext_resource type="Texture2D" path="res://vfx/shared/sparkle.png" id="6_sparkle"]
+[ext_resource type="Curve" path="res://vfx/shared/shrink_curve.tres" id="7_shrink"]
+[ext_resource type="Curve" path="res://vfx/shared/twinkle_curve.tres" id="8_twinkle"]
+[ext_resource type="Script" path="res://vfx/base/vfx_flash.gd" id="9_flash"]
+
+[sub_resource type="Gradient" id="Gradient_wisp"]
+offsets = PackedFloat32Array(0, 0.3, 1)
+colors = PackedColorArray(1, 1, 1, 1, 0.5, 0.95, 1, 0.9, 0.25, 0.6, 1, 0)
+
+[sub_resource type="Gradient" id="Gradient_glint"]
+offsets = PackedFloat32Array(0, 0.2, 1)
+colors = PackedColorArray(1, 1, 1, 0, 0.7, 1, 1, 1, 0.35, 0.8, 1, 0)
+
+[node name="SoulBind" type="Node2D"]
+z_index = 2
+script = ExtResource("1_effect")
+lifetime = 0.8
+
+[node name="Glow" type="Sprite2D" parent="."]
+texture_filter = 2
+material = ExtResource("2_add")
+scale = Vector2(0.9, 0.9)
+modulate = Color(0.35, 0.9, 1, 0.8)
+texture = ExtResource("3_glow")
+script = ExtResource("9_flash")
+duration = 0.4
+startScale = 1.4
+endScale = 0.6
+
+[node name="Flash" type="Sprite2D" parent="."]
+texture_filter = 2
+material = ExtResource("2_add")
+scale = Vector2(0.7, 0.7)
+modulate = Color(0.85, 1, 1, 1)
+texture = ExtResource("4_flash")
+script = ExtResource("9_flash")
+duration = 0.2
+startScale = 0.3
+endScale = 1.0
+
+[node name="Wisps" type="CPUParticles2D" parent="."]
+texture_filter = 2
+material = ExtResource("2_add")
+amount = 10
+texture = ExtResource("5_dot")
+lifetime = 0.45
+one_shot = true
+explosiveness = 0.9
+local_coords = true
+emission_shape = 2
+emission_sphere_radius = 12.0
+gravity = Vector2(0, 0)
+orbit_velocity_min = 0.6
+orbit_velocity_max = 0.9
+radial_accel_min = -140.0
+radial_accel_max = -100.0
+scale_amount_min = 0.35
+scale_amount_max = 0.55
+scale_amount_curve = ExtResource("7_shrink")
+color_ramp = SubResource("Gradient_wisp")
+
+[node name="Glints" type="CPUParticles2D" parent="."]
+texture_filter = 2
+material = ExtResource("2_add")
+amount = 5
+texture = ExtResource("6_sparkle")
+lifetime = 0.6
+one_shot = true
+explosiveness = 0.7
+randomness = 0.5
+local_coords = true
+emission_shape = 3
+emission_rect_extents = Vector2(6, 6)
+gravity = Vector2(0, -15)
+scale_amount_min = 0.3
+scale_amount_max = 0.5
+scale_amount_curve = ExtResource("8_twinkle")
+color_ramp = SubResource("Gradient_glint")

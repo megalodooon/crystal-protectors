@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="DoomEffectClass" format=3]
+
+[ext_resource type="Script" path="res://status_effects/debuffs/doom_effect.gd" id="1_doom"]
+[ext_resource type="Resource" path="res://damage/shadow.tres" id="2_type"]
+[ext_resource type="PackedScene" path="res://vfx/effects/doom_burst.tscn" id="3_burst"]
+[ext_resource type="PackedScene" path="res://status_effects/debuffs/doom_visual.tscn" id="4_visual"]
+
+[resource]
+script = ExtResource("1_doom")
+damageType = ExtResource("2_type")
+burstScene = ExtResource("3_burst")
+effectName = "Doom"
+duration = 3.0
+tickInterval = 0.0
+visualScene = ExtResource("4_visual")

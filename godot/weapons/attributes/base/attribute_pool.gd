@@ -3,6 +3,7 @@ class_name AttributePoolClass
 
 
 @export var attributes : Array[AttributeClass]
+@export var synergies : Array[AttributeClass]
 @export var maxAttributes : int = 5
 
 #------------------------#
@@ -27,6 +28,22 @@ func roll_attributes(item : WeaponItemClass, kept : Array[AttributeRollClass] = 
 		rolls.append(roll)
 	weapon.free()
 	return rolls
+
+func get_synergy_rolls(rolls : Array[AttributeRollClass]) -> Array[AttributeRollClass]:
+	var synergyRolls : Array[AttributeRollClass] = []
+	for synergy in synergies:
+		var quality : float = 0.0
+		var found : int = 0
+		for roll in rolls:
+			if synergy.requiredAttributes.has(roll.attribute):
+				quality += roll.quality
+				found += 1
+		if found > 0 and found == synergy.requiredAttributes.size():
+			var synergyRoll : AttributeRollClass = AttributeRollClass.new()
+			synergyRoll.attribute = synergy
+			synergyRoll.quality = quality / found
+			synergyRolls.append(synergyRoll)
+	return synergyRolls
 
 func add_roll(rolls : Array[AttributeRollClass], roll : AttributeRollClass) -> void:
 	if not roll.attribute:

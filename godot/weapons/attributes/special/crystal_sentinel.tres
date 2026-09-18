@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="SpawnAttributeClass" format=3]
+
+[ext_resource type="Script" path="res://weapons/attributes/behaviors/spawn_attribute.gd" id="1_attribute"]
+[ext_resource type="Script" path="res://weapons/attributes/base/attribute_scaling.gd" id="2_scaling"]
+[ext_resource type="PackedScene" path="res://weapons/spawns/crystal_sentinel.tscn" id="3_res"]
+[ext_resource type="Resource" path="res://damage/crystal.tres" id="4_res"]
+[ext_resource type="PackedScene" path="res://weapons/auras/crystal_aura.tscn" id="5_res"]
+
+[sub_resource type="Resource" id="Resource_scaling"]
+script = ExtResource("2_scaling")
+minBase = 0.2
+maxBase = 0.25
+perStep = 0.003
+percent = true
+
+[sub_resource type="Resource" id="Resource_chance"]
+script = ExtResource("2_scaling")
+minBase = 0.15
+maxBase = 0.2
+perStep = 0.004
+percent = true
+
+[resource]
+script = ExtResource("1_attribute")
+spawnScene = ExtResource("3_res")
+placement = 1
+radius = 70.0
+duration = 4.0
+damageType = ExtResource("4_res")
+offset = Vector2(-12, -16)
+attributeName = "Crystal Sentinel"
+description = "{chance}% on kill: Crystal Sentinel {value}% ({duration}s)"
+scaling = SubResource("Resource_scaling")
+trigger = 4
+chanceScaling = SubResource("Resource_chance")
+auraScene = ExtResource("5_res")
+special = true
+inRandomPool = true
+weight = 0.6

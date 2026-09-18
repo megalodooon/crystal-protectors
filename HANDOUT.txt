@@ -89,7 +89,7 @@ coding style (section 5). Follow it exactly.
   One folder per system, files flat inside it. No folder per item
   (no vfx/nova/nova.tscn: it is vfx/effects/nova.tscn). Only split
   a system when it has clearly different groups (attributes: base,
-  behaviors, normal, special).
+  behaviors, normal, special, synergy).
 - A folder holds either subfolders or files, never both.
 - Layout (godot/):
   core/ (GameFeel autoload, NumberFormat, combat scaling),
@@ -98,7 +98,7 @@ coding style (section 5). Follow it exactly.
   waves/ (wave manager, waves, spawn groups, portal), status_effects/ (base, fire, frost, poison, lightning,
   water, debuffs, modifiers), vfx/ (base = parts, shared = textures
   and curves, effects = one-shot effect scenes, buffs),
-  weapons/ (attacks, attributes/{base, behaviors, normal, special},
+  weapons/ (attacks, attributes/{base, behaviors, normal, special, synergy},
   auras, base, effects, enchant, projectiles, rarities, slashing,
   spawns).
 - Moving files: move the file with its .uid/.import and replace the
@@ -111,7 +111,9 @@ coding style (section 5). Follow it exactly.
   modifier chance), T cycles a test element on the held weapon
   (testElements: fire, frost, poison, lightning, water), G start next
   wave (auto waves also start by countdown), V show/hide attribute panel (5 bars in front = roll quality,
-  specials in rarity color), X reroll attributes. The starting item
+  specials in rarity color, synergies in gold with a +), X reroll
+  attributes, Y artifact with a random synergy (its required specials +
+  random rest). The starting item
   rolls attributes on start.
   Map is 512x288 (bigger than the screen): Ground (tiled noise
   texture, z -10), Camera2D inside Player (smoothing, limits = map).
@@ -247,7 +249,12 @@ Example: godot/weapons/base/weapon.gd
   speed x speedMultiplier x status speed multiplier.
   move(body, direction, delta) sets velocity + move_and_slide.
   Unique movement feel: extend it and override move().
-- HurtboxComponentClass (Area2D): can be hit. Exports healthComponent,
+- HurtboxComponentClass (Area2D): can be hit. find_in_shape(world, shape,
+  transform, layer) = any shape query (beams). lastHitOverkill = damage
+  past 0 on the killing hit (Overflow). displace(motion) moves the body
+  with move_and_collide (Singularity pull). Damage taken is passed to
+  every status: StatusEffectClass on_damage_taken(amount, type) (Doom),
+  get_remaining_damage() (burn, poison, shock: Catalyst). Exports healthComponent,
   statusComponent, showDamageNumbers. take_damage(amount, damageType,
   isCrit) multiplies by the statuses' damage taken multiplier for that
   damage type (Sunder, Wet vs lightning, Fortified) and spawns a
@@ -365,6 +372,20 @@ Example: godot/weapons/base/weapon.gd
   spirit_orb.tscn: SpiritOrbClass homing orb (turnSpeed,
   seekRange: turns toward the nearest hurtbox on its mask), glow +
   core + trail, hit spark, fades out.
+  projectile.weapon = the weapon that fired it (set by
+  ProjectileAttributeClass). spectral_blade.tscn: SpectralBladeClass,
+  a spinning ghost copy of the weapon texture that flies out and returns
+  to the wielder (hits both ways, ignores walls, afterimages).
+  judgement_sword.tscn / falling_star.tscn = MeteorClass scenes (holy
+  sword / star); MeteorClass delay staggers drops.
+- Spawns (weapons/spawns/): WeaponSpawnClass (weapon_spawn.gd) base for
+  things an attribute summons: radius, duration, value, damage,
+  damageType, crit, color, target; tickInterval -> on_tick(), on_end(),
+  fade, get_targets(), hit(), spawn_vfx(), refresh(). singularity
+  (pulls + damage ticks, collapse vfx), storm_cloud (follows the
+  wielder, lightning at random enemies), soul_link (tethers up to 4
+  enemies, shares damage through health_changed), crystal_sentinel
+  (floating crystal beside the wielder firing spirit orbs).
 - RarityClass (rarities/): Resource with rarityName, color,
   damageMultiplier, attributeSlots, maxSpecialAttributes, nextRarity,
   slashStyle (embedded), enchantStyle, effects. nextRarity = what a
@@ -406,7 +427,14 @@ Example: godot/weapons/base/weapon.gd
   WeaponAuraClass: any Sprite2D child gets the weapon texture (glow via
   enchant.gdshader), any CPUParticles2D child emits from the blade
   pixels. fire, frost, poison, electric, water, arcane, blood,
-  explosive, shadow, steel. New element = new aura + effect .tres.
+  explosive, shadow, steel, prismatic, holy, celestial, void, crystal.
+  New element = new aura + effect .tres.
+  Particles live in the WIELDER's space (developer: they must move with
+  the character like the slash, but trail on swings and idle sway):
+  space = wielder, emitters become top_level + local_coords, follow the
+  wielder and get their emission points moved every physics frame.
+  No wielder = plain world particles. EnchantClass extends it.
+  Particles use soft_dot / sparkle.png, never bare square pixels.
 - WeaponClass.get_sprite() = first Visuals Sprite2D.
   WeaponClass.get_pixel_points(texture, bladeOnly) = opaque pixel
   positions for particle emission (bladeOnly keeps the top-right half,
@@ -452,7 +480,7 @@ Example: godot/weapons/base/weapon.gd
   writes it out explicitly. For now EVERY attribute is on (testing).
 - EFFECTS = trigger + chance (developer: effects are a chance, never a
   guarantee). trigger (enum AttributeClass.Trigger): NONE, ATTACK,
-  HIT, CRIT, KILL. chanceScaling = chance per trigger (scales with
+  HIT, CRIT, KILL, PROC (5, synergies only). chanceScaling = chance per trigger (scales with
   quality/level like scaling; empty = always). The base class turns
   on_attack/on_hit/on_crit/on_kill into on_proc(weapon, roll, hurtbox,
   damage) when the trigger matches and weapon.roll_chance() succeeds.
@@ -555,7 +583,37 @@ Example: godot/weapons/base/weapon.gd
     enemy, area fire damage), BladeStormAttributeClass (spinning blades
     around the wielder for duration, spawns/blade_storm.tscn),
     ZoneAttributeClass (StatusZoneClass cloud that applies a status
-    every tick, spawns/plague_cloud.tscn).
+    every tick, spawns/plague_cloud.tscn, blizzard.tscn).
+  * New: RandomDamageAttributeClass (secondScaling = worst case; with
+    chanceScaling = coin flip bonus/penalty, without = random between
+    them, effect on top rolls), RandomBuffAttributeClass (buffStats +
+    buffScenes, one random buff), RandomEffectAttributeClass (options =
+    other attribute .tres, fires one at random), DelayedHitAttributeClass
+    (delay), OverflowAttributeClass (kill overkill flies on as an orb),
+    CatalystAttributeClass (effectNames DoTs detonate: remaining damage x
+    (1 + value)), RendAttributeClass (% current health, max hit x3),
+    BeamAttributeClass (line damage, countScaling fan, colors per beam),
+    SpawnAttributeClass (spawnScene = a WeaponSpawnClass; placement
+    TARGET or WIELDER: wielder spawns refresh instead of stacking).
+  * DebuffAttributeClass with radius also works without a hurtbox
+    (ATTACK/PROC): centered on the wielder, targetLayer.
+    MeteorAttributeClass countScaling/scatter/dropDelay (Starfall).
+    TradeoffAttributeClass requiredStat. StatusTargetDamage effectNames
+    (only those statuses count, and it only rolls with a source of one).
+  * get_status() on attributes and weapon effects = the status they
+    apply; AttributeClass.can_roll never allows two that cancel.
+  Helpers: get_hurtboxes_in_shape (beams), spawn_effect returns the node.
+- SYNERGIES (attributes/synergy/, pool.synergies): an attribute .tres
+  (any behavior) with requiredAttributes = the specials it needs. When
+  an item has all of them, the item/weapon get a synergy roll (quality =
+  average of the required rolls): weapon.synergies, get_rolls() =
+  attributes + synergies (loop get_rolls(), never attributes alone),
+  item.get_synergy_rolls() for UI. trigger PROC + procSource: fires
+  when procSource procs (weapon.on_attribute_proc, same hurtbox/damage;
+  ATTACK sources give no hurtbox). No trigger = passive (Brutality).
+  requiredAttributes/procSource are typed Resource on purpose: an
+  attribute exporting its own class leaks at exit in Godot 4.7.
+  New synergy = .tres in synergy/ + add it to the pool's synergies.
 - AttributePoolClass (base/attribute_pool.tres, preloaded by the item
   as ATTRIBUTE_POOL): attributes (every rollable attribute),
   maxAttributes (5). roll_attributes(item, kept): weapon
@@ -576,8 +634,13 @@ Example: godot/weapons/base/weapon.gd
   capped low (+1 at level 15-20, never more). Damage over time values
   are % of weapon damage PER TICK and must stay visible at level 0
   (a tick below 0.5 shows as 0: that looked like no damage).
-- 83 attributes (48 normal, 35 special). Exact numbers live in the
-  .tres files. Value = level 0 worst-best (level 30 best).
+- 118 attributes (68 normal, 50 special) + 20 synergies. Exact numbers
+  live in the .tres files. Value = level 0 worst-best (level 30 best).
+  Weapon archetypes (developer asked for basic, powerful, weak, insane
+  and variable weapons): variable = Volatile, Double or Nothing,
+  Wildcard, Wild Magic, Starfall; weak = Dull and Clumsy (curses, NOT in
+  the random pool: only for fixedAttributes of weak weapons) and the
+  tradeoffs; insane = Doom, Soul Link, Singularity, synergies.
 - Normal (all attack types unless noted):
   Damage 2-3% (12%), Crit Chance 1-2% (8%), Crit Damage 6-10% (28%),
   Attack Speed 2-3% (10.5%), Knockback 10-15 (30), First Strike 8-12%
@@ -632,6 +695,50 @@ Example: godot/weapons/base/weapon.gd
   30-40% (55%): burn around 20-25% (55%)), Ice Spikes (HIT 8-10% (16%):
   25-30% (42%) + slow), Plague Cloud (KILL 20-25% (37%): poison 6.5-8%
   (17%)), Overload (CRIT 30-40% (52%): lightning x3 20-25% (34%)).
+- Normal (2026-09-18): Volatile (hits -10..+20% (-5.9..+30%)), Double or
+  Nothing (25-30% (34.5%): +40-50% (65%), else -14..-12%), Wildcard
+  (ATTACK 15-20%: random dmg/atk/move buff 6-9% (18%) 3s), Shatter /
+  Scorch / Overcurrent (+8-12% (30%) vs frosted+crystal / burning /
+  shocked), Bully (+6-10% (26.5%) vs slow/stun/fear/crystal/wet), Keen
+  Edge (+2.5-3% (10.5%) crit chance, -20..-15% crit dmg), Honed [slash]
+  (+8-10% (19%) dmg, -8..-6% size), Overcharged (+12-15% (30%) effect
+  dmg, -7..-5% atk speed), Arcane Focus (+10-12% (24%) effect chance,
+  -7..-5% dmg), Concentrated (+12-16% (31%) status dmg, -20..-15%
+  duration), Quickdraw (CRIT 12-16% (25%): reset attack), Splinter (CRIT
+  20-25%: 2 slash waves 15-20% (29%)), Aftershock (HIT 10-14%: +30-35%
+  (47%) 0.35s later), Overflow (KILL 30-40% (61%): 40-50% (65%) of the
+  overkill as an orb), Thrill of the Hunt (kills x3: +1-1.5% (3%) crit
+  chance 4s), Shooting Star (ATTACK 8-10%: star 20-25% (34%)), Dull
+  (-12..-8% dmg), Clumsy (-10..-7% atk speed).
+- Special (2026-09-18): Wild Magic (HIT 12-16% (23.5%): random of burn,
+  poison, electrify, chain lightning, smite, sunder, death mark), Judgement
+  (CRIT 30-40% (55%): holy sword 35-40% (52%)), Singularity (KILL 15-20%:
+  pulls 1.6s, 6-8% (12.5%) per tick), Thunderstorm (ATTACK 6-8%: cloud 3s
+  strikes 15-20% (29%) every 0.6s), Spectral Throw (ATTACK 8-10%:
+  returning ghost weapon 20-25% (34%), hits out and back), Soul Link (HIT
+  8-10%: up to 4 enemies share 15-20% (32%) of damage 4s), Crystallize
+  (HIT 4-6% (10.5%): stun 1s then shatter 40-50% (62%) of the hit around),
+  Doom (HIT 8-10%: after 3s takes 15-20% (32%) of the damage it took),
+  Starfall (ATTACK 8-10%: 3 stars (4 at 20) 20-25% (34%)), Blizzard (CRIT
+  20-25%: frost zone, frostbite 30-35% (47%)), Sunlance (ATTACK 8-10%:
+  piercing beam 40-45% (57%)), Catalyst (HIT 10-14%: detonate burn,
+  poison, shock +20-30% (48%)), Overwhelm (+18-22% (35.5%) dmg, -12..-10%
+  atk speed), Crystal Sentinel (KILL 15-20%: turret 4s, bolts 20-25%
+  (34%)), Rend (HIT 10-14%: +4-5% (8%) of current health).
+- Synergies (source > effect): Inferno (Detonation + Burn: explosions
+  ignite), Armageddon (Meteor + Starfall: 3 more meteors), Frost Nova
+  (Nova + Frostbite), Paralysis (Overload + Chain Lightning: stun),
+  Tempest (Chain Lightning + Thunderstorm: sky bolt), Shatterpoint
+  (Critical Burst + Sunder), Divine Wrath (Judgement + Smite: stun
+  nearby), Dread (Doom + Terrify: fear nearby), Conduit (Soul Link +
+  Chain Lightning), Shard Storm (Crystallize + Shrapnel), Heaven's Fall
+  (Starfall + Judgement), Absolute Zero (Blizzard + Crystallize), Flashpoint
+  (Catalyst + Burn), Whirling Arsenal (Spectral Throw + Blade Storm), Time
+  Dilation (Singularity + Time Warp), Event Horizon (Vortex +
+  Singularity), Prism (Sunlance + Wild Magic: 3 rainbow beams), Bloodrage
+  (Frenzy + Bloodlust: reset attack), Superconductor (Electrify + Deluge:
+  discharge), Brutality (Overwhelm + Rend: passive +20-25% (40%) crit
+  dmg). Natural rolls are rare (~1-2% of artifacts); Y tests them.
 - SlashAttack maxTargets (3, spear 4) + Cleave = enemies per slash.
 
 [Combat level]  godot/core/combat_scaling.gd/.tres
@@ -655,9 +762,9 @@ Example: godot/weapons/base/weapon.gd
 - WeaponClass.add_enchant() puts enchant.tscn under the first
   Visuals Sprite2D: Glow (enchant.gdshader: slow pulsing halo,
   additive, Linear; no shimmer band, the developer disliked it) and
-  Particles (tiny, short-lived
-  CPUParticles2D emitted from the sprite's opaque pixels, world
-  coords so they trail). Color = rarity color.
+  Motes + Sparkles (CPUParticles2D emitted from the sprite's opaque
+  pixels, in the wielder's space like auras; amount = scene amount x
+  particleAmount / 4). Color = rarity color.
 
 [Slash]  godot/weapons/attacks/ (slash_attack.gd, slash.gd/.tscn/.gdshader, slash_style.gd)
 - SlashAttackClass node in a weapon: radius (middle of the swept
@@ -728,21 +835,28 @@ Example: godot/weapons/base/weapon.gd
   the 4 above), VfxArcsClass (electric arcs), VfxOrbitClass (STAR or
   SHARD shapes orbiting), VfxReticleClass (corner brackets).
   vfx/shared/: additive material, soft dot/glow, flash, streak, pixel,
-  bubble textures and puff/shrink/twinkle curves. Reuse them.
+  bubble textures, sparkle.png (4 point star glint) and
+  puff/shrink/twinkle curves. Reuse them.
 - vfx/effects/ holds every effect scene (no folder per effect):
   splash, water_splash, explosion, nova, crit_burst, smite,
   thunderclap, time_warp, contagion, vortex, repulse, execute,
   heavy_impact, spark_burst, reset_flash, ice_spikes, mark_burst,
   shrapnel_burst, soul_release, cast_flash, heal_burst, hit_spark,
-  lightning, damage_number.
+  lightning, damage_number, volatile_pop, jackpot, aftershock,
+  wild_magic, judgement_impact, star_impact, sunlance (beam, baseRadius
+  = length), catalyst, rend, crystal_shatter, doom_burst,
+  singularity_collapse, soul_bind, frost_nova, inferno, divine_wrath,
+  dread. smite = light column + ground glow + arcs + motes.
   Kept subtle: several at once must not blow out to white.
 - Buff visuals (vfx/buffs/<name>_buff.tscn): BuffVisualClass on the
   wielder, tiers (particle emitters turned on by stack count), stop()
   fades.
 - effects/lightning.tscn: LightningClass jagged bolt between points (global
-  positions, node sits at the scene origin), drawn with draw_polyline
-  (glow + colored + white core, additive), re-jagged every flickerTime,
-  fades over duration. Vars: points, color. Used by Chain Lightning,
+  positions, node sits at the scene origin), midpoint displacement
+  bolts drawn as soft feathered ribbons (static draw_bolt / draw_layers:
+  wide glow, colored body, white core, tapered; VfxArcs and Soul Link
+  use them too; the old polylines looked harsh), soft end glows,
+  re-jagged every flickerTime, fades over duration. Vars: points, color. Used by Chain Lightning,
   Smite (bolt from above the target) and Shock (arc to a neighbour).
 
 [Status effects]  godot/status_effects/
@@ -817,6 +931,13 @@ Example: godot/weapons/base/weapon.gd
   -fleeSpeed: enemies walk backwards along their path, then return).
   fear.tres 1s, fear_visual.tscn (shadow, smoke, wisps, sweat drops).
 - Bleed was removed (the developer did not like it). Do not bring it back.
+- Crystal (debuffs/): CrystalEffectClass: stunned (speed 0) for 1s, then
+  shatters for shatterDamage around (crystal damage). Refresh never
+  extends it. crystal_visual.tscn = faceted Polygon2D crystals BEHIND the
+  sprite that grow in (AnimationPlayer), glints; crystal_shatter vfx.
+- Doom (debuffs/): DoomEffectClass stores all damage taken (status
+  on_damage_taken hook) and deals bonus x stored when it ends (3s, never
+  extended). doom_visual.tscn (shadow pool, wisps, drain, dark crown).
 - Mark (debuffs/): MarkEffectClass bonus (Death Mark: the next weapon hit
   consumes it for +bonus damage). mark.tres 4s, mark_visual.tscn
   (corner bracket reticle, motes).
@@ -834,7 +955,8 @@ Example: godot/weapons/base/weapon.gd
 [Damage types]  godot/damage/
 - DamageTypeClass (damage/damage_type.gd): typeName, color, critColor.
 - New damage type = new .tres in damage/ (physical, fire, ice,
-  poison, lightning exist). Set it on a weapon (damageType).
+  poison, lightning, arcane, shadow, holy, crystal exist). Set it on a
+  weapon (damageType).
 - vfx/effects/damage_number.tscn: DamageNumberClass pops, rises, fades. Crit =
   bigger, critColor, "!" suffix. Text via NumberFormatClass.
 
@@ -1077,3 +1199,13 @@ Input actions: left, right, up, down (WASD), attack (left mouse).
             modifiers, auto start waves, wave names. Test scene: 512x288
             map with 3 portals, merge + shortcut branch, following
             camera, ground texture, 5 waves, HUD text size 5 via theme.
+            35 new attributes (20 normal, 15 special; 118 total) and
+            20 synergies (PROC trigger, attributes/synergy/): random
+            damage/buff/effect, curses, tradeoffs, spawns (singularity,
+            storm cloud, soul link, crystal sentinel, blizzard), beams,
+            returning spectral blade, holy sword, stars, Crystal and
+            Doom statuses, arcane/shadow/holy/crystal damage, 5 auras,
+            17 new effects. Weapon particles live in the wielder's
+            space (trail on swings, move with the player), sparkles
+            instead of square pixels. Lightning redrawn as soft
+            feathered ribbons, smite rebuilt. Test scene: Y synergy.

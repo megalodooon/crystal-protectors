@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="StatusTargetDamageAttributeClass" format=3]
+
+[ext_resource type="Script" path="res://weapons/attributes/behaviors/status_target_damage_attribute.gd" id="1_attribute"]
+[ext_resource type="Script" path="res://weapons/attributes/base/attribute_scaling.gd" id="2_scaling"]
+
+[sub_resource type="Resource" id="Resource_scaling"]
+script = ExtResource("2_scaling")
+minBase = 0.06
+maxBase = 0.1
+perStep = 0.0055
+percent = true
+
+[resource]
+script = ExtResource("1_attribute")
+effectNames = Array[String](["Slow", "Stun", "Fear", "Crystal", "Wet"])
+requiredStat = 11
+attributeName = "Bully"
+description = "+{value}% Damage to slowed, stunned or feared enemies"
+scaling = SubResource("Resource_scaling")
+weight = 0.8

@@ -3,7 +3,7 @@ class_name AttributeClass
 
 
 enum Stat { NONE, DAMAGE, CRIT_CHANCE, CRIT_DAMAGE, ATTACK_SPEED, KNOCKBACK, ATTACK_SIZE, ATTACK_ARC, EXTRA_TARGETS, STATUS_DAMAGE, MOVE_SPEED, STATUS_DURATION, EFFECT_CHANCE, EFFECT_AREA, EFFECT_DAMAGE, PIERCE, EXTRA_PROJECTILES }
-enum Trigger { NONE, ATTACK, HIT, CRIT, KILL }
+enum Trigger { NONE, ATTACK, HIT, CRIT, KILL, PROC }
 
 @export var attributeName : String
 @export var description : String = "+{value} {name}"
@@ -17,6 +17,8 @@ enum Trigger { NONE, ATTACK, HIT, CRIT, KILL }
 @export var special : bool = false
 @export var inRandomPool : bool = true
 @export var weight : float = 1.0
+@export var requiredAttributes : Array[Resource]
+@export var procSource : Resource
 
 #------------------------#
 
@@ -29,7 +31,28 @@ static func is_stat_used(weapon : WeaponClass, chosen : Array[AttributeClass], u
 			return true
 	return false
 
-func can_roll(weapon : WeaponClass, _chosen : Array[AttributeClass]) -> bool:
+static func get_statuses(weapon : WeaponClass, chosen : Array[AttributeClass]) -> Array[StatusEffectClass]:
+	var statuses : Array[StatusEffectClass] = []
+	for effect in weapon.get_all_effects():
+		if effect.get_status():
+			statuses.append(effect.get_status())
+	for attribute in chosen:
+		if attribute.get_status():
+			statuses.append(attribute.get_status())
+	return statuses
+
+static func cancels(status : StatusEffectClass, other : StatusEffectClass) -> bool:
+	for interaction in status.interactions:
+		if interaction.triggerEffects.has(other.effectName):
+			return true
+	return false
+
+func can_roll(weapon : WeaponClass, chosen : Array[AttributeClass]) -> bool:
+	var status : StatusEffectClass = get_status()
+	if status:
+		for other in get_statuses(weapon, chosen):
+			if cancels(other, status) or cancels(status, other):
+				return false
 	for attackNode in weapon.get_attacks():
 		if can_use_attack(attackNode):
 			return true
@@ -40,6 +63,9 @@ func can_use_attack(attackNode : AttackClass) -> bool:
 
 func uses_stat(usedStat : Stat) -> bool:
 	return usedStat == Stat.EFFECT_CHANCE and chanceScaling != null
+
+func get_status() -> StatusEffectClass:
+	return null
 
 func get_value(quality : float, level : int) -> float:
 	if not scaling:
@@ -88,6 +114,7 @@ func on_kill(weapon : WeaponClass, roll : AttributeRollClass, hurtbox : HurtboxC
 func try_proc(event : Trigger, weapon : WeaponClass, roll : AttributeRollClass, hurtbox : HurtboxComponentClass, damage : float) -> void:
 	if trigger == event and weapon.roll_chance(roll.get_chance(weapon.get_attribute_level())):
 		on_proc(weapon, roll, hurtbox, damage)
+		weapon.on_attribute_proc(roll, hurtbox, damage)
 
 func on_proc(_weapon : WeaponClass, _roll : AttributeRollClass, _hurtbox : HurtboxComponentClass, _damage : float) -> void:
 	pass
@@ -101,9 +128,12 @@ func modify_hit_damage(_weapon : WeaponClass, _roll : AttributeRollClass, _hurtb
 func get_hurtboxes_in_radius(weapon : WeaponClass, center : Vector2, radius : float, layer : int) -> Array[HurtboxComponentClass]:
 	return HurtboxComponentClass.find_in_radius(weapon.get_world_2d(), center, radius, layer)
 
-func spawn_effect(weapon : WeaponClass, position : Vector2, radius : float = 0.0, parent : Node = null) -> void:
+func get_hurtboxes_in_shape(weapon : WeaponClass, shape : Shape2D, shapeTransform : Transform2D, layer : int) -> Array[HurtboxComponentClass]:
+	return HurtboxComponentClass.find_in_shape(weapon.get_world_2d(), shape, shapeTransform, layer)
+
+func spawn_effect(weapon : WeaponClass, position : Vector2, radius : float = 0.0, parent : Node = null) -> Node2D:
 	if not effectScene:
-		return
+		return null
 	var effect : Node2D = effectScene.instantiate()
 	var vfx : VfxEffectClass = effect as VfxEffectClass
 	if vfx:
@@ -115,3 +145,4 @@ func spawn_effect(weapon : WeaponClass, position : Vector2, radius : float = 0.0
 	else:
 		effect.position = position
 		weapon.get_tree().current_scene.add_child(effect)
+	return effect

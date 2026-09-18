@@ -1,0 +1,71 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://weapons/auras/weapon_aura.gd" id="1_aura"]
+[ext_resource type="Shader" path="res://weapons/enchant/enchant.gdshader" id="2_glow"]
+[ext_resource type="Material" path="res://vfx/shared/add_material.tres" id="3_add"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_dot.tres" id="4_dot"]
+[ext_resource type="Texture2D" path="res://vfx/shared/sparkle.png" id="5_sparkle"]
+[ext_resource type="Curve" path="res://vfx/shared/twinkle_curve.tres" id="6_twinkle"]
+[ext_resource type="Curve" path="res://vfx/shared/shrink_curve.tres" id="7_shrink"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_glow"]
+shader = ExtResource("2_glow")
+shader_parameter/glowColor = Color(0.45, 0.6, 1, 1)
+shader_parameter/strength = 0.5
+shader_parameter/glowSize = 2.5
+shader_parameter/pulseSpeed = 1.5
+
+[sub_resource type="Gradient" id="Gradient_dust"]
+offsets = PackedFloat32Array(0, 0.3, 1)
+colors = PackedColorArray(0.5, 0.45, 1, 0, 0.35, 0.45, 1, 0.6, 0.55, 0.25, 0.9, 0)
+
+[sub_resource type="Gradient" id="Gradient_star"]
+offsets = PackedFloat32Array(0, 0.3, 1)
+colors = PackedColorArray(1, 1, 1, 1, 0.8, 0.9, 1, 1, 0.55, 0.7, 1, 0)
+
+[node name="WeaponCelestial" type="Node2D"]
+z_index = 1
+script = ExtResource("1_aura")
+
+[node name="Glow" type="Sprite2D" parent="."]
+texture_filter = 2
+material = SubResource("ShaderMaterial_glow")
+
+[node name="Dust" type="CPUParticles2D" parent="."]
+texture_filter = 2
+material = ExtResource("3_add")
+emitting = false
+amount = 8
+texture = ExtResource("4_dot")
+lifetime = 1.0
+randomness = 0.4
+local_coords = false
+emission_shape = 4
+spread = 180.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 0.5
+initial_velocity_max = 2.5
+damping_min = 1.0
+damping_max = 2.0
+scale_amount_min = 0.3
+scale_amount_max = 0.5
+scale_amount_curve = ExtResource("7_shrink")
+color_ramp = SubResource("Gradient_dust")
+
+[node name="Stars" type="CPUParticles2D" parent="."]
+texture_filter = 2
+material = ExtResource("3_add")
+emitting = false
+amount = 5
+texture = ExtResource("5_sparkle")
+lifetime = 0.9
+randomness = 0.6
+local_coords = false
+emission_shape = 4
+gravity = Vector2(0, 0)
+angle_min = -45.0
+angle_max = 45.0
+scale_amount_min = 0.25
+scale_amount_max = 0.55
+scale_amount_curve = ExtResource("6_twinkle")
+color_ramp = SubResource("Gradient_star")

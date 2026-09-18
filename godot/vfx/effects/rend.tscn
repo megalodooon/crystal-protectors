@@ -1,0 +1,154 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://vfx/base/vfx_effect.gd" id="1_effect"]
+[ext_resource type="Material" path="res://vfx/shared/add_material.tres" id="2_add"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_glow.tres" id="3_glow"]
+[ext_resource type="Texture2D" path="res://vfx/shared/streak.tres" id="4_streak"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_dot.tres" id="5_dot"]
+[ext_resource type="Curve" path="res://vfx/shared/shrink_curve.tres" id="6_shrink"]
+[ext_resource type="Script" path="res://vfx/base/vfx_flash.gd" id="7_flash"]
+
+[sub_resource type="Gradient" id="Gradient_spray"]
+offsets = PackedFloat32Array(0, 0.3, 1)
+colors = PackedColorArray(1, 0.85, 0.85, 1, 0.95, 0.15, 0.2, 1, 0.5, 0.02, 0.06, 0)
+
+[sub_resource type="Gradient" id="Gradient_drop"]
+offsets = PackedFloat32Array(0, 0.7, 1)
+colors = PackedColorArray(0.75, 0.05, 0.12, 1, 0.5, 0.02, 0.07, 1, 0.35, 0.01, 0.05, 0)
+
+[node name="Rend" type="Node2D"]
+z_index = 2
+script = ExtResource("1_effect")
+baseRadius = 0.0
+lifetime = 0.8
+shake = 0.7
+
+[node name="Glow" type="Sprite2D" parent="."]
+texture_filter = 2
+material = ExtResource("2_add")
+scale = Vector2(1.1, 1.1)
+modulate = Color(0.95, 0.1, 0.2, 0.7)
+texture = ExtResource("3_glow")
+script = ExtResource("7_flash")
+duration = 0.4
+startScale = 0.4
+endScale = 1.0
+
+[node name="Claws" type="Node2D" parent="."]
+rotation = 0.6
+
+[node name="Claw1" type="Sprite2D" parent="Claws"]
+texture_filter = 2
+material = ExtResource("2_add")
+position = Vector2(-4.5, 0)
+scale = Vector2(0.6, 2.4)
+modulate = Color(1, 0.35, 0.35, 1)
+texture = ExtResource("4_streak")
+script = ExtResource("7_flash")
+duration = 0.35
+startScale = 0.3
+endScale = 1.0
+
+[node name="Claw2" type="Sprite2D" parent="Claws"]
+texture_filter = 2
+material = ExtResource("2_add")
+scale = Vector2(0.7, 2.8)
+modulate = Color(1, 0.35, 0.35, 1)
+texture = ExtResource("4_streak")
+script = ExtResource("7_flash")
+duration = 0.35
+delay = 0.04
+startScale = 0.3
+endScale = 1.0
+
+[node name="Claw3" type="Sprite2D" parent="Claws"]
+texture_filter = 2
+material = ExtResource("2_add")
+position = Vector2(4.5, 0)
+scale = Vector2(0.6, 2.4)
+modulate = Color(1, 0.35, 0.35, 1)
+texture = ExtResource("4_streak")
+script = ExtResource("7_flash")
+duration = 0.35
+delay = 0.08
+startScale = 0.3
+endScale = 1.0
+
+[node name="Core1" type="Sprite2D" parent="Claws"]
+texture_filter = 2
+material = ExtResource("2_add")
+position = Vector2(-4.5, 0)
+scale = Vector2(0.2, 2)
+modulate = Color(1, 0.95, 0.95, 1)
+texture = ExtResource("4_streak")
+script = ExtResource("7_flash")
+duration = 0.22
+startScale = 0.3
+endScale = 1.0
+
+[node name="Core2" type="Sprite2D" parent="Claws"]
+texture_filter = 2
+material = ExtResource("2_add")
+scale = Vector2(0.25, 2.4)
+modulate = Color(1, 0.95, 0.95, 1)
+texture = ExtResource("4_streak")
+script = ExtResource("7_flash")
+duration = 0.22
+delay = 0.04
+startScale = 0.3
+endScale = 1.0
+
+[node name="Core3" type="Sprite2D" parent="Claws"]
+texture_filter = 2
+material = ExtResource("2_add")
+position = Vector2(4.5, 0)
+scale = Vector2(0.2, 2)
+modulate = Color(1, 0.95, 0.95, 1)
+texture = ExtResource("4_streak")
+script = ExtResource("7_flash")
+duration = 0.22
+delay = 0.08
+startScale = 0.3
+endScale = 1.0
+
+[node name="Spray" type="CPUParticles2D" parent="."]
+texture_filter = 2
+material = ExtResource("2_add")
+amount = 14
+texture = ExtResource("4_streak")
+lifetime = 0.35
+one_shot = true
+explosiveness = 1.0
+randomness = 0.4
+local_coords = true
+particle_flag_align_y = true
+direction = Vector2(1, -0.6)
+spread = 50.0
+gravity = Vector2(0, 150)
+initial_velocity_min = 60.0
+initial_velocity_max = 120.0
+damping_min = 100.0
+damping_max = 160.0
+scale_amount_min = 0.3
+scale_amount_max = 0.55
+scale_amount_curve = ExtResource("6_shrink")
+color_ramp = SubResource("Gradient_spray")
+
+[node name="Drops" type="CPUParticles2D" parent="."]
+texture_filter = 2
+amount = 8
+texture = ExtResource("5_dot")
+lifetime = 0.6
+one_shot = true
+explosiveness = 0.9
+randomness = 0.5
+local_coords = true
+direction = Vector2(0, -1)
+spread = 70.0
+gravity = Vector2(0, 240)
+initial_velocity_min = 25.0
+initial_velocity_max = 55.0
+scale_amount_min = 0.35
+scale_amount_max = 0.55
+scale_amount_curve = ExtResource("6_shrink")
+color_ramp = SubResource("Gradient_drop")

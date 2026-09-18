@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="CrystalEffectClass" format=3]
+
+[ext_resource type="Script" path="res://status_effects/debuffs/crystal_effect.gd" id="1_crystal"]
+[ext_resource type="Resource" path="res://damage/crystal.tres" id="2_type"]
+[ext_resource type="PackedScene" path="res://vfx/effects/crystal_shatter.tscn" id="3_shatter"]
+[ext_resource type="PackedScene" path="res://status_effects/debuffs/crystal_visual.tscn" id="4_visual"]
+
+[resource]
+script = ExtResource("1_crystal")
+shatterRadius = 18.0
+damageType = ExtResource("2_type")
+shatterScene = ExtResource("3_shatter")
+effectName = "Crystal"
+duration = 1.0
+tickInterval = 0.0
+visualScene = ExtResource("4_visual")

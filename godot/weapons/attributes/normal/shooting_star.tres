@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="MeteorAttributeClass" format=3]
+
+[ext_resource type="Script" path="res://weapons/attributes/behaviors/meteor_attribute.gd" id="1_attribute"]
+[ext_resource type="Script" path="res://weapons/attributes/base/attribute_scaling.gd" id="2_scaling"]
+[ext_resource type="PackedScene" path="res://weapons/projectiles/falling_star.tscn" id="3_res"]
+
+[sub_resource type="Resource" id="Resource_scaling"]
+script = ExtResource("2_scaling")
+minBase = 0.2
+maxBase = 0.25
+perStep = 0.003
+percent = true
+
+[sub_resource type="Resource" id="Resource_chance"]
+script = ExtResource("2_scaling")
+minBase = 0.08
+maxBase = 0.1
+perStep = 0.002
+percent = true
+
+[resource]
+script = ExtResource("1_attribute")
+meteorScene = ExtResource("3_res")
+radius = 14.0
+attributeName = "Shooting Star"
+description = "{chance}% on attack: Shooting Star {value}%"
+scaling = SubResource("Resource_scaling")
+trigger = 1
+chanceScaling = SubResource("Resource_chance")

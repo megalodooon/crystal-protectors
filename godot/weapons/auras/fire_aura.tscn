@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" path="res://weapons/auras/weapon_aura.gd" id="1_flames"]
 [ext_resource type="Shader" path="res://weapons/enchant/enchant.gdshader" id="2_glow"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_dot.tres" id="3_dot"]
+[ext_resource type="Curve" path="res://vfx/shared/twinkle_curve.tres" id="4_twinkle"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_glow"]
 shader = ExtResource("2_glow")
@@ -64,10 +66,12 @@ scale_amount_curve = SubResource("Curve_shrink")
 color_ramp = SubResource("Gradient_fire")
 
 [node name="Embers" type="CPUParticles2D" parent="."]
+texture_filter = 2
 material = SubResource("CanvasItemMaterial_add")
 emitting = false
-amount = 3
-lifetime = 0.6
+amount = 4
+texture = ExtResource("3_dot")
+lifetime = 0.8
 randomness = 0.5
 local_coords = false
 emission_shape = 4
@@ -75,6 +79,9 @@ spread = 180.0
 gravity = Vector2(0, -15)
 initial_velocity_min = 2.0
 initial_velocity_max = 5.0
-scale_amount_min = 0.5
-scale_amount_max = 0.7
+damping_min = 3.0
+damping_max = 6.0
+scale_amount_min = 0.3
+scale_amount_max = 0.5
+scale_amount_curve = ExtResource("4_twinkle")
 color_ramp = SubResource("Gradient_ember")
