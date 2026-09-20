@@ -42,6 +42,7 @@
 [ext_resource type="PackedScene" path="res://weapons/slashing/storm_glaive.tscn" id="44_storm_glaive"]
 [ext_resource type="Resource" path="res://status_effects/modifiers/swift.tres" id="36_swift"]
 [ext_resource type="Resource" path="res://status_effects/modifiers/fortified.tres" id="37_fortified"]
+[ext_resource type="Resource" path="res://status_effects/modifiers/regenerating.tres" id="45_regenerating"]
 
 [sub_resource type="Resource" id="Resource_weapon_item"]
 script = ExtResource("20_weapon_item")
@@ -85,25 +86,25 @@ noise = SubResource("FastNoiseLite_ground")
 
 [sub_resource type="Curve2D" id="Curve2D_west"]
 _data = {
-"points": PackedVector2Array(0, 0, 0, 0, 16, 56, 0, 0, 0, 0, 104, 56, 0, 0, 0, 0, 104, 232, 0, 0, 0, 0, 184, 232, 0, 0, 0, 0, 184, 176, 0, 0, 0, 0, 240, 176)
+"points": PackedVector2Array(0, 0, 0, 0, 16, 64, 0, 0, 0, 0, 112, 64, 0, 0, 0, 0, 112, 208, 0, 0, 0, 0, 240, 208, 0, 0, 0, 0, 240, 160, 0, 0, 0, 0, 256, 160)
 }
 point_count = 6
 
 [sub_resource type="Curve2D" id="Curve2D_east"]
 _data = {
-"points": PackedVector2Array(0, 0, 0, 0, 496, 264, 0, 0, 0, 0, 416, 264, 0, 0, 0, 0, 416, 104, 0, 0, 0, 0, 328, 104, 0, 0, 0, 0, 328, 176, 0, 0, 0, 0, 272, 176)
+"points": PackedVector2Array(0, 0, 0, 0, 496, 232, 0, 0, 0, 0, 392, 232, 0, 0, 0, 0, 392, 184)
 }
-point_count = 6
+point_count = 3
 
 [sub_resource type="Curve2D" id="Curve2D_north"]
 _data = {
-"points": PackedVector2Array(0, 0, 0, 0, 240, 32, 0, 0, 0, 0, 240, 64, 0, 0, 0, 0, 368, 64, 0, 0, 0, 0, 368, 104)
+"points": PackedVector2Array(0, 0, 0, 0, 264, 16, 0, 0, 0, 0, 264, 72, 0, 0, 0, 0, 392, 72, 0, 0, 0, 0, 392, 184, 0, 0, 0, 0, 272, 184, 0, 0, 0, 0, 272, 160, 0, 0, 0, 0, 256, 160)
 }
-point_count = 4
+point_count = 7
 
 [sub_resource type="Curve2D" id="Curve2D_shortcut"]
 _data = {
-"points": PackedVector2Array(0, 0, 0, 0, 104, 128, 0, 0, 0, 0, 200, 128, 0, 0, 0, 0, 200, 176)
+"points": PackedVector2Array(0, 0, 0, 0, 112, 128, 0, 0, 0, 0, 176, 128, 0, 0, 0, 0, 176, 208)
 }
 point_count = 3
 
@@ -140,24 +141,24 @@ curve = SubResource("Curve2D_west")
 script = ExtResource("22_enemy_path")
 
 [node name="Portal" parent="PathNetwork/PathWest" instance=ExtResource("35_portal")]
-position = Vector2(16, 56)
+position = Vector2(16, 64)
 
-[node name="PathEast" type="Path2D" parent="PathNetwork"]
-curve = SubResource("Curve2D_east")
-script = ExtResource("22_enemy_path")
-active = false
-
-[node name="Portal" parent="PathNetwork/PathEast" instance=ExtResource("35_portal")]
-position = Vector2(496, 264)
-
-[node name="PathNorth" type="Path2D" parent="PathNetwork" node_paths=PackedStringArray("mergeInto")]
+[node name="PathNorth" type="Path2D" parent="PathNetwork"]
 curve = SubResource("Curve2D_north")
 script = ExtResource("22_enemy_path")
 active = false
-mergeInto = NodePath("../PathEast")
 
 [node name="Portal" parent="PathNetwork/PathNorth" instance=ExtResource("35_portal")]
-position = Vector2(240, 32)
+position = Vector2(264, 16)
+
+[node name="PathEast" type="Path2D" parent="PathNetwork" node_paths=PackedStringArray("mergeInto")]
+curve = SubResource("Curve2D_east")
+script = ExtResource("22_enemy_path")
+active = false
+mergeInto = NodePath("../PathNorth")
+
+[node name="Portal" parent="PathNetwork/PathEast" instance=ExtResource("35_portal")]
+position = Vector2(496, 232)
 
 [node name="Shortcut" type="Path2D" parent="PathNetwork" node_paths=PackedStringArray("branchFrom", "mergeInto")]
 curve = SubResource("Curve2D_shortcut")
@@ -167,11 +168,13 @@ branchFrom = NodePath("../PathWest")
 mergeInto = NodePath("../PathWest")
 
 [node name="Player" parent="." unique_id=1472814208 instance=ExtResource("2_player")]
-position = Vector2(256, 208)
+position = Vector2(256, 120)
 weaponItem = SubResource("Resource_weapon_item")
 
 [node name="TowerBuilder" parent="Player" node_paths=PackedStringArray("waveManager")]
 waveManager = NodePath("../../WaveManager")
+startMana = 180
+defenseUnits = 180
 
 [node name="Camera2D" type="Camera2D" parent="Player" unique_id=1434578543]
 process_callback = 0
@@ -183,7 +186,7 @@ position_smoothing_enabled = true
 position_smoothing_speed = 6.0
 
 [node name="DummyRight" type="Node2D" parent="." unique_id=441248857]
-position = Vector2(272, 248)
+position = Vector2(232, 88)
 
 [node name="Sprite2D" type="Sprite2D" parent="DummyRight" unique_id=1597118294]
 modulate = Color(1, 0.55, 0.55, 1)
@@ -209,7 +212,7 @@ hurtbox = NodePath("../HurtboxComponent")
 sprite = NodePath("../Sprite2D")
 
 [node name="DummyLeft" type="Node2D" parent="." unique_id=1812046715]
-position = Vector2(240, 248)
+position = Vector2(208, 88)
 
 [node name="Sprite2D" type="Sprite2D" parent="DummyLeft" unique_id=1237072971]
 modulate = Color(1, 0.55, 0.55, 1)
@@ -241,101 +244,104 @@ enemyParent = NodePath("..")
 
 [node name="Wave1" type="Node" parent="WaveManager"]
 script = ExtResource("24_wave")
+waveName = "Scouts"
 
-[node name="RegularEnemies" type="Node" parent="WaveManager/Wave1" node_paths=PackedStringArray("portal")]
+[node name="Scouts" type="Node" parent="WaveManager/Wave1" node_paths=PackedStringArray("portal")]
 script = ExtResource("25_spawn_group")
 enemyScene = ExtResource("26_regular_enemy")
 portal = NodePath("../../../PathNetwork/PathWest/Portal")
-count = 5
-interval = 1.5
+count = 8
+interval = 1.3
 
-[node name="SmallEnemies" type="Node" parent="WaveManager/Wave1" node_paths=PackedStringArray("portal")]
+[node name="Runners" type="Node" parent="WaveManager/Wave1" node_paths=PackedStringArray("portal")]
 script = ExtResource("25_spawn_group")
 enemyScene = ExtResource("28_small_enemy")
 portal = NodePath("../../../PathNetwork/PathWest/Portal")
-count = 4
-interval = 0.6
+count = 8
+burst = 2
+interval = 1.1
 startAfter = 1
 delay = 1.0
 
 [node name="Wave2" type="Node" parent="WaveManager"]
 script = ExtResource("24_wave")
+waveName = "Pincer"
+autoStartTime = 20.0
 
-[node name="BigEnemies" type="Node" parent="WaveManager/Wave2" node_paths=PackedStringArray("portal")]
+[node name="WestLine" type="Node" parent="WaveManager/Wave2" node_paths=PackedStringArray("portal")]
+script = ExtResource("25_spawn_group")
+enemyScene = ExtResource("26_regular_enemy")
+portal = NodePath("../../../PathNetwork/PathWest/Portal")
+count = 10
+interval = 1.2
+
+[node name="NorthRunners" type="Node" parent="WaveManager/Wave2" node_paths=PackedStringArray("portal")]
+script = ExtResource("25_spawn_group")
+enemyScene = ExtResource("28_small_enemy")
+portal = NodePath("../../../PathNetwork/PathNorth/Portal")
+count = 10
+burst = 2
+delay = 1.5
+
+[node name="NorthBrutes" type="Node" parent="WaveManager/Wave2" node_paths=PackedStringArray("portal")]
 script = ExtResource("25_spawn_group")
 enemyScene = ExtResource("27_big_enemy")
 portal = NodePath("../../../PathNetwork/PathNorth/Portal")
 count = 2
-interval = 4.0
-
-[node name="RegularEnemies" type="Node" parent="WaveManager/Wave2" node_paths=PackedStringArray("portal")]
-script = ExtResource("25_spawn_group")
-enemyScene = ExtResource("26_regular_enemy")
-portal = NodePath("../../../PathNetwork/PathWest/Portal")
-count = 5
-interval = 1.4
-delay = 1.0
-
-[node name="SmallEnemies" type="Node" parent="WaveManager/Wave2" node_paths=PackedStringArray("portal")]
-script = ExtResource("25_spawn_group")
-enemyScene = ExtResource("28_small_enemy")
-portal = NodePath("../../../PathNetwork/PathNorth/Portal")
-count = 6
-burst = 2
-interval = 1.5
+interval = 5.0
 delay = 4.0
 
 [node name="Wave3" type="Node" parent="WaveManager" node_paths=PackedStringArray("activatePaths")]
 script = ExtResource("24_wave")
-waveName = "Flank"
+waveName = "Shortcut"
 activatePaths = [NodePath("../../PathNetwork/Shortcut")]
+combatLevelBonus = 1
 
-[node name="RegularEnemies" type="Node" parent="WaveManager/Wave3" node_paths=PackedStringArray("portal")]
+[node name="WestLine" type="Node" parent="WaveManager/Wave3" node_paths=PackedStringArray("portal")]
 script = ExtResource("25_spawn_group")
 enemyScene = ExtResource("26_regular_enemy")
-portal = NodePath("../../../PathNetwork/PathEast/Portal")
-count = 6
-interval = 1.2
+portal = NodePath("../../../PathNetwork/PathWest/Portal")
+count = 12
+interval = 1.1
+intervalRandomness = 0.3
 
-[node name="SmallEnemies" type="Node" parent="WaveManager/Wave3" node_paths=PackedStringArray("portal")]
+[node name="WestSwarm" type="Node" parent="WaveManager/Wave3" node_paths=PackedStringArray("portal")]
 script = ExtResource("25_spawn_group")
 enemyScene = ExtResource("28_small_enemy")
-portal = NodePath("../../../PathNetwork/PathEast/Portal")
-count = 9
+portal = NodePath("../../../PathNetwork/PathWest/Portal")
+count = 14
 burst = 3
-interval = 2.5
-startAfter = 1
-delay = 1.0
+interval = 1.6
 
-[node name="BigEnemies" type="Node" parent="WaveManager/Wave3" node_paths=PackedStringArray("portal")]
+[node name="NorthBrutes" type="Node" parent="WaveManager/Wave3" node_paths=PackedStringArray("portal")]
 script = ExtResource("25_spawn_group")
 enemyScene = ExtResource("27_big_enemy")
-portal = NodePath("../../../PathNetwork/PathWest/Portal")
-count = 2
-interval = 5.0
+portal = NodePath("../../../PathNetwork/PathNorth/Portal")
+count = 3
+interval = 4.5
 delay = 2.0
 
-[node name="Reinforcements" type="Node" parent="WaveManager/Wave3" node_paths=PackedStringArray("portal")]
+[node name="NorthLine" type="Node" parent="WaveManager/Wave3" node_paths=PackedStringArray("portal")]
 script = ExtResource("25_spawn_group")
 enemyScene = ExtResource("26_regular_enemy")
-portal = NodePath("../../../PathNetwork/PathWest/Portal")
-count = 4
-interval = 1.5
-intervalRandomness = 0.4
-startAfter = 2
+portal = NodePath("../../../PathNetwork/PathNorth/Portal")
+count = 8
+startAfter = 1
 
 [node name="Wave4" type="Node" parent="WaveManager"]
 script = ExtResource("24_wave")
 waveName = "Swift Rush"
-autoStartTime = 10.0
+autoStartTime = 14.0
+combatLevelBonus = 2
+speedMultiplier = 1.1
 
 [node name="SwiftWest" type="Node" parent="WaveManager/Wave4" node_paths=PackedStringArray("portal")]
 script = ExtResource("25_spawn_group")
 enemyScene = ExtResource("28_small_enemy")
 portal = NodePath("../../../PathNetwork/PathWest/Portal")
-count = 6
+count = 22
 burst = 2
-interval = 1.2
+interval = 0.7
 intervalRandomness = 0.3
 modifier = ExtResource("36_swift")
 
@@ -343,63 +349,294 @@ modifier = ExtResource("36_swift")
 script = ExtResource("25_spawn_group")
 enemyScene = ExtResource("28_small_enemy")
 portal = NodePath("../../../PathNetwork/PathNorth/Portal")
-count = 6
+count = 22
 burst = 2
-interval = 1.2
+interval = 0.7
 intervalRandomness = 0.3
-delay = 0.6
+delay = 0.7
 modifier = ExtResource("36_swift")
 
-[node name="SwiftEast" type="Node" parent="WaveManager/Wave4" node_paths=PackedStringArray("portal")]
+[node name="SwiftLine" type="Node" parent="WaveManager/Wave4" node_paths=PackedStringArray("portal")]
 script = ExtResource("25_spawn_group")
-enemyScene = ExtResource("28_small_enemy")
-portal = NodePath("../../../PathNetwork/PathEast/Portal")
-count = 6
-burst = 2
-interval = 1.2
-intervalRandomness = 0.3
-delay = 1.2
+enemyScene = ExtResource("26_regular_enemy")
+portal = NodePath("../../../PathNetwork/PathNorth/Portal")
+count = 12
+interval = 1.1
+delay = 3.0
 modifier = ExtResource("36_swift")
 
-[node name="Wave5" type="Node" parent="WaveManager"]
-script = ExtResource("24_wave")
-waveName = "Boss"
-combatLevelBonus = 1
+[node name="SwiftBrutes" type="Node" parent="WaveManager/Wave4" node_paths=PackedStringArray("portal")]
+script = ExtResource("25_spawn_group")
+enemyScene = ExtResource("27_big_enemy")
+portal = NodePath("../../../PathNetwork/PathWest/Portal")
+count = 2
+interval = 5.0
+delay = 5.0
+modifier = ExtResource("36_swift")
 
-[node name="Boss" type="Node" parent="WaveManager/Wave5" node_paths=PackedStringArray("portal")]
+[node name="Wave5" type="Node" parent="WaveManager" node_paths=PackedStringArray("activatePaths")]
+script = ExtResource("24_wave")
+waveName = "The Breach"
+activatePaths = [NodePath("../../PathNetwork/PathEast")]
+combatLevelBonus = 2
+
+[node name="Warden" type="Node" parent="WaveManager/Wave5" node_paths=PackedStringArray("portal")]
 script = ExtResource("25_spawn_group")
 enemyScene = ExtResource("27_big_enemy")
 portal = NodePath("../../../PathNetwork/PathEast/Portal")
 count = 1
-healthMultiplier = 10.0
+healthMultiplier = 8.0
 speedMultiplier = 0.8
 modifier = ExtResource("37_fortified")
 
-[node name="BossRevenge" type="Node" parent="WaveManager/Wave5" node_paths=PackedStringArray("portal")]
-script = ExtResource("25_spawn_group")
-enemyScene = ExtResource("28_small_enemy")
-portal = NodePath("../../../PathNetwork/PathNorth/Portal")
-count = 10
-burst = 5
-interval = 2.0
-startAfter = 2
-
-[node name="Escorts" type="Node" parent="WaveManager/Wave5" node_paths=PackedStringArray("portal")]
+[node name="EastLine" type="Node" parent="WaveManager/Wave5" node_paths=PackedStringArray("portal")]
 script = ExtResource("25_spawn_group")
 enemyScene = ExtResource("26_regular_enemy")
 portal = NodePath("../../../PathNetwork/PathEast/Portal")
-count = 6
-interval = 0.8
+count = 12
 delay = 1.5
 
-[node name="RegularWest" type="Node" parent="WaveManager/Wave5" node_paths=PackedStringArray("portal")]
+[node name="EastSwarm" type="Node" parent="WaveManager/Wave5" node_paths=PackedStringArray("portal")]
+script = ExtResource("25_spawn_group")
+enemyScene = ExtResource("28_small_enemy")
+portal = NodePath("../../../PathNetwork/PathEast/Portal")
+count = 12
+burst = 4
+interval = 2.0
+startAfter = 1
+
+[node name="WestPressure" type="Node" parent="WaveManager/Wave5" node_paths=PackedStringArray("portal")]
 script = ExtResource("25_spawn_group")
 enemyScene = ExtResource("26_regular_enemy")
 portal = NodePath("../../../PathNetwork/PathWest/Portal")
-count = 8
-interval = 1.6
+count = 10
+interval = 1.4
 intervalRandomness = 0.3
+
+[node name="Wave6" type="Node" parent="WaveManager"]
+script = ExtResource("24_wave")
+waveName = "Ironhide"
+combatLevelBonus = 3
+healthMultiplier = 1.15
+
+[node name="IronWest" type="Node" parent="WaveManager/Wave6" node_paths=PackedStringArray("portal")]
+script = ExtResource("25_spawn_group")
+enemyScene = ExtResource("27_big_enemy")
+portal = NodePath("../../../PathNetwork/PathWest/Portal")
+count = 3
+interval = 4.0
+modifier = ExtResource("37_fortified")
+
+[node name="IronNorth" type="Node" parent="WaveManager/Wave6" node_paths=PackedStringArray("portal")]
+script = ExtResource("25_spawn_group")
+enemyScene = ExtResource("27_big_enemy")
+portal = NodePath("../../../PathNetwork/PathNorth/Portal")
+count = 3
+interval = 4.0
+delay = 2.0
+modifier = ExtResource("37_fortified")
+
+[node name="EastLine" type="Node" parent="WaveManager/Wave6" node_paths=PackedStringArray("portal")]
+script = ExtResource("25_spawn_group")
+enemyScene = ExtResource("26_regular_enemy")
+portal = NodePath("../../../PathNetwork/PathEast/Portal")
+count = 10
+interval = 0.9
+
+[node name="WestLine" type="Node" parent="WaveManager/Wave6" node_paths=PackedStringArray("portal")]
+script = ExtResource("25_spawn_group")
+enemyScene = ExtResource("26_regular_enemy")
+portal = NodePath("../../../PathNetwork/PathWest/Portal")
+count = 10
+startAfter = 1
+delay = 1.0
+
+[node name="Wave7" type="Node" parent="WaveManager"]
+script = ExtResource("24_wave")
+waveName = "Swarm"
+autoStartTime = 16.0
+combatLevelBonus = 3
+
+[node name="SwarmWest" type="Node" parent="WaveManager/Wave7" node_paths=PackedStringArray("portal")]
+script = ExtResource("25_spawn_group")
+enemyScene = ExtResource("28_small_enemy")
+portal = NodePath("../../../PathNetwork/PathWest/Portal")
+count = 22
+burst = 4
+interval = 2.0
+
+[node name="SwarmNorth" type="Node" parent="WaveManager/Wave7" node_paths=PackedStringArray("portal")]
+script = ExtResource("25_spawn_group")
+enemyScene = ExtResource("28_small_enemy")
+portal = NodePath("../../../PathNetwork/PathNorth/Portal")
+count = 22
+burst = 4
+interval = 2.0
+delay = 0.7
+
+[node name="SwarmEast" type="Node" parent="WaveManager/Wave7" node_paths=PackedStringArray("portal")]
+script = ExtResource("25_spawn_group")
+enemyScene = ExtResource("28_small_enemy")
+portal = NodePath("../../../PathNetwork/PathEast/Portal")
+count = 22
+burst = 4
+interval = 2.0
+delay = 1.4
+
+[node name="Anchors" type="Node" parent="WaveManager/Wave7" node_paths=PackedStringArray("portal")]
+script = ExtResource("25_spawn_group")
+enemyScene = ExtResource("26_regular_enemy")
+portal = NodePath("../../../PathNetwork/PathNorth/Portal")
+count = 18
+interval = 1.1
+startAfter = 1
+
+[node name="Breakers" type="Node" parent="WaveManager/Wave7" node_paths=PackedStringArray("portal")]
+script = ExtResource("25_spawn_group")
+enemyScene = ExtResource("27_big_enemy")
+portal = NodePath("../../../PathNetwork/PathWest/Portal")
+count = 4
+interval = 3.5
+delay = 4.0
+
+[node name="Wave8" type="Node" parent="WaveManager"]
+script = ExtResource("24_wave")
+waveName = "Undying"
+combatLevelBonus = 4
+healthMultiplier = 1.2
+
+[node name="RegenWest" type="Node" parent="WaveManager/Wave8" node_paths=PackedStringArray("portal")]
+script = ExtResource("25_spawn_group")
+enemyScene = ExtResource("26_regular_enemy")
+portal = NodePath("../../../PathNetwork/PathWest/Portal")
+count = 11
+interval = 1.3
+modifier = ExtResource("45_regenerating")
+
+[node name="RegenEast" type="Node" parent="WaveManager/Wave8" node_paths=PackedStringArray("portal")]
+script = ExtResource("25_spawn_group")
+enemyScene = ExtResource("26_regular_enemy")
+portal = NodePath("../../../PathNetwork/PathEast/Portal")
+count = 11
+interval = 1.3
+delay = 1.0
+modifier = ExtResource("45_regenerating")
+
+[node name="RegenBrutes" type="Node" parent="WaveManager/Wave8" node_paths=PackedStringArray("portal")]
+script = ExtResource("25_spawn_group")
+enemyScene = ExtResource("27_big_enemy")
+portal = NodePath("../../../PathNetwork/PathNorth/Portal")
+count = 5
+interval = 4.0
 delay = 3.0
+modifier = ExtResource("45_regenerating")
+
+[node name="SwiftFlank" type="Node" parent="WaveManager/Wave8" node_paths=PackedStringArray("portal")]
+script = ExtResource("25_spawn_group")
+enemyScene = ExtResource("28_small_enemy")
+portal = NodePath("../../../PathNetwork/PathNorth/Portal")
+count = 16
+burst = 3
+interval = 1.5
+startAfter = 1
+modifier = ExtResource("36_swift")
+
+[node name="Wave9" type="Node" parent="WaveManager"]
+script = ExtResource("24_wave")
+waveName = "Siege"
+combatLevelBonus = 4
+healthMultiplier = 1.25
+
+[node name="SiegeWest" type="Node" parent="WaveManager/Wave9" node_paths=PackedStringArray("portal")]
+script = ExtResource("25_spawn_group")
+enemyScene = ExtResource("27_big_enemy")
+portal = NodePath("../../../PathNetwork/PathWest/Portal")
+count = 4
+interval = 3.5
+modifier = ExtResource("37_fortified")
+
+[node name="SiegeNorth" type="Node" parent="WaveManager/Wave9" node_paths=PackedStringArray("portal")]
+script = ExtResource("25_spawn_group")
+enemyScene = ExtResource("27_big_enemy")
+portal = NodePath("../../../PathNetwork/PathNorth/Portal")
+count = 4
+interval = 3.5
+delay = 1.5
+
+[node name="SiegeEast" type="Node" parent="WaveManager/Wave9" node_paths=PackedStringArray("portal")]
+script = ExtResource("25_spawn_group")
+enemyScene = ExtResource("26_regular_enemy")
+portal = NodePath("../../../PathNetwork/PathEast/Portal")
+count = 16
+interval = 0.8
+intervalRandomness = 0.3
+
+[node name="SiegeLine" type="Node" parent="WaveManager/Wave9" node_paths=PackedStringArray("portal")]
+script = ExtResource("25_spawn_group")
+enemyScene = ExtResource("26_regular_enemy")
+portal = NodePath("../../../PathNetwork/PathWest/Portal")
+count = 14
+startAfter = 1
+
+[node name="SiegeSwarm" type="Node" parent="WaveManager/Wave9" node_paths=PackedStringArray("portal")]
+script = ExtResource("25_spawn_group")
+enemyScene = ExtResource("28_small_enemy")
+portal = NodePath("../../../PathNetwork/PathNorth/Portal")
+count = 20
+burst = 5
+interval = 1.6
+startAfter = 1
+delay = 2.0
+
+[node name="Wave10" type="Node" parent="WaveManager"]
+script = ExtResource("24_wave")
+waveName = "Warlord"
+combatLevelBonus = 5
+
+[node name="Warlord" type="Node" parent="WaveManager/Wave10" node_paths=PackedStringArray("portal")]
+script = ExtResource("25_spawn_group")
+enemyScene = ExtResource("27_big_enemy")
+portal = NodePath("../../../PathNetwork/PathEast/Portal")
+count = 1
+healthMultiplier = 20.0
+speedMultiplier = 0.7
+modifier = ExtResource("37_fortified")
+
+[node name="Guard" type="Node" parent="WaveManager/Wave10" node_paths=PackedStringArray("portal")]
+script = ExtResource("25_spawn_group")
+enemyScene = ExtResource("27_big_enemy")
+portal = NodePath("../../../PathNetwork/PathEast/Portal")
+count = 4
+interval = 3.0
+delay = 2.0
+modifier = ExtResource("45_regenerating")
+
+[node name="WestHorde" type="Node" parent="WaveManager/Wave10" node_paths=PackedStringArray("portal")]
+script = ExtResource("25_spawn_group")
+enemyScene = ExtResource("26_regular_enemy")
+portal = NodePath("../../../PathNetwork/PathWest/Portal")
+count = 18
+interval = 0.9
+intervalRandomness = 0.3
+
+[node name="NorthHorde" type="Node" parent="WaveManager/Wave10" node_paths=PackedStringArray("portal")]
+script = ExtResource("25_spawn_group")
+enemyScene = ExtResource("28_small_enemy")
+portal = NodePath("../../../PathNetwork/PathNorth/Portal")
+count = 24
+burst = 6
+interval = 1.5
+modifier = ExtResource("36_swift")
+
+[node name="LastStand" type="Node" parent="WaveManager/Wave10" node_paths=PackedStringArray("portal")]
+script = ExtResource("25_spawn_group")
+enemyScene = ExtResource("27_big_enemy")
+portal = NodePath("../../../PathNetwork/PathNorth/Portal")
+count = 6
+interval = 2.0
+startAfter = 2
+healthMultiplier = 1.5
+modifier = ExtResource("37_fortified")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=421371986]
 

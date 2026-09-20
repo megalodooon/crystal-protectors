@@ -104,7 +104,8 @@ coding style (section 5). Follow it exactly.
 - Moving files: move the file with its .uid/.import and replace the
   res:// path in every .tscn/.tres/.gd/.godot file.
 - Exception: godot/test.tscn + test.gd sit in the project root on
-  purpose. Main scene, used to test new stuff. Q cycles the test
+  purpose. Main scene: a FULL LEVEL (10 waves) that every system can be
+  tested inside, not a bare sandbox. Q cycles the test
   weapons (weapons list), keys 1-7 = new item of that rarity
   (level 0, random attributes), E level up, R upgrade rarity,
   C weapon combat level +1, Z enemy combat level +1 (label shows the
@@ -119,18 +120,36 @@ coding style (section 5). Follow it exactly.
   U / H / J upgrade, repair and sell the nearest tower, M +100 mana.
   Map is 512x288 (bigger than the screen): Ground (tiled noise
   texture, z -10), Camera2D inside Player (smoothing, limits = map).
-  Two hit dummies below the player start (center, out of the paths).
+  Two hit dummies above the player start, out of every lane.
   HUD: CanvasLayer/HUD Control holds a Theme (default_font_size 5,
   Label line_spacing 0): change the text size of ALL labels there.
   Labels: RarityLabel, WaveLabel (countdown for auto waves),
   UpgradeLabel (anchored bottom), AttributePanel.
-  PathNetwork: PathWest (on, portal top left), PathEast (portal
-  bottom right), PathNorth (portal top middle, merges into PathEast),
-  Shortcut (branch of PathWest that merges back into it, turned on
-  by wave 3). Both main paths end at the map center (future crystal).
-  WaveManager with 5 waves showing every option (chained groups,
-  bursts, forced Swift/Fortified modifiers, auto start, a boss with
-  health x10). enemySpriteScales and
+  PathNetwork, 3 portals (the most a level should have):
+  * PathWest (on from the start, portal top left) runs right, down and
+    right again to the centre.
+  * PathNorth (portal top middle, first used in wave 2) runs down,
+    right, down and left to the centre.
+  * PathEast (portal bottom right) is LOCKED until wave 5: it is
+    inactive and its portal shows nothing until wave 5 is next, then it
+    opens and merges into PathNorth.
+  * Shortcut branches off PathWest and merges back into it, turned on
+    by wave 3, so enemies may skip the long corner.
+  Both main lanes end on the SAME point in the map centre (256, 160),
+  which is where the crystal goes. The player starts just above it, so
+  the whole defense area is one screen.
+  WaveManager with 10 waves, every wave a different pressure and a
+  rising combat level: 1 Scouts (one lane), 2 Pincer (second lane),
+  3 Shortcut (branch opens), 4 Swift Rush (58 fast enemies, auto
+  start), 5 The Breach (east portal opens + a Warden with health x8),
+  6 Ironhide (Fortified brutes), 7 Swarm (88 enemies, the crowd test),
+  8 Undying (Regenerating), 9 Siege (all three lanes), 10 Warlord
+  (boss with health x20, then a Last Stand group after it dies).
+  436 enemies in total, effective health per wave roughly
+  400 / 820 / 1560 / 1500 / 2760 / 2690 / 2690 / 3230 / 4900 / 10050.
+  Frame cost of the worst waves (Compatibility renderer, nothing
+  attacking): wave 7 peak 88 alive 0.9 ms median / 1.9 ms worst 1%,
+  wave 10 1.2 ms / 2.8 ms. enemySpriteScales and
   enemyColors (test.gd) size and tint enemies ONLY in the test
   scene: enemy scenes keep unscaled placeholder sprites on purpose
   (real size-appropriate sprites come later).
@@ -1382,3 +1401,8 @@ Input actions: left, right, up, down (WASD), attack (left mouse).
             Test scene: B/F build, U/H/J upgrade, repair, sell, M mana.
             Portal spritesheet bake reverted: it looked worse than the
             live shader, the portal stays shader + particles.
+            Test scene turned into a full level: 3 lanes redrawn to end
+            on one point in the map centre, east portal locked until
+            wave 5, shortcut branch, 10 waves (436 enemies) with a
+            rising combat level, Swift / Fortified / Regenerating waves,
+            a crowd wave and a boss. Tower budget 180 mana / 180 DU.
