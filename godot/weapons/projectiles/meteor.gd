@@ -19,13 +19,14 @@ var landed : bool = false
 
 func _ready() -> void:
 	elapsed = -delay
-	rock.visible = delay <= 0.0
-	marker.visible = delay <= 0.0
+	rock.visible = false
+	marker.visible = false
 	rock.position = startOffset
 	rock.rotation = startOffset.angle() + PI
 	marker.scale = Vector2(radius / 20.0, radius / 20.0 * 0.4)
+	marker.modulate.a = 0.0
 
-func _process(delta : float) -> void:
+func _physics_process(delta : float) -> void:
 	if landed:
 		return
 	elapsed += delta

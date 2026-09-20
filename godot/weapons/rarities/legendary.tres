@@ -21,9 +21,9 @@ core = 0.85
 tipGlow = 0.8
 streaks = 0.7
 chromaticAberration = 1.0
-orbAmount = 4
-hitSparkSize = 1.2
-hitSparkAmount = 12
+orbAmount = 3
+hitSparkSize = 1.1
+hitSparkAmount = 8
 screenShake = 2.0
 hitStop = 0.04
 

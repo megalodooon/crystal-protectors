@@ -6,18 +6,18 @@ const SPARK : int = 0
 const ORB : int = 1
 
 @export var duration : float = 0.25
-@export var spikeLength : float = 9.0
+@export var spikeLength : float = 6.0
 @export var spikeWidth : float = 1.2
 @export var flashTexture : Texture2D
-@export var flashAlpha : float = 0.8
+@export var flashAlpha : float = 0.5
 @export var maxParticles : int = 500
 
 @export_group("Sparks")
 @export var sparkTexture : Texture2D
 @export var sparkLifetime : float = 0.35
-@export var sparkSpeed : Vector2 = Vector2(40.0, 100.0)
+@export var sparkSpeed : Vector2 = Vector2(35.0, 80.0)
 @export var sparkDamping : Vector2 = Vector2(250.0, 350.0)
-@export var sparkScale : Vector2 = Vector2(0.6, 1.0)
+@export var sparkScale : Vector2 = Vector2(0.5, 0.85)
 @export var sparkScaleCurve : Curve
 @export var sparkColorRamp : Gradient
 

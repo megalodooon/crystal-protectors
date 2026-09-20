@@ -23,7 +23,7 @@ var arrived : bool = false
 func _ready() -> void:
 	velocity = Vector2.from_angle(randf_range(-PI, 0.0)) * speed
 
-func _process(delta : float) -> void:
+func _physics_process(delta : float) -> void:
 	if arrived:
 		return
 	age += delta

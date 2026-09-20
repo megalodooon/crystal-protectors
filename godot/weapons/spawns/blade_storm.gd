@@ -34,7 +34,7 @@ func _ready() -> void:
 	for trail in trails:
 		trail.color = color
 
-func _process(delta : float) -> void:
+func _physics_process(delta : float) -> void:
 	age += delta
 	spin += spinSpeed * delta
 	var fadeIn : float = clampf(age / fadeTime, 0.0, 1.0)
@@ -43,11 +43,10 @@ func _process(delta : float) -> void:
 	for i in trails.size():
 		trails[i].position = Vector2.from_angle(spin + TAU * i / bladeCount) * radius
 		trails[i].emitting = i < bladeCount and age < duration
+	queue_redraw()
 	if age >= duration + 0.4:
 		queue_free()
-	queue_redraw()
-
-func _physics_process(delta : float) -> void:
+		return
 	if age >= duration:
 		return
 	tickTimer += delta

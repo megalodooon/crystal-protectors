@@ -3,6 +3,7 @@ class_name WeaponClass
 
 
 const ENCHANT_SCENE := preload("res://weapons/enchant/enchant.tscn")
+const MAX_AURAS : int = 1
 
 @export var rarity : RarityClass
 @export var damage : float = 10.0
@@ -248,7 +249,7 @@ func remove_buff(roll : AttributeRollClass) -> void:
 
 func add_aura(scene : PackedScene) -> void:
 	var sprite : Sprite2D = get_sprite()
-	if not scene or not sprite or auraScenes.has(scene):
+	if not scene or not sprite or auraScenes.has(scene) or auraScenes.size() >= MAX_AURAS:
 		return
 	auraScenes.append(scene)
 	var aura : WeaponAuraClass = scene.instantiate()

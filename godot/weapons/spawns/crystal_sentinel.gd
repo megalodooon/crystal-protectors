@@ -13,9 +13,12 @@ var muzzleStrength : float = 0.0
 
 #------------------------#
 
-func _process(delta : float) -> void:
+func _physics_process(delta : float) -> void:
 	super(delta)
 	visuals.position.y = sin(age * 3.0) * bobHeight
+
+func _process(delta : float) -> void:
+	super(delta)
 	muzzleStrength = move_toward(muzzleStrength, 0.0, delta * 6.0)
 	muzzle.self_modulate.a = muzzleStrength
 

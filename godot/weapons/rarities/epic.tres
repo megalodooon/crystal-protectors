@@ -16,7 +16,7 @@ tipGlow = 0.6
 streaks = 0.55
 chromaticAberration = 0.6
 orbAmount = 3
-hitSparkAmount = 9
+hitSparkAmount = 7
 screenShake = 2.0
 hitStop = 0.04
 
