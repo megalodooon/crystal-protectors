@@ -7,7 +7,7 @@ project that a fresh chat would need.
 Keep it short: only write down what matters. Small details
 that are easy to see in the project do not belong here.
 
-Last updated: 2026-09-18
+Last updated: 2026-09-20
 
 
 --------------------------------------------------------------
@@ -96,8 +96,8 @@ coding style (section 5). Follow it exactly.
   components/, damage/ (damage type script + types),
   enemies/ (enemy scenes + modifier chances), paths/, player/,
   waves/ (wave manager, waves, spawn groups, portal), status_effects/ (base, fire, frost, poison, lightning,
-  water, debuffs, modifiers), vfx/ (base = parts, shared = textures
-  and curves, effects = one-shot effect scenes, buffs),
+  water, debuffs, modifiers), towers/, vfx/ (base = parts, shared =
+  textures and curves, effects = one-shot effect scenes, buffs),
   weapons/ (attacks, attributes/{base, behaviors, normal, special, synergy},
   auras, base, effects, enchant, projectiles, rarities, slashing,
   spawns).
@@ -115,6 +115,8 @@ coding style (section 5). Follow it exactly.
   attributes, Y artifact with a random synergy (its required specials +
   random rest). The starting item
   rolls attributes on start.
+  B cycle the tower to build (ghost follows the mouse), F build it,
+  U / H / J upgrade, repair and sell the nearest tower, M +100 mana.
   Map is 512x288 (bigger than the screen): Ground (tiled noise
   texture, z -10), Camera2D inside Player (smoothing, limits = map).
   Two hit dummies below the player start (center, out of the paths).
@@ -350,7 +352,11 @@ Example: godot/weapons/base/weapon.gd
   together). Hammers etc. get their own folder (weapons/smashing/).
   Existing: wooden_sword, iron_sword, spear (360 spin), flame_sword
   (physical hits + fire effect; only the burn deals fire damage),
-  frost_scythe (physical hits + frost effect).
+  frost_scythe (physical hits + frost effect), dagger (0.18s swing,
+  small arc, 25% crit), greatsword (1s swing, 210 deg, long reach),
+  war_axe (250 deg sweep, heavy knockback), halberd (long narrow
+  thrust plus a weaker sweep behind), storm_glaive (360 spin with
+  the lightning effect).
 - Attacks (weapons/attacks/): nodes placed inside the weapon scene.
   Node position = where the attack comes from.
   * AttackClass (attack.gd): damageMultiplier, weapon. perform(),
@@ -379,8 +385,11 @@ Example: godot/weapons/base/weapon.gd
   ProjectileAttributeClass). spectral_blade.tscn: SpectralBladeClass,
   a spinning ghost copy of the weapon texture that flies out and returns
   to the wielder (hits both ways, ignores walls, afterimages).
-  judgement_sword.tscn / falling_star.tscn = MeteorClass scenes (holy
-  sword / star); MeteorClass delay staggers drops.
+  falling_star.tscn = a MeteorClass scene; MeteorClass delay staggers
+  drops. MeteorClass moves in _physics_process: moving a node per frame
+  while physics interpolation is on makes it stutter (the meteor and
+  starfall looked glitchy while falling until this was fixed; life orbs,
+  blade storm blades and the crystal sentinel had the same bug).
 - Spawns (weapons/spawns/): WeaponSpawnClass (weapon_spawn.gd) base for
   things an attribute summons: radius, duration, value, damage,
   damageType, crit, color, target; tickInterval -> on_tick(), on_end(),
@@ -437,6 +446,11 @@ Example: godot/weapons/base/weapon.gd
   wielder-space version was tried and rejected). EnchantClass extends it.
   Particles use soft_dot / sparkle.png, never bare square pixels, and
   stay sparse (developer: high rarity weapons had way too many).
+  WeaponAuraClass puts its Sprite2D glow BEHIND the weapon sprite
+  (show_behind_parent) and its particles in front (z_index 1), so the
+  pixel art stays readable. A weapon shows at most MAX_AURAS (1) auras:
+  the element effect's aura wins, else the first attribute's. Without
+  the cap a legendary+ weapon stacked six glows in six colours.
   Summoned objects (swords, crystals, rocks) are pixel art sprites, not
   Polygon2D shapes (those looked like vector art and did not fit).
 - WeaponClass.get_sprite() = first Visuals Sprite2D.
@@ -649,7 +663,7 @@ Example: godot/weapons/base/weapon.gd
   capped low (+1 at level 15-20, never more). Damage over time values
   are % of weapon damage PER TICK and must stay visible at level 0
   (a tick below 0.5 shows as 0: that looked like no damage).
-- 118 attributes (68 normal, 50 special) + 20 synergies. Exact numbers
+- 117 attributes (68 normal, 49 special) + 18 synergies. Exact numbers
   live in the .tres files. Value = level 0 worst-best (level 30 best).
   Weapon archetypes (developer asked for basic, powerful, weak, insane
   and variable weapons): variable = Volatile, Double or Nothing,
@@ -726,8 +740,8 @@ Example: godot/weapons/base/weapon.gd
   chance 4s), Shooting Star (ATTACK 8-10%: star 20-25% (34%)), Dull
   (-12..-8% dmg), Clumsy (-10..-7% atk speed).
 - Special (2026-09-18): Wild Magic (HIT 12-16% (23.5%): random of burn,
-  poison, electrify, chain lightning, smite, sunder, death mark), Judgement
-  (CRIT 30-40% (55%): holy sword 35-40% (52%)), Singularity (KILL 15-20%:
+  poison, electrify, chain lightning, smite, sunder, death mark),
+  Singularity (KILL 15-20%:
   pulls 1.6s, 6-8% (12.5%) per tick), Thunderstorm (ATTACK 6-8%: cloud 3s
   strikes 15-20% (29%) every 0.6s), Spectral Throw (ATTACK 8-10%:
   returning ghost weapon 20-25% (34%), hits out and back), Soul Link (HIT
@@ -744,10 +758,9 @@ Example: godot/weapons/base/weapon.gd
   ignite), Armageddon (Meteor + Starfall: 3 more meteors), Frost Nova
   (Nova + Frostbite), Paralysis (Overload + Chain Lightning: stun),
   Tempest (Chain Lightning + Thunderstorm: sky bolt), Shatterpoint
-  (Critical Burst + Sunder), Divine Wrath (Judgement + Smite: stun
-  nearby), Dread (Doom + Terrify: fear nearby), Conduit (Soul Link +
-  Chain Lightning), Shard Storm (Crystallize + Shrapnel), Heaven's Fall
-  (Starfall + Judgement), Absolute Zero (Blizzard + Crystallize), Flashpoint
+  (Critical Burst + Sunder), Dread (Doom + Terrify: fear nearby),
+  Conduit (Soul Link + Chain Lightning), Shard Storm (Crystallize +
+  Shrapnel), Absolute Zero (Blizzard + Crystallize), Flashpoint
   (Catalyst + Burn), Whirling Arsenal (Spectral Throw + Blade Storm), Time
   Dilation (Singularity + Time Warp), Event Horizon (Vortex +
   Singularity), Prism (Sunlance + Wild Magic: 3 rainbow beams), Bloodrage
@@ -784,8 +797,12 @@ Example: godot/weapons/base/weapon.gd
 [Slash]  godot/weapons/attacks/ (slash_attack.gd, slash.gd/.tscn/.gdshader, slash_style.gd)
 - SlashAttackClass node in a weapon: radius (middle of the swept
   band, from wielder center), size (band thickness), curve (arc
-  degrees), maxTargets, raritySizeGrowth, styleOverride (custom style,
-  e.g. artifacts).
+  degrees), maxTargets, raritySizeGrowth, swingsWeapon, styleOverride
+  (custom style, e.g. artifacts).
+  A weapon may hold SEVERAL SlashAttack nodes (halberd: front thrust +
+  back sweep). Only one of them may have swingsWeapon on, the others
+  would fight it over the swing animation. Rotate the extra node in the
+  scene to aim it (the back sweep is rotated 180 deg).
   Each attack: spawns ONE slash.tscn as child of the wielder, swings
   weapon Visuals over 70% of duration, alternates swing direction.
 - Size = (1 + (style.sizeMultiplier - 1) x raritySizeGrowth) x
@@ -845,6 +862,10 @@ Example: godot/weapons/base/weapon.gd
   number in one node (pop, rise, fade, crit = bigger, critColor, "!",
   text via NumberFormatClass). Pixel identical to the old Label version
   (same layout math as Godot's Label). Call Vfx.show_damage_number().
+  Numbers of the SAME colour landing within mergeRadius inside mergeTime
+  add into one growing number; anything else stacks stackHeight upwards
+  (up to maxStack) instead of covering the older number. Without this a
+  weapon with many attributes wrote three numbers on the same pixels.
 - QUALITY BAR (developer): every effect must be as juicy as the
   burn, frost and poison visuals: layered glow + flash + particles,
   never a single cheap shape.
@@ -876,7 +897,7 @@ Example: godot/weapons/base/weapon.gd
   heavy_impact, spark_burst, reset_flash, ice_spikes, mark_burst,
   shrapnel_burst, soul_release, cast_flash, heal_burst, hit_sparks,
   lightning, damage_numbers, volatile_pop, jackpot, aftershock,
-  wild_magic, judgement_impact, star_impact, sunlance (beam, baseRadius
+  wild_magic, star_impact, sunlance (beam, baseRadius
   = length), catalyst, rend, crystal_shatter, doom_burst,
   singularity_collapse, soul_bind, frost_nova, inferno, divine_wrath,
   dread. smite = light column + ground glow + arcs + motes.
@@ -1167,19 +1188,61 @@ Example: godot/weapons/base/weapon.gd
   (hidden), WARNING (the next wave uses it: thin flickering rift),
   OPEN (while any of its groups spawn: swirling vortex; open() /
   release() count users, closes closeDelay after the last one).
-  Exports color (everything in tinted + the shader rim/glow), voidColor,
-  openTime, closeTime, closeDelay, warningSize, warningIntensity,
-  spawnSpread, emergeTime, emergeColor.
-  Body = Sprite2D with portal.gdshader (blend_premul_alpha: darkens
-  the void AND adds glow in one pass; spiral arms, noise swirl,
-  wobbling rim, halo; uniforms intensity + flash set by the script).
-  Particle groups: OpenLoop (smoke, inward orbiting motes, rim sparks),
-  WarningLoop (drift, crackle), OpenBurst / SpawnBurst / CloseBurst
-  (one-shot, restarted by play_burst). Looks the same in the
-  Compatibility (web) renderer.
+- The portal is a BAKED SPRITESHEET, not particles: waves/portal.png,
+  36x52 frames, 30 columns, 5 rows at 15 fps (row 0 warning loop, 1 open
+  loop, 2 open burst, 3 spawn burst, 4 close burst; frameCounts on
+  portal.gd says how long each row is). The scene is just Body and Burst
+  Sprite2D, both on that sheet. openScale tweens the scale on open and
+  close, flash brightens it when an enemy comes out.
+- Re-baking: waves/portal_source.tscn + portal_source.gd are the OLD
+  shader + 12 CPUParticles2D portal, kept only as the bake input. Run
+  waves/portal_bake.tscn: it renders every state into a SubViewport,
+  cross-fades the two loops with themselves so they repeat without a
+  seam, packs the sheet and prints the frame size and frame counts to
+  put back on portal.gd and portal.tscn. Change the colour (or anything
+  else) on portal_source.tscn and bake again.
+
+[Towers]  godot/towers/
+- Dungeon Defenders 2 rules. Enemies drop green MANA on death
+  (EnemyClass.manaReward). Building costs mana AND the same amount of
+  DEFENSE UNITS out of the map budget; the units come back when the
+  tower is sold or destroyed.
+- TowerStatsClass (.tres, one per tower type) is where ALL the balance
+  lives: towerScene, manaCost, upgradeCost + upgradeCostPerTier,
+  sellRefund, repairFactor, maxTier, health + healthPerTier, damage +
+  damagePerTier, attackCooldown, attackRange, maxTargets, damageType.
+  New tower = new scene + new .tres, add it to a character's list.
+  Repair cost = manaCost x repairFactor (0.75) x missing health, like
+  DD2. Sell gives back sellRefund of everything spent (build+upgrades).
+- TowerClass (tower.gd) = StaticBody2D root. HealthComponent for
+  Defense Health, a health bar that hides at full, a build pop, tier
+  (1-5: upgrade() raises health and damage and refills), destroy() on
+  0 health. attack() is the one thing subclasses override; it returns
+  true when it fired, and the cooldown only runs then. get_targets() /
+  get_closest_target() search the Enemy Hurtbox layer inside range.
+- bolt_tower.gd: fires a homing spirit orb at the nearest enemy.
+  aura_tower.gd: damages everything in its ring and applies a status
+  (burn), with a Ring sprite scaled to attackRange.
+  barricade.tscn needs no script: no attack, lots of health, blocks.
+- TowerBuilderClass (tower_builder.gd) is a node INSIDE the player
+  scene and holds that character's three TowerStats: every character
+  gets their own three towers this way. It also holds mana and the
+  defense unit budget (ponytail: the budget belongs to the map later).
+  select() / select_next() show a ghost that follows the mouse and
+  turns red where it cannot build, build_at(spot) pays and places,
+  upgrade() / repair() / sell() take a tower, get_nearest(spot) finds
+  the one in reach. It hooks WaveManager.enemy_spawned to pay out mana.
+- Enemies attack whatever they walk into: EnemyClass.attack_blocker()
+  checks its slide collisions for a TowerClass and hits it every
+  attackCooldown for attackDamage x the combat level multiplier.
+  No targeting AI, the physics does the work.
+- Placeholder sprites (bolt_tower.png, barricade.png, aura_tower.png),
+  16x16, same palette as the weapons.
 
 [Collision layers]
-1 World, 2 Player, 3 Enemy, 4 Player Hurtbox, 5 Enemy Hurtbox.
+1 World, 2 Player, 3 Enemy, 4 Player Hurtbox, 5 Enemy Hurtbox, 6 Tower.
+Towers sit on layer 6 and enemies mask it, so enemies bump into towers
+but the player walks through their own.
 Hitboxes/projectiles: layer none, mask the target hurtbox layer.
 Projectiles also mask World. Hurtboxes: own layer, mask none.
 
@@ -1298,3 +1361,25 @@ Input actions: left, right, up, down (WASD), attack (left mouse).
             -> 14.2 ms per frame, worst 1% of frames 80 ms -> 26 ms, draw
             calls 482 -> 179. New synergy spawners, beams and statuses
             routed through Vfx and capped at 6 targets.
+2026-09-20  Falling effects fixed: meteor/starfall, life orbs, blade storm
+            and the crystal sentinel move in _physics_process now, so
+            physics interpolation stops fighting them.
+            Judgement removed (developer: it looked bad) together with the
+            Divine Wrath and Heaven's Fall synergies: 117 attributes,
+            18 synergies.
+            Weapon look cleaned up: aura glow draws behind the sprite,
+            particles in front, one aura per weapon (MAX_AURAS), fewer
+            and smaller hit sparks at epic and above.
+            Damage numbers of the same colour merge into one growing
+            number and the rest stack upwards, so a weapon with many
+            attributes stays readable.
+            Portal baked into a spritesheet (waves/portal.png): 2 Sprite2D
+            instead of a shader plus 12 CPUParticles2D. portal_source.tscn
+            + portal_bake.tscn re-render it.
+            5 new weapons: dagger, greatsword, war axe, halberd (two slash
+            attacks, swingsWeapon) and storm glaive.
+            Tower system (towers/, Dungeon Defenders 2 rules): mana from
+            kills, defense units, three towers per character (bolt tower,
+            barricade, flame brazier) with 5 upgrade tiers, defense health,
+            repair and sell. Enemies attack towers they bump into.
+            Test scene: B/F build, U/H/J upgrade, repair, sell, M mana.
