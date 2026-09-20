@@ -3,26 +3,20 @@ class_name PortalClass
 
 
 enum State { CLOSED, WARNING, OPEN }
+enum Row { WARNING, OPEN, OPEN_BURST, SPAWN_BURST, CLOSE_BURST }
 
-@export var color : Color = Color(0.62, 0.3, 1.0)
-@export var voidColor : Color = Color(0.05, 0.0, 0.12)
-@export var tinted : Array[CanvasItem]
+@export var frameCounts : PackedInt32Array = PackedInt32Array([30, 30, 12, 12, 9])
+@export var fps : float = 15.0
 @export var openTime : float = 0.45
 @export var closeTime : float = 0.35
 @export var closeDelay : float = 0.8
-@export var warningSize : Vector2 = Vector2(0.14, 0.75)
-@export_range(0.0, 1.0) var warningIntensity : float = 0.75
+@export var openStartScale : float = 0.25
 @export var spawnSpread : float = 2.5
 @export var emergeTime : float = 0.35
 @export var emergeColor : Color = Color(2.2, 1.8, 2.6)
 
 @onready var body : Sprite2D = $Body
-@onready var groundGlow : Sprite2D = $GroundGlow
-@onready var openLoop : Node2D = $OpenLoop
-@onready var warningLoop : Node2D = $WarningLoop
-@onready var openBurst : Node2D = $OpenBurst
-@onready var spawnBurst : Node2D = $SpawnBurst
-@onready var closeBurst : Node2D = $CloseBurst
+@onready var burst : Sprite2D = $Burst
 
 var path : EnemyPathClass
 var state : State = State.CLOSED
@@ -30,14 +24,10 @@ var isWarning : bool = false
 var isClosing : bool = false
 var users : int = 0
 var closeId : int = 0
-var size : Vector2 = Vector2.ZERO
-var intensity : float = 0.0
+var openScale : float = 0.0
 var flash : float = 0.0
-var elapsed : float = 0.0
-var bodyScale : Vector2
-var glowScale : Vector2
-var glowAlpha : float
-var shader : ShaderMaterial
+var bodyTime : float = 0.0
+var burstTime : float = -1.0
 var tween : Tween
 
 #------------------------#
@@ -46,22 +36,13 @@ func _ready() -> void:
 	path = get_parent() as EnemyPathClass
 	if path and path.curve and path.curve.point_count > 0:
 		position = path.curve.get_point_position(0)
-	bodyScale = body.scale
-	glowScale = groundGlow.scale
-	glowAlpha = groundGlow.modulate.a
-	shader = body.material
-	shader.set_shader_parameter("glowColor", color)
-	shader.set_shader_parameter("coreColor", color.lerp(Color.WHITE, 0.55))
-	shader.set_shader_parameter("voidColor", voidColor)
-	for node in tinted:
-		node.modulate = Color(color, node.modulate.a)
+	burst.visible = false
 	update_state()
-	update_visuals()
+	update_visuals(0.0)
 
 func _process(delta : float) -> void:
-	elapsed += delta
 	flash = move_toward(flash, 0.0, delta * 4.0)
-	update_visuals()
+	update_visuals(delta)
 
 func open() -> void:
 	users += 1
@@ -90,7 +71,7 @@ func spawn(enemy : EnemyClass) -> void:
 	enemy.global_position += Vector2.from_angle(randf() * TAU) * randf() * spawnSpread
 	enemy.reset_physics_interpolation()
 	flash = 1.0
-	play_burst(spawnBurst)
+	play_burst(Row.SPAWN_BURST)
 	enemy.visuals.scale.y = 0.0
 	enemy.modulate = emergeColor
 	var emerge : Tween = enemy.create_tween().set_parallel()
@@ -108,45 +89,50 @@ func update_state() -> void:
 	var wasOpen : bool = state == State.OPEN
 	state = newState
 	visible = true
+	bodyTime = 0.0
 	if tween:
 		tween.kill()
-	tween = create_tween().set_parallel()
+	tween = create_tween()
 	match state:
 		State.OPEN:
-			tween.tween_property(self, "size", Vector2.ONE, openTime).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-			tween.tween_property(self, "intensity", 1.0, openTime * 0.5)
+			openScale = openStartScale
 			flash = 1.0
-			play_burst(openBurst)
+			tween.tween_property(self, "openScale", 1.0, openTime).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+			play_burst(Row.OPEN_BURST)
 		State.WARNING:
-			tween.tween_property(self, "size", warningSize, closeTime).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-			tween.tween_property(self, "intensity", warningIntensity, closeTime)
+			tween.tween_property(self, "openScale", 1.0, closeTime).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 		State.CLOSED:
-			tween.tween_property(self, "size", Vector2.ZERO, closeTime).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
-			tween.tween_property(self, "intensity", 0.0, closeTime)
+			tween.tween_property(self, "openScale", 0.0, closeTime).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
 	if wasOpen:
-		play_burst(closeBurst)
-	set_emitting(openLoop, state == State.OPEN)
-	set_emitting(warningLoop, state == State.WARNING)
+		play_burst(Row.CLOSE_BURST)
 
-func update_visuals() -> void:
-	visible = size.y > 0.001 and intensity > 0.001 and Vfx.is_on_screen(global_position)
+func play_burst(row : Row) -> void:
+	burst.frame = get_frame(row, 0)
+	burst.visible = true
+	burstTime = 0.0
+
+func update_visuals(delta : float) -> void:
+	visible = openScale > 0.001 and Vfx.is_on_screen(global_position)
 	if not visible:
 		return
-	var flicker : float = 1.0
-	if state == State.WARNING:
-		flicker = 0.8 + 0.2 * sin(elapsed * 13.0) * sin(elapsed * 4.7)
-	body.scale = bodyScale * size * (1.0 + flash * 0.12)
-	groundGlow.scale = glowScale * Vector2(lerpf(0.5, 1.0, size.x), 1.0) * (1.0 + flash * 0.2)
-	groundGlow.modulate.a = glowAlpha * intensity * flicker
-	shader.set_shader_parameter("intensity", intensity * flicker)
-	shader.set_shader_parameter("flash", flash)
+	bodyTime += delta
+	var row : Row = Row.OPEN if state == State.OPEN else Row.WARNING
+	body.frame = get_frame(row, int(bodyTime * fps) % frameCounts[row])
+	body.scale = Vector2.ONE * openScale * (1.0 + flash * 0.12)
+	body.self_modulate = Color(1.0 + flash * 0.5, 1.0 + flash * 0.5, 1.0 + flash * 0.5, minf(openScale * 1.6, 1.0))
+	update_burst(delta)
 
-func set_emitting(group : Node2D, value : bool) -> void:
-	for child in group.get_children():
-		if child is CPUParticles2D:
-			child.emitting = value
+func update_burst(delta : float) -> void:
+	if burstTime < 0.0:
+		return
+	burstTime += delta
+	var row : int = burst.frame / body.hframes
+	var index : int = int(burstTime * fps)
+	if index >= frameCounts[row]:
+		burst.visible = false
+		burstTime = -1.0
+		return
+	burst.frame = get_frame(row, index)
 
-func play_burst(group : Node2D) -> void:
-	for child in group.get_children():
-		if child is CPUParticles2D:
-			child.restart()
+func get_frame(row : int, index : int) -> int:
+	return row * body.hframes + index
