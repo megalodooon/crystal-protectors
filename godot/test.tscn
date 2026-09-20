@@ -655,14 +655,14 @@ theme = SubResource("Theme_hud")
 layout_mode = 0
 offset_left = 3.0
 offset_top = 1.0
-offset_right = 124.0
+offset_right = 150.0
 offset_bottom = 8.0
 
 [node name="WaveLabel" type="Label" parent="CanvasLayer/HUD"]
 layout_mode = 0
 offset_left = 3.0
 offset_top = 8.0
-offset_right = 124.0
+offset_right = 150.0
 offset_bottom = 15.0
 
 [node name="UpgradeLabel" type="Label" parent="CanvasLayer/HUD" unique_id=1738290461]

@@ -1262,61 +1262,32 @@ Example: godot/weapons/base/weapon.gd
 - MinimapClass, a Control drawn with _draw() at updateInterval (0.05s).
   Exports pathNetwork, waveManager, towerBuilder, player, mapSize and
   groundTexture.
-- It is NOT drawn at the game's 192x108 pixel size (developer: it does
-  not have to be). apply_scale() reads the window's integer stretch
-  scale into unit, makes the control minimapSize x unit big and sets
-  scale to 1 / unit: it lays out as 64x36 game pixels but every draw
-  call lands on real window pixels, so lanes and icons are smooth and
-  detailed instead of chunky. Everything is still drawn as PIXEL ART
-  (developer: smooth anti-aliased lanes looked bad) on a grid of
-  pixelScale (0.5) game pixels, so the minimap has twice the resolution
-  of the game and hard pixel edges. detailScale overrides unit for testing,
-  and it re-runs on viewport size_changed. get_canvas_rect() gives the
-  rect back in game pixels (the hover tooltip dodges it).
-  Sizes in the Look group are in GAME pixels and multiplied by unit.
-- It TAKES THE LEVEL'S OWN COLOURS, it does not invent a palette: the
-  real ground texture (texture_repeat on, drawn with
-  draw_texture_rect_region over mapSize so it tiles like the level), the
-  path colours from PathNetwork.style (color + coreColor), each portal's
-  own color, each tower's get_color() and each enemy's sprite modulate.
-- Lanes are blocks on that grid, three passes over every path
-  (laneOutline 5, laneBody 3, laneCore 1 cells wide) so they read on
-  top of the noisy ground. The cells are walked once per path, deduped
-  and cached (laneCells, cleared when the scale changes). Locked paths
-  are drawn FIRST so an open lane always wins where they cross.
-  Inactive lanes and their portals are darkened() by lockedFade, NOT
-  made transparent: stacking three translucent passes added back up to
-  almost full brightness and locked lanes looked open.
-- Markers: a portal is drawn as a small pixel version of the real one,
-  a tall ellipse with the portal's voidColor inside and its own color on
-  the rim, so it reads as the thing on the stage. Towers and enemies are
-  blocks in their get_color() / sprite tint, and the player is a
-  TEXTURE, playerIcon, falling back to the player's own sprite. Set
-  playerIcon to the character's head once heads exist.
-- TowerClass (tower.gd) = StaticBody2D root. HealthComponent for
-  Defense Health, a health bar that hides at full, a build pop, tier
-  (1-5: upgrade() raises health and damage and refills), destroy() on
-  0 health. attack() is the one thing subclasses override; it returns
-  true when it fired, and the cooldown only runs then. get_targets() /
-  get_closest_target() search the Enemy Hurtbox layer inside range.
-- bolt_tower.gd: fires a homing spirit orb at the nearest enemy.
-  aura_tower.gd: damages everything in its ring and applies a status
-  (burn), with a Ring sprite scaled to attackRange.
-  barricade.tscn needs no script: no attack, lots of health, blocks.
-- TowerBuilderClass (tower_builder.gd) is a node INSIDE the player
-  scene and holds that character's three TowerStats: every character
-  gets their own three towers this way. It also holds mana and the
-  defense unit budget (ponytail: the budget belongs to the map later).
-  select() / select_next() show a ghost that follows the mouse and
-  turns red where it cannot build, build_at(spot) pays and places,
-  upgrade() / repair() / sell() take a tower, get_nearest(spot) finds
-  the one in reach. It hooks WaveManager.enemy_spawned to pay out mana.
-- Enemies attack whatever they walk into: EnemyClass.attack_blocker()
-  checks its slide collisions for a TowerClass and hits it every
-  attackCooldown for attackDamage x the combat level multiplier.
-  No targeting AI, the physics does the work.
-- Placeholder sprites (bolt_tower.png, barricade.png, aura_tower.png),
-  16x16, same palette as the weapons.
+- SQUARE, small (minimapSize 36 game pixels) and it does NOT show the
+  whole map (developer: it does not have to). It shows viewSize (160)
+  world pixels around the player, clamped to the map edges, and the view
+  origin is snapped to the cell grid so nothing shimmers while walking.
+  clip_contents keeps everything inside the frame.
+- It is not drawn at the game's 192x108 pixel size. apply_scale() reads
+  the window's integer stretch scale into unit, makes the control that
+  many times bigger and sets scale to 1 / unit: it lays out in game
+  pixels but every draw call lands on real window pixels. Everything is
+  still PIXEL ART on a grid of pixelScale (0.5) game pixels, so the
+  minimap has twice the game's resolution and hard edges. detailScale
+  overrides unit for testing, and apply_scale re-runs on size_changed.
+  get_canvas_rect() gives the rect back in game pixels (the hover
+  tooltip dodges it). Sizes in the Look group are in CELLS.
+- Lanes are blocks on that grid: a laneOutline (3) dark band with a
+  laneCore (1) bright line in PathNetwork.style.coreColor. Locked paths
+  are darkened by lockedFade and drawn FIRST, so an open lane always
+  wins where they cross. World samples per path are cached (laneSamples,
+  cleared when the scale changes) and turned into cells each redraw,
+  since the view moves.
+- Markers: a portal is a small pixel version of the real one, a tall
+  ellipse with the portal's voidColor inside and its own color on the
+  rim. Towers and enemies are blocks in their get_color() / sprite tint
+  with a dark border. The player is a plain marker with no box behind
+  it; set playerIcon to the character's head once heads exist and it is
+  drawn instead.
 
 [Collision layers]
 1 World, 2 Player, 3 Enemy, 4 Player Hurtbox, 5 Enemy Hurtbox, 6 Tower.
@@ -1471,9 +1442,9 @@ Input actions: left, right, up, down (WASD), attack (left mouse).
             1/2/3 bolts, pierces and shocks at tier 3; brazier adds burn
             at 2 and an eruption every 4th tick at 3; barricade stays
             health only). F1 hides the HUD.
-            Minimap (ui/), drawn in the level's own colours, above the
-            game's pixel grid so it can hold real detail: ring portals,
-            dots for towers and enemies, the player as a sprite. Brazier
+            Minimap (ui/): square, zoomed on the player instead of the
+            whole map, pixel art lanes, portals drawn like the real ones.
+            Brazier
             pulses a ring on the ground every time it attacks. Tower
             placing snaps to an 8px grid. Hovering a tower shows a
             tooltip with the tier and the repair / upgrade / sell costs.
