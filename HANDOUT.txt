@@ -96,7 +96,7 @@ coding style (section 5). Follow it exactly.
   components/, damage/ (damage type script + types),
   enemies/ (enemy scenes + modifier chances), paths/, player/,
   waves/ (wave manager, waves, spawn groups, portal), status_effects/ (base, fire, frost, poison, lightning,
-  water, debuffs, modifiers), towers/, vfx/ (base = parts, shared =
+  water, debuffs, modifiers), towers/, ui/ (HUD pieces), vfx/ (base = parts, shared =
   textures and curves, effects = one-shot effect scenes, buffs),
   weapons/ (attacks, attributes/{base, behaviors, normal, special, synergy},
   auras, base, effects, enchant, projectiles, rarities, slashing,
@@ -117,8 +117,9 @@ coding style (section 5). Follow it exactly.
   random rest). The starting item
   rolls attributes on start.
   B cycle the tower to build (ghost follows the mouse), F build it,
-  U / H / J upgrade, repair and sell the nearest tower, M +100 mana,
-  F1 hide/show the whole HUD.
+  U / H / J upgrade, repair and sell the tower under the mouse (a
+  tooltip next to it shows the tier and what each key costs), M +100
+  mana, F1 hide/show the whole HUD.
   Map is 512x288 (bigger than the screen): Ground (tiled noise
   texture, z -10), Camera2D inside Player (smoothing, limits = map).
   Two hit dummies above the player start, out of every lane.
@@ -1249,6 +1250,29 @@ Example: godot/weapons/base/weapon.gd
     spawns eruptScene. Normal ticks only flash the ring, no effect
     scene, so a brazier does not spam VFX.
   * Barricade: health only, 420 / 672 / 924.
+- Placing snaps to a gridSize (8) grid, the same grid the lanes are
+  drawn on, so the ghost jumps cell to cell instead of sliding.
+- Picking a tower is by HOVER, not by distance: TowerClass.get_hover_rect()
+  (hoverSize + hoverOffset, so it covers the sprite and not the ground
+  under it) and TowerBuilder.get_hovered(). Upgrade / repair / sell still
+  need the player within reachDistance (can_reach), the tooltip says
+  "move closer" when they are not.
+
+[Minimap]  godot/ui/minimap.gd + minimap.tscn
+- MinimapClass, a Control drawn with _draw() at updateInterval (0.1s).
+  Exports pathNetwork, waveManager, towerBuilder, player, mapSize and
+  groundTexture; everything is drawn by scaling world positions into the
+  control's size, floored, so it stays pixel aligned.
+- It TAKES THE LEVEL'S OWN COLOURS, it does not invent a palette: the
+  real ground texture (texture_repeat on, drawn with
+  draw_texture_rect_region over mapSize so it tiles like the level), the
+  path colours from PathNetwork.style (color + coreColor), each portal's
+  own color, each tower's get_color() and each enemy's sprite modulate.
+- Lanes are drawn in three passes over every path (3px dark outline,
+  2px path colour, 1px core) so they read on top of the noisy ground.
+  Inactive lanes and their portals are darkened() by lockedFade, NOT
+  made transparent: stacking three translucent passes added back up to
+  almost full brightness and locked lanes looked open.
 - TowerClass (tower.gd) = StaticBody2D root. HealthComponent for
   Defense Health, a health bar that hides at full, a build pop, tier
   (1-5: upgrade() raises health and damage and refills), destroy() on
@@ -1427,3 +1451,7 @@ Input actions: left, right, up, down (WASD), attack (left mouse).
             1/2/3 bolts, pierces and shocks at tier 3; brazier adds burn
             at 2 and an eruption every 4th tick at 3; barricade stays
             health only). F1 hides the HUD.
+            Minimap (ui/), drawn in the level's own colours. Brazier
+            pulses a ring on the ground every time it attacks. Tower
+            placing snaps to an 8px grid. Hovering a tower shows a
+            tooltip with the tier and the repair / upgrade / sell costs.

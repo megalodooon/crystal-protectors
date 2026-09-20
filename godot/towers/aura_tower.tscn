@@ -8,6 +8,7 @@
 [ext_resource type="Texture2D" path="res://vfx/shared/pixel.tres" id="6_pixel"]
 [ext_resource type="PackedScene" path="res://vfx/effects/inferno.tscn" id="7_erupt"]
 [ext_resource type="Resource" path="res://status_effects/fire/burn.tres" id="8_burn"]
+[ext_resource type="Script" path="res://vfx/base/vfx_ring.gd" id="9_ring"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_base"]
 size = Vector2(11, 8)
@@ -30,6 +31,15 @@ texture_filter = 2
 material = ExtResource("4_add")
 modulate = Color(1, 1, 1, 0.12)
 texture = ExtResource("5_glow")
+
+[node name="GroundRing" type="Node2D" parent="."]
+z_index = -2
+scale = Vector2(1, 0.45)
+script = ExtResource("9_ring")
+startRadius = 2.0
+endRadius = 26.0
+width = 1.4
+duration = 0.4
 
 [node name="Visuals" type="Node2D" parent="."]
 

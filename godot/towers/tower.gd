@@ -14,6 +14,8 @@ const BREAK_EFFECT := preload("res://vfx/effects/crystal_shatter.tscn")
 @export_flags_2d_physics var targetLayer : int = 16
 @export var buildTime : float = 0.3
 @export var barWidth : float = 12.0
+@export var hoverSize : Vector2 = Vector2(16.0, 22.0)
+@export var hoverOffset : Vector2 = Vector2(0.0, -8.0)
 
 @onready var visuals : Node2D = $Visuals
 @onready var collisionShape : CollisionShape2D = $CollisionShape2D
@@ -79,6 +81,12 @@ func destroy() -> void:
 func pop_visuals(from : Vector2) -> void:
 	visuals.scale = from
 	create_tween().tween_property(visuals, "scale", Vector2.ONE, buildTime).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+func is_hovered(cursor : Vector2) -> bool:
+	return get_hover_rect().has_point(cursor)
+
+func get_hover_rect() -> Rect2:
+	return Rect2(global_position + hoverOffset - hoverSize / 2.0, hoverSize)
 
 func get_tier_value(values : PackedInt32Array, fallback : int) -> int:
 	if values.is_empty():

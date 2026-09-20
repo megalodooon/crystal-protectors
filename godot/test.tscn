@@ -43,6 +43,7 @@
 [ext_resource type="Resource" path="res://status_effects/modifiers/swift.tres" id="36_swift"]
 [ext_resource type="Resource" path="res://status_effects/modifiers/fortified.tres" id="37_fortified"]
 [ext_resource type="Resource" path="res://status_effects/modifiers/regenerating.tres" id="45_regenerating"]
+[ext_resource type="PackedScene" path="res://ui/minimap.tscn" id="46_minimap"]
 
 [sub_resource type="Resource" id="Resource_weapon_item"]
 script = ExtResource("20_weapon_item")
@@ -654,14 +655,14 @@ theme = SubResource("Theme_hud")
 layout_mode = 0
 offset_left = 3.0
 offset_top = 1.0
-offset_right = 190.0
+offset_right = 124.0
 offset_bottom = 8.0
 
 [node name="WaveLabel" type="Label" parent="CanvasLayer/HUD"]
 layout_mode = 0
 offset_left = 3.0
 offset_top = 8.0
-offset_right = 190.0
+offset_right = 124.0
 offset_bottom = 15.0
 
 [node name="UpgradeLabel" type="Label" parent="CanvasLayer/HUD" unique_id=1738290461]
@@ -687,6 +688,28 @@ offset_right = 190.0
 offset_bottom = -15.0
 grow_vertical = 0
 vertical_alignment = 2
+
+[node name="Minimap" parent="CanvasLayer/HUD" node_paths=PackedStringArray("pathNetwork", "waveManager", "towerBuilder", "player") instance=ExtResource("46_minimap")]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -66.0
+offset_top = 2.0
+offset_right = -2.0
+offset_bottom = 38.0
+grow_horizontal = 0
+pathNetwork = NodePath("../../../PathNetwork")
+waveManager = NodePath("../../../WaveManager")
+towerBuilder = NodePath("../../../Player/TowerBuilder")
+player = NodePath("../../../Player")
+groundTexture = SubResource("NoiseTexture2D_ground")
+
+[node name="HoverLabel" type="Label" parent="CanvasLayer/HUD"]
+visible = false
+layout_mode = 0
+offset_right = 60.0
+offset_bottom = 24.0
 
 [node name="AttributePanel" type="PanelContainer" parent="CanvasLayer/HUD"]
 visible = false

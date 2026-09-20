@@ -9,8 +9,9 @@ signal changed
 @export var towerParent : Node
 @export var startMana : int = 250
 @export var defenseUnits : int = 120
-@export var reachDistance : float = 26.0
+@export var reachDistance : float = 30.0
 @export var spacing : float = 13.0
+@export var gridSize : float = 8.0
 
 var mana : int = 0
 var usedUnits : int = 0
@@ -32,8 +33,13 @@ func _process(_delta : float) -> void:
 	ghost.global_position = spot
 	ghost.set_valid(can_build(spot))
 
+func get_cursor() -> Vector2:
+	return get_global_mouse_position()
+
 func get_build_spot() -> Vector2:
-	return get_global_mouse_position().round()
+	if gridSize <= 0.0:
+		return get_cursor().round()
+	return (get_cursor() / gridSize).round() * gridSize
 
 func select_next() -> void:
 	select(selected + 1 if selected + 1 < towers.size() else -1)
@@ -82,18 +88,20 @@ func can_build(spot : Vector2) -> bool:
 			return false
 	return true
 
-func get_nearest(spot : Vector2) -> TowerClass:
-	var nearest : TowerClass = null
-	var bestDistance : float = reachDistance
+func get_hovered() -> TowerClass:
+	var cursor : Vector2 = get_cursor()
 	for tower in built:
-		var distance : float = tower.global_position.distance_to(spot)
-		if distance <= bestDistance:
-			bestDistance = distance
-			nearest = tower
-	return nearest
+		if tower.is_hovered(cursor):
+			return tower
+	return null
+
+func can_reach(tower : TowerClass) -> bool:
+	return tower != null and global_position.distance_to(tower.global_position) <= reachDistance
 
 func upgrade(tower : TowerClass) -> bool:
-	if not tower or tower.tier >= tower.stats.maxTier:
+	if not can_reach(tower):
+		return false
+	if tower.tier >= tower.stats.maxTier:
 		return false
 	var cost : int = tower.stats.get_upgrade_cost(tower.tier)
 	if mana < cost:
@@ -104,7 +112,9 @@ func upgrade(tower : TowerClass) -> bool:
 	return true
 
 func repair(tower : TowerClass) -> bool:
-	if not tower or tower.get_missing_health() <= 0.0:
+	if not can_reach(tower):
+		return false
+	if tower.get_missing_health() <= 0.0:
 		return false
 	var cost : int = tower.stats.get_repair_cost(tower.get_missing_health())
 	if mana < cost:
@@ -115,7 +125,7 @@ func repair(tower : TowerClass) -> bool:
 	return true
 
 func sell(tower : TowerClass) -> bool:
-	if not tower:
+	if not can_reach(tower):
 		return false
 	mana += tower.stats.get_sell_refund(tower.tier)
 	tower.queue_free()

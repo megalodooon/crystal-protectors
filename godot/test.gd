@@ -16,6 +16,8 @@ extends Node2D
 @onready var attributeText : RichTextLabel = $CanvasLayer/HUD/AttributePanel/AttributeText
 @onready var towerLabel : Label = $CanvasLayer/HUD/TowerLabel
 @onready var hud : Control = $CanvasLayer/HUD
+@onready var hoverLabel : Label = $CanvasLayer/HUD/HoverLabel
+@onready var minimap : Control = $CanvasLayer/HUD/Minimap
 
 var weaponIndex : int = 0
 var elementIndex : int = -1
@@ -30,6 +32,7 @@ func _ready() -> void:
 func _process(_delta : float) -> void:
 	update_wave_label()
 	update_tower_label()
+	update_hover_label()
 	if player.weapon != elementWeapon:
 		elementWeapon = player.weapon
 		apply_test_element()
@@ -78,17 +81,17 @@ func _unhandled_input(event : InputEvent) -> void:
 
 func use_tower_keys(keycode : int) -> void:
 	var builder : TowerBuilderClass = player.towerBuilder
-	var nearest : TowerClass = builder.get_nearest(builder.get_build_spot())
+	var hovered : TowerClass = builder.get_hovered()
 	if keycode == KEY_B:
 		builder.select_next()
 	if keycode == KEY_F:
 		builder.build()
 	if keycode == KEY_U:
-		builder.upgrade(nearest)
+		builder.upgrade(hovered)
 	if keycode == KEY_H:
-		builder.repair(nearest)
+		builder.repair(hovered)
 	if keycode == KEY_J:
-		builder.sell(nearest)
+		builder.sell(hovered)
 	if keycode == KEY_M:
 		builder.add_mana(100)
 
@@ -100,15 +103,38 @@ func update_tower_label() -> void:
 	else:
 		var stats : TowerStatsClass = builder.towers[builder.selected]
 		text += stats.towerName + " " + str(stats.manaCost) + "  F build"
-	var nearest : TowerClass = builder.get_nearest(builder.get_build_spot())
-	if nearest:
-		text += "  | " + nearest.stats.towerName + " T" + str(nearest.tier) + "/" + str(nearest.stats.maxTier)
-		if nearest.tier < nearest.stats.maxTier:
-			text += "  U up " + str(nearest.stats.get_upgrade_cost(nearest.tier))
-		if nearest.get_missing_health() > 0.0:
-			text += "  H fix " + str(nearest.stats.get_repair_cost(nearest.get_missing_health()))
-		text += "  J sell " + str(nearest.stats.get_sell_refund(nearest.tier))
 	towerLabel.text = text
+
+func update_hover_label() -> void:
+	var builder : TowerBuilderClass = player.towerBuilder
+	var tower : TowerClass = builder.get_hovered()
+	hoverLabel.visible = tower != null
+	if not tower:
+		return
+	var text : String = tower.stats.towerName + " T" + str(tower.tier) + "/" + str(tower.stats.maxTier)
+	if not builder.can_reach(tower):
+		text += "\nmove closer"
+	else:
+		if tower.get_missing_health() > 0.0:
+			text += "\nH to repair  " + str(tower.stats.get_repair_cost(tower.get_missing_health()))
+		if tower.tier < tower.stats.maxTier:
+			text += "\nU to upgrade  " + str(tower.stats.get_upgrade_cost(tower.tier))
+		text += "\nJ to sell  " + str(tower.stats.get_sell_refund(tower.tier))
+	hoverLabel.text = text
+	hoverLabel.position = get_hover_spot(tower)
+
+func get_hover_spot(tower : TowerClass) -> Vector2:
+	var labelSize : Vector2 = hoverLabel.get_minimum_size()
+	var rect : Rect2 = tower.get_hover_rect()
+	var screen : Transform2D = get_viewport().get_canvas_transform()
+	var spot : Vector2 = screen * Vector2(rect.end.x + 2.0, rect.position.y)
+	if hits_minimap(spot, labelSize):
+		spot.x = (screen * rect.position).x - labelSize.x - 2.0
+	var limit : Vector2 = hud.size - labelSize - Vector2.ONE * 2.0
+	return Vector2(clampf(spot.x, 2.0, limit.x), clampf(spot.y, 2.0, limit.y)).round()
+
+func hits_minimap(spot : Vector2, labelSize : Vector2) -> bool:
+	return minimap.visible and Rect2(spot, labelSize).intersects(Rect2(minimap.position, minimap.size))
 
 func on_enemy_spawned(enemy : EnemyClass) -> void:
 	for scene : PackedScene in enemySpriteScales:
@@ -187,16 +213,16 @@ func get_quality_bar(quality : float) -> String:
 
 func update_wave_label() -> void:
 	var modifierChance : float = EnemyClass.MODIFIERS.get_chance(waveManager.combatLevel)
-	var enemyText : String = "  Z Enemy Lv " + str(waveManager.combatLevel) + " Mod " + AttributeScalingClass.format_number(modifierChance * 100.0) + "%"
+	var enemyText : String = "  Z Lv" + str(waveManager.combatLevel) + " " + AttributeScalingClass.format_number(modifierChance * 100.0) + "%"
 	var wave : WaveClass = waveManager.get_wave()
 	if not wave:
-		waveLabel.text = "All waves cleared" + enemyText
+		waveLabel.text = "All cleared" + enemyText
 		return
 	var waveText : String = "Wave " + str(waveManager.waveIndex + 1) + "/" + str(waveManager.waves.size())
 	if not wave.waveName.is_empty():
 		waveText += " " + wave.waveName
 	if waveManager.isWaveRunning:
-		waveLabel.text = waveText + "  Enemies " + str(waveManager.get_enemies_left())
+		waveLabel.text = waveText + "  " + str(waveManager.get_enemies_left()) + " left"
 	elif waveManager.autoStartTimeLeft > 0.0:
 		waveLabel.text = "G " + waveText + " in " + str(ceili(waveManager.autoStartTimeLeft)) + "s"
 	else:
