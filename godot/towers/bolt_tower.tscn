@@ -7,6 +7,7 @@
 [ext_resource type="Texture2D" path="res://vfx/shared/soft_glow.tres" id="5_glow"]
 [ext_resource type="Texture2D" path="res://vfx/shared/pixel.tres" id="6_pixel"]
 [ext_resource type="PackedScene" path="res://weapons/projectiles/spirit_orb.tscn" id="7_bolt"]
+[ext_resource type="Resource" path="res://status_effects/lightning/shock.tres" id="8_shock"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_base"]
 size = Vector2(12, 8)
@@ -21,6 +22,7 @@ barBack = NodePath("BarBack")
 rangeHint = NodePath("Range")
 boltScene = ExtResource("7_bolt")
 boltColor = Color(0.45, 0.85, 1, 1)
+status = ExtResource("8_shock")
 
 [node name="Range" type="Sprite2D" parent="."]
 z_index = -3

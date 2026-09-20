@@ -6,7 +6,7 @@
 [ext_resource type="Material" path="res://vfx/shared/add_material.tres" id="4_add"]
 [ext_resource type="Texture2D" path="res://vfx/shared/soft_glow.tres" id="5_glow"]
 [ext_resource type="Texture2D" path="res://vfx/shared/pixel.tres" id="6_pixel"]
-[ext_resource type="PackedScene" path="res://vfx/effects/inferno.tscn" id="7_pulse"]
+[ext_resource type="PackedScene" path="res://vfx/effects/inferno.tscn" id="7_erupt"]
 [ext_resource type="Resource" path="res://status_effects/fire/burn.tres" id="8_burn"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_base"]
@@ -20,9 +20,9 @@ healthComponent = NodePath("HealthComponent")
 barFill = NodePath("BarFill")
 barBack = NodePath("BarBack")
 rangeHint = NodePath("Range")
-pulseScene = ExtResource("7_pulse")
-status = ExtResource("8_burn")
 auraColor = Color(1, 0.55, 0.15, 1)
+status = ExtResource("8_burn")
+eruptScene = ExtResource("7_erupt")
 
 [node name="Range" type="Sprite2D" parent="."]
 z_index = -3

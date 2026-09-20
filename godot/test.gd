@@ -15,6 +15,7 @@ extends Node2D
 @onready var attributePanel : PanelContainer = $CanvasLayer/HUD/AttributePanel
 @onready var attributeText : RichTextLabel = $CanvasLayer/HUD/AttributePanel/AttributeText
 @onready var towerLabel : Label = $CanvasLayer/HUD/TowerLabel
+@onready var hud : Control = $CanvasLayer/HUD
 
 var weaponIndex : int = 0
 var elementIndex : int = -1
@@ -62,6 +63,8 @@ func _unhandled_input(event : InputEvent) -> void:
 			item.randomize_attributes()
 		if event.keycode == KEY_Y:
 			equip_random_synergy()
+		if event.keycode == KEY_F1:
+			hud.visible = not hud.visible
 		use_tower_keys(event.keycode)
 		var index : int = event.keycode - KEY_1
 		if index >= 0 and index < rarities.size():
@@ -99,7 +102,7 @@ func update_tower_label() -> void:
 		text += stats.towerName + " " + str(stats.manaCost) + "  F build"
 	var nearest : TowerClass = builder.get_nearest(builder.get_build_spot())
 	if nearest:
-		text += "  | " + nearest.stats.towerName + " T" + str(nearest.tier)
+		text += "  | " + nearest.stats.towerName + " T" + str(nearest.tier) + "/" + str(nearest.stats.maxTier)
 		if nearest.tier < nearest.stats.maxTier:
 			text += "  U up " + str(nearest.stats.get_upgrade_cost(nearest.tier))
 		if nearest.get_missing_health() > 0.0:
@@ -120,7 +123,7 @@ func update_labels() -> void:
 	if not item or not item.rarity:
 		return
 	var weaponName : String = item.weaponScene.resource_path.get_file().get_basename().capitalize()
-	rarityLabel.text = "Q " + weaponName + "  1-" + str(rarities.size()) + " " + item.rarity.rarityName
+	rarityLabel.text = "Q " + weaponName + "  1-" + str(rarities.size()) + " " + item.rarity.rarityName + "  F1 hide"
 	rarityLabel.modulate = item.rarity.color
 	var rarityText : String = "R Rarity up at level " + str(item.UPGRADES.rarityUpgradeLevel)
 	if item.can_upgrade_rarity():

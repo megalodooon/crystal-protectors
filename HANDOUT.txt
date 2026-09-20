@@ -117,7 +117,8 @@ coding style (section 5). Follow it exactly.
   random rest). The starting item
   rolls attributes on start.
   B cycle the tower to build (ghost follows the mouse), F build it,
-  U / H / J upgrade, repair and sell the nearest tower, M +100 mana.
+  U / H / J upgrade, repair and sell the nearest tower, M +100 mana,
+  F1 hide/show the whole HUD.
   Map is 512x288 (bigger than the screen): Ground (tiled noise
   texture, z -10), Camera2D inside Player (smoothing, limits = map).
   Two hit dummies above the player start, out of every lane.
@@ -1233,6 +1234,21 @@ Example: godot/weapons/base/weapon.gd
   New tower = new scene + new .tres, add it to a character's list.
   Repair cost = manaCost x repairFactor (0.75) x missing health, like
   DD2. Sell gives back sellRefund of everything spent (build+upgrades).
+- THREE TIERS (1-2-3) and an upgrade must CHANGE WHAT THE TOWER DOES,
+  not only raise numbers (developer: tier 1 was too strong and max tier
+  was boring). The generic numbers in TowerStats stay small; the tier
+  behaviour is exported on the tower's own scene, so a new tower writes
+  its own. Only the barricade is numbers-only for now.
+  * Bolt Tower: boltsPerTier 1/2/3 (it fires that many bolts, spread
+    over the nearest targets), piercePerTier 1/1/3, and from
+    statusFromTier (3) every bolt applies its status (Shock).
+    7 -> 10.5 -> 14 damage, so 7 -> 21 -> 42 per volley.
+  * Flame Brazier: plain damage at tier 1, adds its status (Burn) from
+    statusFromTier (2), and from eruptFromTier (3) every eruptEvery
+    (4th) tick erupts for eruptDamage (x3) over eruptRadius (x1.6) and
+    spawns eruptScene. Normal ticks only flash the ring, no effect
+    scene, so a brazier does not spam VFX.
+  * Barricade: health only, 420 / 672 / 924.
 - TowerClass (tower.gd) = StaticBody2D root. HealthComponent for
   Defense Health, a health bar that hides at full, a build pop, tier
   (1-5: upgrade() raises health and damage and refills), destroy() on
@@ -1406,3 +1422,8 @@ Input actions: left, right, up, down (WASD), attack (left mouse).
             wave 5, shortcut branch, 10 waves (436 enemies) with a
             rising combat level, Swift / Fortified / Regenerating waves,
             a crowd wave and a boss. Tower budget 180 mana / 180 DU.
+2026-09-21  Towers: 5 tiers down to 3, tier 1 weakened and every upgrade
+            changes behaviour instead of only numbers (bolt tower fires
+            1/2/3 bolts, pierces and shocks at tier 3; brazier adds burn
+            at 2 and an eruption every 4th tick at 3; barricade stays
+            health only). F1 hides the HUD.

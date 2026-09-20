@@ -80,6 +80,11 @@ func pop_visuals(from : Vector2) -> void:
 	visuals.scale = from
 	create_tween().tween_property(visuals, "scale", Vector2.ONE, buildTime).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
+func get_tier_value(values : PackedInt32Array, fallback : int) -> int:
+	if values.is_empty():
+		return fallback
+	return values[clampi(tier - 1, 0, values.size() - 1)]
+
 func get_missing_health() -> float:
 	return 1.0 - healthComponent.currentHealth / healthComponent.maxHealth
 
