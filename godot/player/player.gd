@@ -18,6 +18,7 @@ const PLACEHOLDER_HAND_IMAGE := preload("res://player/hand_placeholder.png")
 @onready var hand : Node2D = $HandPivot/Hand
 @onready var handSprite : Sprite2D = $HandPivot/Hand/Sprite2D
 @onready var animationPlayer : AnimationPlayer = $AnimationPlayer
+@onready var towerBuilder : TowerBuilderClass = $TowerBuilder
 
 var weapon : WeaponClass
 

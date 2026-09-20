@@ -8,6 +8,11 @@
 [ext_resource type="Script" uid="uid://bf72vnnai4vk" path="res://components/state_machine.gd" id="6_statemachine"]
 [ext_resource type="Script" uid="uid://bw1ubtrwivvnq" path="res://player/move_state.gd" id="7_movestate"]
 [ext_resource type="Script" uid="uid://dl4op2yale3e3" path="res://player/attack_state.gd" id="8_attackstate"]
+[ext_resource type="Script" path="res://towers/tower_builder.gd" id="9_builder"]
+[ext_resource type="Script" path="res://towers/tower_stats.gd" id="10_stats"]
+[ext_resource type="Resource" path="res://towers/bolt_tower.tres" id="11_bolt"]
+[ext_resource type="Resource" path="res://towers/barricade.tres" id="12_barricade"]
+[ext_resource type="Resource" path="res://towers/aura_tower.tres" id="13_aura"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_player"]
 radius = 5.0
@@ -149,3 +154,7 @@ attackState = NodePath("../AttackState")
 [node name="AttackState" type="Node" parent="StateMachine" node_paths=PackedStringArray("moveState")]
 script = ExtResource("8_attackstate")
 moveState = NodePath("../MoveState")
+
+[node name="TowerBuilder" type="Node2D" parent="."]
+script = ExtResource("9_builder")
+towers = Array[ExtResource("10_stats")]([ExtResource("11_bolt"), ExtResource("12_barricade"), ExtResource("13_aura")])

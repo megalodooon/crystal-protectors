@@ -14,6 +14,7 @@ extends Node2D
 @onready var waveLabel : Label = $CanvasLayer/HUD/WaveLabel
 @onready var attributePanel : PanelContainer = $CanvasLayer/HUD/AttributePanel
 @onready var attributeText : RichTextLabel = $CanvasLayer/HUD/AttributePanel/AttributeText
+@onready var towerLabel : Label = $CanvasLayer/HUD/TowerLabel
 
 var weaponIndex : int = 0
 var elementIndex : int = -1
@@ -27,6 +28,7 @@ func _ready() -> void:
 
 func _process(_delta : float) -> void:
 	update_wave_label()
+	update_tower_label()
 	if player.weapon != elementWeapon:
 		elementWeapon = player.weapon
 		apply_test_element()
@@ -60,6 +62,7 @@ func _unhandled_input(event : InputEvent) -> void:
 			item.randomize_attributes()
 		if event.keycode == KEY_Y:
 			equip_random_synergy()
+		use_tower_keys(event.keycode)
 		var index : int = event.keycode - KEY_1
 		if index >= 0 and index < rarities.size():
 			var newItem : WeaponItemClass = WeaponItemClass.new()
@@ -69,6 +72,40 @@ func _unhandled_input(event : InputEvent) -> void:
 			newItem.randomize_attributes()
 			player.equip_weapon(newItem)
 		update_labels()
+
+func use_tower_keys(keycode : int) -> void:
+	var builder : TowerBuilderClass = player.towerBuilder
+	var nearest : TowerClass = builder.get_nearest(builder.get_build_spot())
+	if keycode == KEY_B:
+		builder.select_next()
+	if keycode == KEY_F:
+		builder.build()
+	if keycode == KEY_U:
+		builder.upgrade(nearest)
+	if keycode == KEY_H:
+		builder.repair(nearest)
+	if keycode == KEY_J:
+		builder.sell(nearest)
+	if keycode == KEY_M:
+		builder.add_mana(100)
+
+func update_tower_label() -> void:
+	var builder : TowerBuilderClass = player.towerBuilder
+	var text : String = "Mana " + str(builder.mana) + "  DU " + str(builder.usedUnits) + "/" + str(builder.defenseUnits) + "  B "
+	if builder.selected < 0:
+		text += "no tower"
+	else:
+		var stats : TowerStatsClass = builder.towers[builder.selected]
+		text += stats.towerName + " " + str(stats.manaCost) + "  F build"
+	var nearest : TowerClass = builder.get_nearest(builder.get_build_spot())
+	if nearest:
+		text += "  | " + nearest.stats.towerName + " T" + str(nearest.tier)
+		if nearest.tier < nearest.stats.maxTier:
+			text += "  U up " + str(nearest.stats.get_upgrade_cost(nearest.tier))
+		if nearest.get_missing_health() > 0.0:
+			text += "  H fix " + str(nearest.stats.get_repair_cost(nearest.get_missing_health()))
+		text += "  J sell " + str(nearest.stats.get_sell_refund(nearest.tier))
+	towerLabel.text = text
 
 func on_enemy_spawned(enemy : EnemyClass) -> void:
 	for scene : PackedScene in enemySpriteScales:

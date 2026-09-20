@@ -170,6 +170,9 @@ mergeInto = NodePath("../PathWest")
 position = Vector2(256, 208)
 weaponItem = SubResource("Resource_weapon_item")
 
+[node name="TowerBuilder" parent="Player" node_paths=PackedStringArray("waveManager")]
+waveManager = NodePath("../../WaveManager")
+
 [node name="Camera2D" type="Camera2D" parent="Player" unique_id=1434578543]
 process_callback = 0
 limit_left = 0
@@ -433,6 +436,18 @@ offset_left = 3.0
 offset_top = -15.0
 offset_right = 190.0
 offset_bottom = -1.0
+grow_vertical = 0
+vertical_alignment = 2
+
+[node name="TowerLabel" type="Label" parent="CanvasLayer/HUD"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 3.0
+offset_top = -22.0
+offset_right = 190.0
+offset_bottom = -15.0
 grow_vertical = 0
 vertical_alignment = 2
 

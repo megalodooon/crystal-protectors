@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="TowerStatsClass" format=3]
+
+[ext_resource type="Script" path="res://towers/tower_stats.gd" id="1_stats"]
+[ext_resource type="PackedScene" path="res://towers/aura_tower.tscn" id="2_scene"]
+[ext_resource type="Resource" path="res://damage/fire.tres" id="3_type"]
+
+[resource]
+script = ExtResource("1_stats")
+towerName = "Flame Brazier"
+towerScene = ExtResource("2_scene")
+description = "Burns every enemy standing in its ring."
+manaCost = 40
+upgradeCost = 25
+upgradeCostPerTier = 18
+health = 140.0
+healthPerTier = 0.2
+damage = 5.0
+damagePerTier = 0.45
+attackCooldown = 0.6
+attackRange = 32.0
+maxTargets = 6
+damageType = ExtResource("3_type")

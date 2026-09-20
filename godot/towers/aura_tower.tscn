@@ -1,0 +1,63 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://towers/aura_tower.gd" id="1_tower"]
+[ext_resource type="Texture2D" path="res://towers/aura_tower.png" id="2_sprite"]
+[ext_resource type="Script" uid="uid://dkhf1rkvog3oh" path="res://components/health_component.gd" id="3_health"]
+[ext_resource type="Material" path="res://vfx/shared/add_material.tres" id="4_add"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_glow.tres" id="5_glow"]
+[ext_resource type="Texture2D" path="res://vfx/shared/pixel.tres" id="6_pixel"]
+[ext_resource type="PackedScene" path="res://vfx/effects/inferno.tscn" id="7_pulse"]
+[ext_resource type="Resource" path="res://status_effects/fire/burn.tres" id="8_burn"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_base"]
+size = Vector2(11, 8)
+
+[node name="AuraTower" type="StaticBody2D" node_paths=PackedStringArray("healthComponent", "barFill", "barBack", "rangeHint")]
+collision_layer = 32
+collision_mask = 0
+script = ExtResource("1_tower")
+healthComponent = NodePath("HealthComponent")
+barFill = NodePath("BarFill")
+barBack = NodePath("BarBack")
+rangeHint = NodePath("Range")
+pulseScene = ExtResource("7_pulse")
+status = ExtResource("8_burn")
+auraColor = Color(1, 0.55, 0.15, 1)
+
+[node name="Range" type="Sprite2D" parent="."]
+z_index = -3
+texture_filter = 2
+material = ExtResource("4_add")
+modulate = Color(1, 1, 1, 0.12)
+texture = ExtResource("5_glow")
+
+[node name="Visuals" type="Node2D" parent="."]
+
+[node name="Ring" type="Sprite2D" parent="Visuals"]
+z_index = -2
+texture_filter = 2
+material = ExtResource("4_add")
+self_modulate = Color(1, 0.55, 0.15, 0.13)
+texture = ExtResource("5_glow")
+
+[node name="Sprite2D" type="Sprite2D" parent="Visuals"]
+offset = Vector2(0, -8)
+texture = ExtResource("2_sprite")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -4)
+shape = SubResource("RectangleShape2D_base")
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("3_health")
+
+[node name="BarBack" type="Sprite2D" parent="."]
+position = Vector2(0, -20)
+scale = Vector2(7, 1.5)
+modulate = Color(0.08, 0.06, 0.09, 0.85)
+texture = ExtResource("6_pixel")
+
+[node name="BarFill" type="Sprite2D" parent="."]
+position = Vector2(0, -20)
+scale = Vector2(6, 0.5)
+texture = ExtResource("6_pixel")

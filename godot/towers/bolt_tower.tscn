@@ -1,0 +1,62 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://towers/bolt_tower.gd" id="1_tower"]
+[ext_resource type="Texture2D" path="res://towers/bolt_tower.png" id="2_sprite"]
+[ext_resource type="Script" uid="uid://dkhf1rkvog3oh" path="res://components/health_component.gd" id="3_health"]
+[ext_resource type="Material" path="res://vfx/shared/add_material.tres" id="4_add"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_glow.tres" id="5_glow"]
+[ext_resource type="Texture2D" path="res://vfx/shared/pixel.tres" id="6_pixel"]
+[ext_resource type="PackedScene" path="res://weapons/projectiles/spirit_orb.tscn" id="7_bolt"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_base"]
+size = Vector2(12, 8)
+
+[node name="BoltTower" type="StaticBody2D" node_paths=PackedStringArray("healthComponent", "barFill", "barBack", "rangeHint")]
+collision_layer = 32
+collision_mask = 0
+script = ExtResource("1_tower")
+healthComponent = NodePath("HealthComponent")
+barFill = NodePath("BarFill")
+barBack = NodePath("BarBack")
+rangeHint = NodePath("Range")
+boltScene = ExtResource("7_bolt")
+boltColor = Color(0.45, 0.85, 1, 1)
+
+[node name="Range" type="Sprite2D" parent="."]
+z_index = -3
+texture_filter = 2
+material = ExtResource("4_add")
+modulate = Color(1, 1, 1, 0.12)
+texture = ExtResource("5_glow")
+
+[node name="Visuals" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="Visuals"]
+offset = Vector2(0, -8)
+texture = ExtResource("2_sprite")
+
+[node name="Muzzle" type="Sprite2D" parent="Visuals"]
+texture_filter = 2
+material = ExtResource("4_add")
+position = Vector2(0, -14)
+scale = Vector2(0.6, 0.6)
+self_modulate = Color(0.45, 0.85, 1, 0)
+texture = ExtResource("5_glow")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -4)
+shape = SubResource("RectangleShape2D_base")
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("3_health")
+
+[node name="BarBack" type="Sprite2D" parent="."]
+position = Vector2(0, -20)
+scale = Vector2(7, 1.5)
+modulate = Color(0.08, 0.06, 0.09, 0.85)
+texture = ExtResource("6_pixel")
+
+[node name="BarFill" type="Sprite2D" parent="."]
+position = Vector2(0, -20)
+scale = Vector2(6, 0.5)
+texture = ExtResource("6_pixel")

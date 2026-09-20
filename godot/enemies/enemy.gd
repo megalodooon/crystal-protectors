@@ -12,6 +12,9 @@ const MODIFIERS := preload("res://enemies/enemy_modifiers.tres")
 @export var movementComponent : MovementComponentClass
 @export var pathFollowComponent : PathFollowComponentClass
 @export var statusComponent : StatusComponentClass
+@export var attackDamage : float = 10.0
+@export var attackCooldown : float = 0.8
+@export var manaReward : int = 8
 
 @onready var visuals : Node2D = $Visuals
 @onready var sprite : Sprite2D = $Visuals/Sprite2D
@@ -21,6 +24,7 @@ var healthMultiplier : float = 1.0
 var speedMultiplier : float = 1.0
 var modifier : StatusEffectClass
 var facing : float = 1.0
+var attackTimer : float = 0.0
 
 #------------------------#
 
@@ -38,9 +42,23 @@ func _ready() -> void:
 		statusComponent.apply_effect.call_deferred(modifier)
 
 func _physics_process(delta : float) -> void:
+	attackTimer -= delta
 	var direction : Vector2 = pathFollowComponent.get_direction(self)
 	movementComponent.move(self, direction, delta)
+	attack_blocker()
 	update_facing(delta)
+
+func attack_blocker() -> void:
+	if attackTimer > 0.0:
+		return
+	for i in get_slide_collision_count():
+		var tower : TowerClass = get_slide_collision(i).get_collider() as TowerClass
+		if not tower:
+			continue
+		attackTimer = attackCooldown
+		tower.take_damage(attackDamage * COMBAT_SCALING.get_multiplier(combatLevel))
+		Vfx.show_hit_spark(global_position.lerp(tower.global_position, 0.6), Color(1.0, 0.5, 0.35), 0.7, 4, 0, global_position.angle_to_point(tower.global_position))
+		return
 
 func update_facing(delta : float) -> void:
 	if absf(velocity.x) > movementComponent.speed * 0.25:

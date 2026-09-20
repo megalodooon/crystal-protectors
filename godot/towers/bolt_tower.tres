@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="TowerStatsClass" format=3]
+
+[ext_resource type="Script" path="res://towers/tower_stats.gd" id="1_stats"]
+[ext_resource type="PackedScene" path="res://towers/bolt_tower.tscn" id="2_scene"]
+[ext_resource type="Resource" path="res://damage/crystal.tres" id="3_type"]
+
+[resource]
+script = ExtResource("1_stats")
+towerName = "Bolt Tower"
+towerScene = ExtResource("2_scene")
+description = "Fires a homing crystal bolt at the nearest enemy."
+manaCost = 30
+upgradeCost = 20
+upgradeCostPerTier = 15
+health = 180.0
+healthPerTier = 0.25
+damage = 11.0
+damagePerTier = 0.5
+attackCooldown = 0.85
+attackRange = 56.0
+maxTargets = 1
+damageType = ExtResource("3_type")
