@@ -17,7 +17,7 @@ extends Node2D
 @onready var towerLabel : Label = $CanvasLayer/HUD/TowerLabel
 @onready var hud : Control = $CanvasLayer/HUD
 @onready var hoverLabel : Label = $CanvasLayer/HUD/HoverLabel
-@onready var minimap : Control = $CanvasLayer/HUD/Minimap
+@onready var minimap : MinimapClass = $CanvasLayer/HUD/Minimap
 
 var weaponIndex : int = 0
 var elementIndex : int = -1
@@ -134,7 +134,7 @@ func get_hover_spot(tower : TowerClass) -> Vector2:
 	return Vector2(clampf(spot.x, 2.0, limit.x), clampf(spot.y, 2.0, limit.y)).round()
 
 func hits_minimap(spot : Vector2, labelSize : Vector2) -> bool:
-	return minimap.visible and Rect2(spot, labelSize).intersects(Rect2(minimap.position, minimap.size))
+	return minimap.visible and Rect2(spot, labelSize).intersects(minimap.get_canvas_rect())
 
 func on_enemy_spawned(enemy : EnemyClass) -> void:
 	for scene : PackedScene in enemySpriteScales:

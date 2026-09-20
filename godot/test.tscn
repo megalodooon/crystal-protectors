@@ -690,15 +690,6 @@ grow_vertical = 0
 vertical_alignment = 2
 
 [node name="Minimap" parent="CanvasLayer/HUD" node_paths=PackedStringArray("pathNetwork", "waveManager", "towerBuilder", "player") instance=ExtResource("46_minimap")]
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -66.0
-offset_top = 2.0
-offset_right = -2.0
-offset_bottom = 38.0
-grow_horizontal = 0
 pathNetwork = NodePath("../../../PathNetwork")
 waveManager = NodePath("../../../WaveManager")
 towerBuilder = NodePath("../../../Player/TowerBuilder")

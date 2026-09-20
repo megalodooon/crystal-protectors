@@ -3,7 +3,6 @@
 [ext_resource type="Script" path="res://ui/minimap.gd" id="1_minimap"]
 
 [node name="Minimap" type="Control"]
-custom_minimum_size = Vector2(64, 36)
 texture_repeat = 2
 layout_mode = 3
 offset_right = 64.0
