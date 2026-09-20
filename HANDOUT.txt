@@ -1188,19 +1188,19 @@ Example: godot/weapons/base/weapon.gd
   (hidden), WARNING (the next wave uses it: thin flickering rift),
   OPEN (while any of its groups spawn: swirling vortex; open() /
   release() count users, closes closeDelay after the last one).
-- The portal is a BAKED SPRITESHEET, not particles: waves/portal.png,
-  36x52 frames, 30 columns, 5 rows at 15 fps (row 0 warning loop, 1 open
-  loop, 2 open burst, 3 spawn burst, 4 close burst; frameCounts on
-  portal.gd says how long each row is). The scene is just Body and Burst
-  Sprite2D, both on that sheet. openScale tweens the scale on open and
-  close, flash brightens it when an enemy comes out.
-- Re-baking: waves/portal_source.tscn + portal_source.gd are the OLD
-  shader + 12 CPUParticles2D portal, kept only as the bake input. Run
-  waves/portal_bake.tscn: it renders every state into a SubViewport,
-  cross-fades the two loops with themselves so they repeat without a
-  seam, packs the sheet and prints the frame size and frame counts to
-  put back on portal.gd and portal.tscn. Change the colour (or anything
-  else) on portal_source.tscn and bake again.
+  Exports color (everything in tinted + the shader rim/glow), voidColor,
+  openTime, closeTime, closeDelay, warningSize, warningIntensity,
+  spawnSpread, emergeTime, emergeColor.
+  Body = Sprite2D with portal.gdshader (blend_premul_alpha: darkens
+  the void AND adds glow in one pass; spiral arms, noise swirl,
+  wobbling rim, halo; uniforms intensity + flash set by the script).
+  Particle groups: OpenLoop (smoke, inward orbiting motes, rim sparks),
+  WarningLoop (drift, crackle), OpenBurst / SpawnBurst / CloseBurst
+  (one-shot, restarted by play_burst). Looks the same in the
+  Compatibility (web) renderer.
+  Baking all of this into a spritesheet was tried and REJECTED
+  (developer, 2026-09-20): the baked frames looked worse than the live
+  shader. Leave the portal as shader + particles.
 
 [Towers]  godot/towers/
 - Dungeon Defenders 2 rules. Enemies drop green MANA on death
@@ -1373,9 +1373,6 @@ Input actions: left, right, up, down (WASD), attack (left mouse).
             Damage numbers of the same colour merge into one growing
             number and the rest stack upwards, so a weapon with many
             attributes stays readable.
-            Portal baked into a spritesheet (waves/portal.png): 2 Sprite2D
-            instead of a shader plus 12 CPUParticles2D. portal_source.tscn
-            + portal_bake.tscn re-render it.
             5 new weapons: dagger, greatsword, war axe, halberd (two slash
             attacks, swingsWeapon) and storm glaive.
             Tower system (towers/, Dungeon Defenders 2 rules): mana from
@@ -1383,3 +1380,5 @@ Input actions: left, right, up, down (WASD), attack (left mouse).
             barricade, flame brazier) with 5 upgrade tiers, defense health,
             repair and sell. Enemies attack towers they bump into.
             Test scene: B/F build, U/H/J upgrade, repair, sell, M mana.
+            Portal spritesheet bake reverted: it looked worse than the
+            live shader, the portal stays shader + particles.
