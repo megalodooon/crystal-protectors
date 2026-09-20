@@ -10,6 +10,7 @@ const ATTACK_TYPE := preload("res://weapons/attacks/slash_type.tres")
 @export_range(10.0, 360.0, 1.0, "suffix:°") var curve : float = 160.0
 @export var maxTargets : int = 3
 @export var raritySizeGrowth : float = 1.0
+@export var swingsWeapon : bool = true
 @export var colorTexture : Texture2D
 @export var styleOverride : SlashStyleClass
 
@@ -42,7 +43,8 @@ func perform() -> void:
 	else:
 		slash.position = global_position
 		get_tree().current_scene.add_child(slash)
-	swing_weapon(style.duration * 0.7, totalCurve, centerAngle)
+	if swingsWeapon:
+		swing_weapon(style.duration * 0.7, totalCurve, centerAngle)
 	swingDirection *= -1.0
 
 func swing_weapon(duration : float, totalCurve : float, centerAngle : float) -> void:

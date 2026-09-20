@@ -1,0 +1,41 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" uid="uid://cv61vsoiwy4po" path="res://weapons/base/weapon.gd" id="1_weapon"]
+[ext_resource type="Resource" path="res://weapons/rarities/common.tres" id="2_common"]
+[ext_resource type="Texture2D" path="res://weapons/slashing/halberd.png" id="3_sprite"]
+[ext_resource type="Script" path="res://weapons/attacks/slash_attack.gd" id="4_slash"]
+[ext_resource type="Resource" path="res://damage/physical.tres" id="5_physical"]
+
+[node name="Halberd" type="Node2D"]
+script = ExtResource("1_weapon")
+rarity = ExtResource("2_common")
+damage = 17.0
+attackCooldown = 0.55
+damageType = ExtResource("5_physical")
+knockback = 20.0
+
+[node name="Visuals" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="Visuals"]
+position = Vector2(5.5, 0)
+rotation = 0.7853982
+texture = ExtResource("3_sprite")
+
+[node name="SlashAttack" type="Node2D" parent="."]
+script = ExtResource("4_slash")
+radius = 27.0
+size = 10.0
+curve = 70.0
+maxTargets = 5
+raritySizeGrowth = 1.6
+
+[node name="BackSlash" type="Node2D" parent="."]
+rotation = 3.1415927
+script = ExtResource("4_slash")
+damageMultiplier = 0.5
+radius = 14.0
+size = 12.0
+curve = 120.0
+maxTargets = 3
+raritySizeGrowth = 1.0
+swingsWeapon = false

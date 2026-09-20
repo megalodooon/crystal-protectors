@@ -35,6 +35,11 @@
 [ext_resource type="Resource" path="res://weapons/effects/lightning.tres" id="33_lightning"]
 [ext_resource type="Resource" path="res://weapons/effects/water.tres" id="34_water"]
 [ext_resource type="PackedScene" path="res://waves/portal.tscn" id="35_portal"]
+[ext_resource type="PackedScene" path="res://weapons/slashing/dagger.tscn" id="40_dagger"]
+[ext_resource type="PackedScene" path="res://weapons/slashing/greatsword.tscn" id="41_greatsword"]
+[ext_resource type="PackedScene" path="res://weapons/slashing/war_axe.tscn" id="42_war_axe"]
+[ext_resource type="PackedScene" path="res://weapons/slashing/halberd.tscn" id="43_halberd"]
+[ext_resource type="PackedScene" path="res://weapons/slashing/storm_glaive.tscn" id="44_storm_glaive"]
 [ext_resource type="Resource" path="res://status_effects/modifiers/swift.tres" id="36_swift"]
 [ext_resource type="Resource" path="res://status_effects/modifiers/fortified.tres" id="37_fortified"]
 
@@ -105,7 +110,7 @@ point_count = 3
 [node name="Test" type="Node2D" unique_id=1342735548 node_paths=PackedStringArray("player", "waveManager")]
 script = ExtResource("1_test")
 player = NodePath("Player")
-weapons = Array[PackedScene]([ExtResource("3_sword"), ExtResource("15_iron_sword"), ExtResource("16_spear"), ExtResource("17_flame_sword"), ExtResource("19_frost_scythe")])
+weapons = Array[PackedScene]([ExtResource("3_sword"), ExtResource("15_iron_sword"), ExtResource("16_spear"), ExtResource("17_flame_sword"), ExtResource("19_frost_scythe"), ExtResource("40_dagger"), ExtResource("41_greatsword"), ExtResource("42_war_axe"), ExtResource("43_halberd"), ExtResource("44_storm_glaive")])
 rarities = Array[ExtResource("14_rarity")]([ExtResource("4_common"), ExtResource("5_uncommon"), ExtResource("6_rare"), ExtResource("7_epic"), ExtResource("8_legendary"), ExtResource("9_mythic"), ExtResource("10_artifact")])
 waveManager = NodePath("WaveManager")
 testElements = Array[ExtResource("29_weapon_effect")]([ExtResource("30_fire"), ExtResource("31_frost"), ExtResource("32_poison"), ExtResource("33_lightning"), ExtResource("34_water")])
