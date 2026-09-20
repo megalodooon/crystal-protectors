@@ -1267,7 +1267,10 @@ Example: godot/weapons/base/weapon.gd
   scale into unit, makes the control minimapSize x unit big and sets
   scale to 1 / unit: it lays out as 64x36 game pixels but every draw
   call lands on real window pixels, so lanes and icons are smooth and
-  detailed instead of chunky. detailScale overrides unit for testing,
+  detailed instead of chunky. Everything is still drawn as PIXEL ART
+  (developer: smooth anti-aliased lanes looked bad) on a grid of
+  pixelScale (0.5) game pixels, so the minimap has twice the resolution
+  of the game and hard pixel edges. detailScale overrides unit for testing,
   and it re-runs on viewport size_changed. get_canvas_rect() gives the
   rect back in game pixels (the hover tooltip dodges it).
   Sizes in the Look group are in GAME pixels and multiplied by unit.
@@ -1276,18 +1279,20 @@ Example: godot/weapons/base/weapon.gd
   draw_texture_rect_region over mapSize so it tiles like the level), the
   path colours from PathNetwork.style (color + coreColor), each portal's
   own color, each tower's get_color() and each enemy's sprite modulate.
-- Lanes are anti-aliased polylines in three passes over every path
-  (dark outline, path colour, bright core) so they read on top of the
-  noisy ground. The points are sampled once per path and cached
-  (lanePoints, cleared when the scale changes).
+- Lanes are blocks on that grid, three passes over every path
+  (laneOutline 5, laneBody 3, laneCore 1 cells wide) so they read on
+  top of the noisy ground. The cells are walked once per path, deduped
+  and cached (laneCells, cleared when the scale changes). Locked paths
+  are drawn FIRST so an open lane always wins where they cross.
   Inactive lanes and their portals are darkened() by lockedFade, NOT
   made transparent: stacking three translucent passes added back up to
   almost full brightness and locked lanes looked open.
-- Markers: portals are the most detailed (dark backing, filled disc,
-  ring in the portal's colour and a bright core), towers are dots in
-  their get_color(), enemies are small dots in their sprite tint, and
-  the player is a TEXTURE, playerIcon, falling back to the player's own
-  sprite. Set playerIcon to the character's head once heads exist.
+- Markers: a portal is drawn as a small pixel version of the real one,
+  a tall ellipse with the portal's voidColor inside and its own color on
+  the rim, so it reads as the thing on the stage. Towers and enemies are
+  blocks in their get_color() / sprite tint, and the player is a
+  TEXTURE, playerIcon, falling back to the player's own sprite. Set
+  playerIcon to the character's head once heads exist.
 - TowerClass (tower.gd) = StaticBody2D root. HealthComponent for
   Defense Health, a health bar that hides at full, a build pop, tier
   (1-5: upgrade() raises health and damage and refills), destroy() on
