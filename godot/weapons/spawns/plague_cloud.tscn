@@ -7,6 +7,7 @@
 [ext_resource type="Texture2D" path="res://vfx/shared/bubble.tres" id="5_bubble"]
 [ext_resource type="Curve" path="res://vfx/shared/puff_curve.tres" id="6_puff"]
 [ext_resource type="Script" path="res://vfx/base/vfx_flash.gd" id="7_flash"]
+[ext_resource type="Texture2D" path="res://vfx/shared/smoke.png" id="fx_smoke"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_zone"]
 resource_local_to_scene = true
@@ -59,8 +60,10 @@ loop = true
 
 [node name="Murk" type="CPUParticles2D" parent="Visuals"]
 texture_filter = 2
-amount = 12
-texture = ExtResource("4_dot")
+amount = 7
+texture = ExtResource("fx_smoke")
+angle_min = -180.0
+angle_max = 180.0
 lifetime = 1.4
 randomness = 0.5
 emission_shape = 3
@@ -68,16 +71,18 @@ emission_rect_extents = Vector2(22, 9)
 gravity = Vector2(0, -4)
 initial_velocity_min = 1.0
 initial_velocity_max = 4.0
-scale_amount_min = 2.4
-scale_amount_max = 3.4
+scale_amount_min = 0.96
+scale_amount_max = 1.36
 scale_amount_curve = ExtResource("6_puff")
 color_ramp = SubResource("Gradient_murk")
 
 [node name="Cloud" type="CPUParticles2D" parent="Visuals"]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 14
-texture = ExtResource("4_dot")
+amount = 8
+texture = ExtResource("fx_smoke")
+angle_min = -180.0
+angle_max = 180.0
 lifetime = 1.2
 randomness = 0.5
 emission_shape = 3
@@ -85,15 +90,15 @@ emission_rect_extents = Vector2(22, 9)
 gravity = Vector2(0, -6)
 initial_velocity_min = 1.0
 initial_velocity_max = 5.0
-scale_amount_min = 1.8
-scale_amount_max = 2.8
+scale_amount_min = 0.72
+scale_amount_max = 1.12
 scale_amount_curve = ExtResource("6_puff")
 color_ramp = SubResource("Gradient_toxic")
 
 [node name="Bubbles" type="CPUParticles2D" parent="Visuals"]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 8
+amount = 5
 texture = ExtResource("5_bubble")
 lifetime = 0.8
 randomness = 0.5

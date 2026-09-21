@@ -10,6 +10,7 @@
 [ext_resource type="Script" path="res://vfx/base/vfx_flash.gd" id="8_flash"]
 [ext_resource type="Script" path="res://vfx/base/vfx_orbit.gd" id="9_orbit"]
 [ext_resource type="Script" path="res://vfx/base/vfx_spikes.gd" id="10_spikes"]
+[ext_resource type="Texture2D" path="res://vfx/shared/smoke.png" id="fx_smoke"]
 
 [sub_resource type="Gradient" id="Gradient_smoke"]
 offsets = PackedFloat32Array(0, 0.3, 1)
@@ -58,8 +59,10 @@ loop = true
 [node name="Smoke" type="CPUParticles2D" parent="Loop"]
 z_index = -2
 texture_filter = 2
-amount = 8
-texture = ExtResource("4_dot")
+amount = 5
+texture = ExtResource("fx_smoke")
+angle_min = -180.0
+angle_max = 180.0
 lifetime = 0.9
 randomness = 0.4
 emission_shape = 3
@@ -70,16 +73,18 @@ spread = 20.0
 gravity = Vector2(0, -12)
 initial_velocity_min = 2.0
 initial_velocity_max = 6.0
-scale_amount_min = 0.7
-scale_amount_max = 1.1
+scale_amount_min = 0.28
+scale_amount_max = 0.44
 scale_amount_curve = ExtResource("7_puff")
 color_ramp = SubResource("Gradient_smoke")
 
 [node name="Wisps" type="CPUParticles2D" parent="Loop"]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 7
-texture = ExtResource("4_dot")
+amount = 4
+texture = ExtResource("fx_smoke")
+angle_min = -180.0
+angle_max = 180.0
 lifetime = 0.7
 randomness = 0.5
 emission_shape = 3
@@ -92,16 +97,18 @@ initial_velocity_min = 4.0
 initial_velocity_max = 9.0
 tangential_accel_min = -10.0
 tangential_accel_max = 10.0
-scale_amount_min = 0.25
-scale_amount_max = 0.45
+scale_amount_min = 0.1
+scale_amount_max = 0.18
 scale_amount_curve = ExtResource("6_shrink")
 color_ramp = SubResource("Gradient_wisp")
 
 [node name="Drain" type="CPUParticles2D" parent="Loop"]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 6
-texture = ExtResource("4_dot")
+amount = 4
+texture = ExtResource("fx_smoke")
+angle_min = -180.0
+angle_max = 180.0
 lifetime = 0.5
 randomness = 0.3
 local_coords = true
@@ -110,8 +117,8 @@ emission_sphere_radius = 13.0
 gravity = Vector2(0, 0)
 radial_accel_min = -90.0
 radial_accel_max = -70.0
-scale_amount_min = 0.2
-scale_amount_max = 0.35
+scale_amount_min = 0.08
+scale_amount_max = 0.14
 color_ramp = SubResource("Gradient_drain")
 
 [node name="Crown" type="Node2D" parent="Loop"]

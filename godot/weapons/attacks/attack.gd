@@ -14,6 +14,9 @@ func perform() -> void:
 func get_attack_type() -> AttackTypeClass:
 	return null
 
+func uses_stat(_stat : AttributeClass.Stat) -> bool:
+	return false
+
 func get_color() -> Color:
 	if weapon.rarity:
 		return weapon.rarity.color

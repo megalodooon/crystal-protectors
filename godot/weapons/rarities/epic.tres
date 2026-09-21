@@ -3,6 +3,8 @@
 [ext_resource type="Script" uid="uid://b38xrlaoouxfl" path="res://weapons/rarities/rarity.gd" id="1_rarity"]
 [ext_resource type="Script" uid="uid://62usds3gqkdb" path="res://weapons/attacks/slash_style.gd" id="2_slashstyle"]
 [ext_resource type="Resource" uid="uid://mdhadydield1" path="res://weapons/rarities/legendary.tres" id="3_next"]
+[ext_resource type="Script" path="res://weapons/attacks/spell_style.gd" id="4_spellstyle"]
+[ext_resource type="PackedScene" path="res://vfx/effects/spell_impact.tscn" id="5_impact"]
 
 [sub_resource type="Resource" id="Resource_slashstyle"]
 script = ExtResource("2_slashstyle")
@@ -15,10 +17,28 @@ core = 0.7
 tipGlow = 0.6
 streaks = 0.55
 chromaticAberration = 0.6
-orbAmount = 3
-hitSparkAmount = 7
+hitSparkAmount = 5
 screenShake = 2.0
 hitStop = 0.04
+
+[sub_resource type="Resource" id="Resource_spellstyle"]
+script = ExtResource("4_spellstyle")
+sizeMultiplier = 1.06
+trailLength = 0.19
+trailWidth = 1.35
+glow = 0.55
+core = 0.75
+streaks = 0.55
+sparkles = 0.4
+chromaticAberration = 0.5
+headSize = 1.05
+flare = 0.55
+castFlash = 1.0
+impactScene = ExtResource("5_impact")
+impactSize = 0.8
+hitSparkSize = 0.9
+hitSparkAmount = 4
+screenShake = 0.8
 
 [resource]
 script = ExtResource("1_rarity")
@@ -28,3 +48,4 @@ damageMultiplier = 1.35
 attributeSlots = 4
 nextRarity = ExtResource("3_next")
 slashStyle = SubResource("Resource_slashstyle")
+spellStyle = SubResource("Resource_spellstyle")

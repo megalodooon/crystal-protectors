@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" path="res://weapons/auras/weapon_aura.gd" id="1_aura"]
 [ext_resource type="Shader" path="res://weapons/enchant/enchant.gdshader" id="2_glow"]
+[ext_resource type="Texture2D" path="res://vfx/shared/smoke.png" id="fx_smoke"]
+[ext_resource type="Texture2D" path="res://vfx/shared/streak.tres" id="fx_streak"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_glow"]
 shader = ExtResource("2_glow")
@@ -48,8 +50,10 @@ material = SubResource("ShaderMaterial_glow")
 texture_filter = 2
 material = SubResource("CanvasItemMaterial_add")
 emitting = false
-amount = 4
-texture = SubResource("GradientTexture2D_soft")
+amount = 2
+texture = ExtResource("fx_smoke")
+angle_min = -180.0
+angle_max = 180.0
 lifetime = 0.35
 randomness = 0.4
 local_coords = false
@@ -58,8 +62,8 @@ spread = 180.0
 gravity = Vector2(0, -6)
 initial_velocity_min = 0.5
 initial_velocity_max = 2.0
-scale_amount_min = 0.25
-scale_amount_max = 0.45
+scale_amount_min = 0.1
+scale_amount_max = 0.18
 scale_amount_curve = SubResource("Curve_shrink")
 color_ramp = SubResource("Gradient_mist")
 
@@ -68,7 +72,8 @@ texture_filter = 2
 material = SubResource("CanvasItemMaterial_add")
 emitting = false
 amount = 2
-texture = SubResource("GradientTexture2D_soft")
+texture = ExtResource("fx_streak")
+particle_flag_align_y = true
 lifetime = 0.49
 randomness = 0.5
 local_coords = false
@@ -78,7 +83,7 @@ spread = 10.0
 gravity = Vector2(0, 40)
 initial_velocity_min = 0.0
 initial_velocity_max = 2.0
-scale_amount_min = 0.3
-scale_amount_max = 0.45
+scale_amount_min = 0.15
+scale_amount_max = 0.225
 scale_amount_curve = SubResource("Curve_shrink")
 color_ramp = SubResource("Gradient_drip")

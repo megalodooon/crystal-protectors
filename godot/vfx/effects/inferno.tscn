@@ -8,6 +8,8 @@
 [ext_resource type="Curve" path="res://vfx/shared/shrink_curve.tres" id="6_shrink"]
 [ext_resource type="Curve" path="res://vfx/shared/twinkle_curve.tres" id="7_twinkle"]
 [ext_resource type="Script" path="res://vfx/base/vfx_flash.gd" id="8_flash"]
+[ext_resource type="Texture2D" path="res://vfx/shared/flame.png" id="fx_flame"]
+[ext_resource type="Texture2D" path="res://vfx/shared/streak.tres" id="fx_streak"]
 
 [sub_resource type="Gradient" id="Gradient_flame"]
 offsets = PackedFloat32Array(0, 0.15, 0.45, 0.75, 1)
@@ -51,8 +53,8 @@ endScale = 1.2
 [node name="Ring" type="CPUParticles2D" parent="."]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 28
-texture = ExtResource("5_dot")
+amount = 20
+texture = ExtResource("fx_flame")
 lifetime = 0.6
 one_shot = true
 explosiveness = 0.95
@@ -64,16 +66,16 @@ initial_velocity_min = 40.0
 initial_velocity_max = 70.0
 damping_min = 80.0
 damping_max = 120.0
-scale_amount_min = 0.9
-scale_amount_max = 1.4
+scale_amount_min = 0.54
+scale_amount_max = 0.84
 scale_amount_curve = ExtResource("6_shrink")
 color_ramp = SubResource("Gradient_flame")
 
 [node name="Pillar" type="CPUParticles2D" parent="."]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 16
-texture = ExtResource("5_dot")
+amount = 11
+texture = ExtResource("fx_flame")
 lifetime = 0.7
 one_shot = true
 explosiveness = 0.6
@@ -86,16 +88,17 @@ spread = 20.0
 gravity = Vector2(0, -80)
 initial_velocity_min = 20.0
 initial_velocity_max = 45.0
-scale_amount_min = 1.0
-scale_amount_max = 1.5
+scale_amount_min = 0.6
+scale_amount_max = 0.9
 scale_amount_curve = ExtResource("6_shrink")
 color_ramp = SubResource("Gradient_flame")
 
 [node name="Embers" type="CPUParticles2D" parent="."]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 12
-texture = ExtResource("5_dot")
+amount = 8
+texture = ExtResource("fx_streak")
+particle_flag_align_y = true
 lifetime = 1.0
 one_shot = true
 explosiveness = 0.7
@@ -107,7 +110,7 @@ initial_velocity_min = 20.0
 initial_velocity_max = 55.0
 damping_min = 30.0
 damping_max = 50.0
-scale_amount_min = 0.3
-scale_amount_max = 0.5
+scale_amount_min = 0.15
+scale_amount_max = 0.25
 scale_amount_curve = ExtResource("7_twinkle")
 color_ramp = SubResource("Gradient_ember")

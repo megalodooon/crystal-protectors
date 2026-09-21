@@ -1,0 +1,20 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" uid="uid://bxgjh5il07bj3" path="res://player/player.tscn" id="1_player"]
+[ext_resource type="Script" uid="uid://cmv37ih5m3oc3" path="res://weapons/base/weapon_item.gd" id="2_item"]
+[ext_resource type="PackedScene" path="res://weapons/casting/apprentice_staff.tscn" id="3_weapon"]
+[ext_resource type="Resource" uid="uid://uawdk2x0kkvq" path="res://weapons/rarities/common.tres" id="4_common"]
+[ext_resource type="Script" path="res://weapons/attacks/attack_type.gd" id="5_type"]
+[ext_resource type="Resource" path="res://weapons/attacks/spell_type.tres" id="6_spell"]
+[ext_resource type="Texture2D" path="res://player/mage.png" id="7_image"]
+
+[sub_resource type="Resource" id="Resource_item"]
+script = ExtResource("2_item")
+weaponScene = ExtResource("3_weapon")
+rarity = ExtResource("4_common")
+
+[node name="Mage" instance=ExtResource("1_player")]
+characterName = "Mage"
+weaponTypes = Array[ExtResource("5_type")]([ExtResource("6_spell")])
+image = ExtResource("7_image")
+weaponItem = SubResource("Resource_item")

@@ -8,6 +8,7 @@ class_name StatusEffectClass
 @export var permanent : bool = false
 @export var beneficial : bool = false
 @export var visualScene : PackedScene
+@export var alwaysShowVisual : bool = false
 @export var interactions : Array[StatusInteractionClass]
 
 var status : StatusComponentClass

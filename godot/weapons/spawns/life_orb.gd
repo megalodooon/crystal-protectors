@@ -11,7 +11,7 @@ class_name LifeOrbClass
 
 @onready var glow : Sprite2D = $Glow
 @onready var core : Sprite2D = $Core
-@onready var trail : CPUParticles2D = $Trail
+@onready var trail : VfxTrailClass = $Trail
 
 var target : Node2D
 var velocity : Vector2 = Vector2.ZERO
@@ -47,4 +47,4 @@ func finish(reachedTarget : Node2D) -> void:
 	if reachedTarget and impactScene:
 		var impact : Node2D = impactScene.instantiate()
 		reachedTarget.add_child(impact)
-	get_tree().create_timer(trail.lifetime + 0.1).timeout.connect(queue_free)
+	get_tree().create_timer(trail.length + 0.1).timeout.connect(queue_free)

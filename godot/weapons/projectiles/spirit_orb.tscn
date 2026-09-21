@@ -7,6 +7,8 @@
 [ext_resource type="Texture2D" path="res://vfx/shared/soft_dot.tres" id="5_dot"]
 [ext_resource type="Curve" path="res://vfx/shared/shrink_curve.tres" id="6_shrink"]
 [ext_resource type="Curve" path="res://vfx/shared/twinkle_curve.tres" id="7_twinkle"]
+[ext_resource type="Script" path="res://vfx/base/vfx_trail.gd" id="fx_trail"]
+[ext_resource type="Texture2D" path="res://vfx/shared/sparkle.png" id="fx_sparkle"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_orb"]
 radius = 3.0
@@ -33,42 +35,31 @@ lifetime = 1.6
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_orb")
 
-[node name="Wake" type="CPUParticles2D" parent="."]
+[node name="Wake" type="Node2D" parent="."]
 show_behind_parent = true
+texture_filter = 2
 material = ExtResource("2_add")
-emitting = false
-amount = 14
-texture = ExtResource("5_dot")
-lifetime = 0.5
-emission_shape = 1
-emission_sphere_radius = 1.0
-gravity = Vector2(0, 0)
-scale_amount_min = 1.4
-scale_amount_max = 1.9
-scale_amount_curve = ExtResource("6_shrink")
-color_ramp = SubResource("Gradient_wake")
+script = ExtResource("fx_trail")
+length = 0.3
+width = 2.8
+color = Color(1, 1, 1, 0.3)
 
-[node name="Trail" type="CPUParticles2D" parent="."]
+[node name="Trail" type="Node2D" parent="."]
 show_behind_parent = true
+texture_filter = 2
 material = ExtResource("2_add")
-emitting = false
-amount = 28
-texture = ExtResource("5_dot")
-lifetime = 0.32
-emission_shape = 1
-emission_sphere_radius = 1.2
-gravity = Vector2(0, 0)
-scale_amount_min = 0.45
-scale_amount_max = 0.8
-scale_amount_curve = ExtResource("6_shrink")
-color_ramp = SubResource("Gradient_trail")
+script = ExtResource("fx_trail")
+length = 0.18
+width = 1.1
+color = Color(1, 1, 1, 0.9)
+fadePower = 1.2
 
 [node name="Wisps" type="CPUParticles2D" parent="."]
 show_behind_parent = true
 material = ExtResource("2_add")
 emitting = false
-amount = 8
-texture = ExtResource("5_dot")
+amount = 3
+texture = ExtResource("fx_sparkle")
 lifetime = 0.45
 randomness = 0.5
 emission_shape = 1
@@ -77,8 +68,8 @@ spread = 180.0
 gravity = Vector2(0, -12)
 initial_velocity_min = 6.0
 initial_velocity_max = 14.0
-scale_amount_min = 0.25
-scale_amount_max = 0.45
+scale_amount_min = 0.14
+scale_amount_max = 0.25
 scale_amount_curve = ExtResource("7_twinkle")
 color_ramp = SubResource("Gradient_trail")
 

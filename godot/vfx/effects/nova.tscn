@@ -10,6 +10,7 @@
 [ext_resource type="Curve" path="res://vfx/shared/twinkle_curve.tres" id="8_twinkle"]
 [ext_resource type="Script" path="res://vfx/base/vfx_flash.gd" id="9_flash"]
 [ext_resource type="Script" path="res://vfx/base/vfx_ring.gd" id="10_ring"]
+[ext_resource type="Texture2D" path="res://vfx/shared/sparkle.png" id="fx_sparkle"]
 
 [sub_resource type="Gradient" id="Gradient_fade"]
 offsets = PackedFloat32Array(0, 0.2, 1)
@@ -68,7 +69,7 @@ duration = 0.42
 [node name="Rays" type="CPUParticles2D" parent="."]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 20
+amount = 14
 texture = ExtResource("5_streak")
 lifetime = 0.4
 one_shot = true
@@ -95,8 +96,8 @@ color_ramp = SubResource("Gradient_fade")
 [node name="Sparkles" type="CPUParticles2D" parent="."]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 16
-texture = ExtResource("6_dot")
+amount = 11
+texture = ExtResource("fx_sparkle")
 lifetime = 0.7
 one_shot = true
 explosiveness = 0.9
@@ -110,7 +111,7 @@ initial_velocity_min = 20.0
 initial_velocity_max = 50.0
 damping_min = 40.0
 damping_max = 60.0
-scale_amount_min = 0.35
-scale_amount_max = 0.7
+scale_amount_min = 0.192
+scale_amount_max = 0.385
 scale_amount_curve = ExtResource("8_twinkle")
 color_ramp = SubResource("Gradient_fade")

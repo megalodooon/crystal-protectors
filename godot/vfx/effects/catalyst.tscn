@@ -9,6 +9,9 @@
 [ext_resource type="Curve" path="res://vfx/shared/shrink_curve.tres" id="7_shrink"]
 [ext_resource type="Script" path="res://vfx/base/vfx_flash.gd" id="8_flash"]
 [ext_resource type="Script" path="res://vfx/base/vfx_spikes.gd" id="9_spikes"]
+[ext_resource type="Texture2D" path="res://vfx/shared/flame.png" id="fx_flame"]
+[ext_resource type="Texture2D" path="res://vfx/shared/smoke.png" id="fx_smoke"]
+[ext_resource type="Texture2D" path="res://vfx/shared/sparkle.png" id="fx_sparkle"]
 
 [sub_resource type="Gradient" id="Gradient_fire"]
 offsets = PackedFloat32Array(0, 0.25, 1)
@@ -36,8 +39,8 @@ shake = 1.0
 [node name="Gather" type="CPUParticles2D" parent="."]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 12
-texture = ExtResource("5_dot")
+amount = 8
+texture = ExtResource("fx_sparkle")
 lifetime = 0.18
 one_shot = true
 explosiveness = 1.0
@@ -47,8 +50,8 @@ emission_sphere_radius = 16.0
 gravity = Vector2(0, 0)
 radial_accel_min = -900.0
 radial_accel_max = -700.0
-scale_amount_min = 0.35
-scale_amount_max = 0.5
+scale_amount_min = 0.192
+scale_amount_max = 0.275
 color_ramp = SubResource("Gradient_gather")
 
 [node name="Glow" type="Sprite2D" parent="."]
@@ -91,8 +94,8 @@ alternate = 0.55
 [node name="Fire" type="CPUParticles2D" parent="."]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 10
-texture = ExtResource("5_dot")
+amount = 7
+texture = ExtResource("fx_flame")
 lifetime = 0.5
 one_shot = true
 explosiveness = 0.9
@@ -104,16 +107,18 @@ initial_velocity_min = 35.0
 initial_velocity_max = 70.0
 damping_min = 90.0
 damping_max = 130.0
-scale_amount_min = 0.5
-scale_amount_max = 0.8
+scale_amount_min = 0.3
+scale_amount_max = 0.48
 scale_amount_curve = ExtResource("7_shrink")
 color_ramp = SubResource("Gradient_fire")
 
 [node name="Toxic" type="CPUParticles2D" parent="."]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 8
-texture = ExtResource("5_dot")
+amount = 6
+texture = ExtResource("fx_smoke")
+angle_min = -180.0
+angle_max = 180.0
 lifetime = 0.55
 one_shot = true
 explosiveness = 0.9
@@ -125,15 +130,15 @@ initial_velocity_min = 30.0
 initial_velocity_max = 60.0
 damping_min = 80.0
 damping_max = 110.0
-scale_amount_min = 0.45
-scale_amount_max = 0.7
+scale_amount_min = 0.18
+scale_amount_max = 0.28
 scale_amount_curve = ExtResource("7_shrink")
 color_ramp = SubResource("Gradient_toxic")
 
 [node name="Blood" type="CPUParticles2D" parent="."]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 10
+amount = 7
 texture = ExtResource("6_streak")
 lifetime = 0.4
 one_shot = true

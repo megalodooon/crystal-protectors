@@ -15,6 +15,7 @@ const MODIFIERS := preload("res://enemies/enemy_modifiers.tres")
 @export var attackDamage : float = 10.0
 @export var attackCooldown : float = 0.8
 @export var manaReward : int = 8
+@export var blockCheckTime : float = 0.1
 
 @onready var visuals : Node2D = $Visuals
 @onready var sprite : Sprite2D = $Visuals/Sprite2D
@@ -51,13 +52,14 @@ func _physics_process(delta : float) -> void:
 func attack_blocker() -> void:
 	if attackTimer > 0.0:
 		return
+	attackTimer = blockCheckTime
 	for i in get_slide_collision_count():
 		var tower : TowerClass = get_slide_collision(i).get_collider() as TowerClass
 		if not tower:
 			continue
 		attackTimer = attackCooldown
 		tower.take_damage(attackDamage * COMBAT_SCALING.get_multiplier(combatLevel))
-		Vfx.show_hit_spark(global_position.lerp(tower.global_position, 0.6), Color(1.0, 0.5, 0.35), 0.7, 4, 0, global_position.angle_to_point(tower.global_position))
+		Vfx.show_hit_spark(global_position.lerp(tower.global_position, 0.6), Color(1.0, 0.5, 0.35), 0.7, 3, global_position.angle_to_point(tower.global_position))
 		return
 
 func update_facing(delta : float) -> void:

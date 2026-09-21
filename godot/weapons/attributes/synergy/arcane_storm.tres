@@ -1,0 +1,43 @@
+[gd_resource type="Resource" script_class="ProjectileAttributeClass" format=3]
+
+[ext_resource type="Script" path="res://weapons/attributes/behaviors/projectile_attribute.gd" id="1_attribute"]
+[ext_resource type="Script" path="res://weapons/attributes/base/attribute_scaling.gd" id="2_scaling"]
+[ext_resource type="Resource" path="res://weapons/attributes/special/echo.tres" id="3_res"]
+[ext_resource type="Resource" path="res://weapons/attributes/special/arcane_barrage.tres" id="4_res"]
+[ext_resource type="PackedScene" path="res://weapons/projectiles/spell_barrage.tscn" id="5_projectile"]
+[ext_resource type="PackedScene" path="res://vfx/effects/cast_flash.tscn" id="6_effect"]
+
+[sub_resource type="Resource" id="Resource_scaling"]
+script = ExtResource("2_scaling")
+minBase = 0.25
+maxBase = 0.3
+perStep = 0.004
+percent = true
+
+[sub_resource type="Resource" id="Resource_chance"]
+script = ExtResource("2_scaling")
+minBase = 0.5
+maxBase = 0.6
+perStep = 0.005
+percent = true
+
+[sub_resource type="Resource" id="Resource_count"]
+script = ExtResource("2_scaling")
+minBase = 8.0
+maxBase = 8.0
+wholeNumber = true
+
+[resource]
+script = ExtResource("1_attribute")
+projectileScene = ExtResource("5_projectile")
+countScaling = SubResource("Resource_count")
+ringBurst = true
+spawnDistance = 6.0
+attributeName = "Arcane Storm"
+description = "Arcane Storm: {chance}% Echo casts release {count} bolts {value}%"
+scaling = SubResource("Resource_scaling")
+trigger = 5
+chanceScaling = SubResource("Resource_chance")
+effectScene = ExtResource("6_effect")
+requiredAttributes = Array[Resource]([ExtResource("3_res"), ExtResource("4_res")])
+procSource = ExtResource("3_res")

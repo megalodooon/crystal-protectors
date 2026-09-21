@@ -12,7 +12,7 @@ class_name BladeStormClass
 
 @onready var detector : Area2D = $Detector
 @onready var detectorShape : CollisionShape2D = $Detector/CollisionShape2D
-@onready var trails : Array[CPUParticles2D] = [$Trail1, $Trail2, $Trail3]
+@onready var trails : Array[VfxTrailClass] = [$Trail1, $Trail2, $Trail3]
 @onready var glow : Sprite2D = $Glow
 
 var duration : float = 2.5
@@ -32,7 +32,7 @@ func _ready() -> void:
 	shape.radius = radius + 5.0
 	glow.self_modulate = color
 	for trail in trails:
-		trail.color = color
+		trail.color = Color(color, trail.color.a)
 
 func _physics_process(delta : float) -> void:
 	age += delta
@@ -62,7 +62,7 @@ func hit(hurtbox : HurtboxComponentClass) -> void:
 	if isCrit:
 		hitDamage *= critMultiplier
 	hurtbox.take_damage(hitDamage, damageType, isCrit)
-	Vfx.show_hit_spark(hurtbox.global_position, color, 0.7, 5, 0, global_position.angle_to_point(hurtbox.global_position) + PI / 2.0)
+	Vfx.show_hit_spark(hurtbox.global_position, color, 0.7, 4, global_position.angle_to_point(hurtbox.global_position) + PI / 2.0)
 
 func refresh(newDuration : float) -> void:
 	duration = maxf(duration, age + newDuration)

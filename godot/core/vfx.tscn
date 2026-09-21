@@ -6,6 +6,7 @@
 
 [node name="Vfx" type="Node"]
 script = ExtResource("1_vfx")
+warmupScenes = Array[String](["res://weapons/attacks/spell_bolt.tscn"])
 
 [node name="HitSparks" parent="." instance=ExtResource("3_sparks")]
 

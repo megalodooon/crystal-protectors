@@ -10,6 +10,7 @@
 [ext_resource type="Curve" path="res://vfx/shared/twinkle_curve.tres" id="8_twinkle"]
 [ext_resource type="Script" path="res://vfx/base/vfx_flash.gd" id="9_flash"]
 [ext_resource type="Script" path="res://vfx/base/vfx_spikes.gd" id="10_spikes"]
+[ext_resource type="Texture2D" path="res://vfx/shared/sparkle.png" id="fx_sparkle"]
 
 [sub_resource type="Gradient" id="Gradient_rainbow"]
 offsets = PackedFloat32Array(0, 0.2, 0.4, 0.6, 0.8, 1)
@@ -63,8 +64,8 @@ spin = 3.0
 [node name="Motes" type="CPUParticles2D" parent="."]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 16
-texture = ExtResource("5_dot")
+amount = 11
+texture = ExtResource("fx_sparkle")
 lifetime = 0.6
 one_shot = true
 explosiveness = 0.95
@@ -78,15 +79,15 @@ orbit_velocity_min = 0.4
 orbit_velocity_max = 0.7
 damping_min = 60.0
 damping_max = 90.0
-scale_amount_min = 0.35
-scale_amount_max = 0.6
+scale_amount_min = 0.192
+scale_amount_max = 0.33
 scale_amount_curve = ExtResource("7_shrink")
 color_ramp = SubResource("Gradient_rainbow")
 
 [node name="Sparkles" type="CPUParticles2D" parent="."]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 9
+amount = 6
 texture = ExtResource("6_sparkle")
 lifetime = 0.8
 one_shot = true

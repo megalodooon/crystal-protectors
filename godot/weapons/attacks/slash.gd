@@ -101,7 +101,7 @@ func on_hit(hurtbox : HurtboxComponentClass, hitDamage : float) -> void:
 	if is_instance_valid(attack):
 		attack.register_hit(hurtbox, hitDamage)
 	var angle : float = (hurtbox.global_position - global_position).angle() + PI / 2.0 * swingDirection
-	Vfx.show_hit_spark(hurtbox.global_position, colors[1], style.hitSparkSize, style.hitSparkAmount, style.orbAmount, angle)
+	Vfx.show_hit_spark(hurtbox.global_position, colors[1], style.hitSparkSize, style.hitSparkAmount, angle)
 	if not hitFeelPlayed:
 		hitFeelPlayed = true
 		GameFeel.hit_stop(style.hitStop)

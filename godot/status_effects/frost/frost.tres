@@ -23,4 +23,5 @@ effectName = "Frost"
 duration = 4.0
 tickInterval = 0.0
 visualScene = ExtResource("3_particles")
+alwaysShowVisual = true
 interactions = Array[ExtResource("6_interaction")]([SubResource("Resource_melted")])

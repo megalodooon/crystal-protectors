@@ -7,6 +7,7 @@
 [ext_resource type="Curve" path="res://vfx/shared/twinkle_curve.tres" id="5_twinkle"]
 [ext_resource type="Script" path="res://vfx/base/vfx_flash.gd" id="6_flash"]
 [ext_resource type="Script" path="res://vfx/base/vfx_spikes.gd" id="8_spikes"]
+[ext_resource type="Texture2D" path="res://vfx/shared/sparkle.png" id="fx_sparkle"]
 
 [sub_resource type="Gradient" id="Gradient_gold"]
 offsets = PackedFloat32Array(0, 0.25, 1)
@@ -44,8 +45,8 @@ color = Color(1, 0.9, 0.5, 1)
 [node name="Motes" type="CPUParticles2D" parent="."]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 10
-texture = ExtResource("4_dot")
+amount = 7
+texture = ExtResource("fx_sparkle")
 lifetime = 0.6
 one_shot = true
 explosiveness = 0.8
@@ -58,7 +59,7 @@ spread = 40.0
 gravity = Vector2(0, -30)
 initial_velocity_min = 10.0
 initial_velocity_max = 25.0
-scale_amount_min = 0.3
-scale_amount_max = 0.55
+scale_amount_min = 0.165
+scale_amount_max = 0.303
 scale_amount_curve = ExtResource("5_twinkle")
 color_ramp = SubResource("Gradient_gold")

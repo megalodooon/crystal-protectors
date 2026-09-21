@@ -11,6 +11,7 @@
 [ext_resource type="Script" path="res://vfx/base/vfx_spikes.gd" id="9_spikes"]
 [ext_resource type="Curve" path="res://vfx/shared/twinkle_curve.tres" id="10_twinkle"]
 [ext_resource type="Curve" path="res://vfx/shared/shrink_curve.tres" id="11_shrink"]
+[ext_resource type="Texture2D" path="res://vfx/shared/sparkle.png" id="fx_sparkle"]
 
 [sub_resource type="Gradient" id="Gradient_spark"]
 offsets = PackedFloat32Array(0, 0.25, 1)
@@ -55,7 +56,7 @@ loop = true
 [node name="Sparks" type="CPUParticles2D" parent="Loop"]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 6
+amount = 4
 texture = ExtResource("4_streak")
 lifetime = 0.15
 randomness = 0.6
@@ -73,15 +74,15 @@ color_ramp = SubResource("Gradient_spark")
 [node name="Crackle" type="CPUParticles2D" parent="Loop"]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 5
-texture = ExtResource("3_dot")
+amount = 3
+texture = ExtResource("fx_sparkle")
 lifetime = 0.25
 randomness = 0.6
 emission_shape = 3
 emission_rect_extents = Vector2(6, 7)
 gravity = Vector2(0, 0)
-scale_amount_min = 0.25
-scale_amount_max = 0.4
+scale_amount_min = 0.138
+scale_amount_max = 0.22
 scale_amount_curve = ExtResource("10_twinkle")
 color_ramp = SubResource("Gradient_spark")
 
@@ -105,7 +106,7 @@ color_ramp = SubResource("Gradient_zap")
 texture_filter = 2
 material = ExtResource("2_add")
 emitting = false
-amount = 8
+amount = 6
 texture = ExtResource("4_streak")
 lifetime = 0.2
 one_shot = true
@@ -160,7 +161,7 @@ color = Color(1, 0.9, 0.45, 1)
 [node name="Sparks" type="CPUParticles2D" parent="Burst"]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 12
+amount = 8
 texture = ExtResource("4_streak")
 lifetime = 0.28
 one_shot = true

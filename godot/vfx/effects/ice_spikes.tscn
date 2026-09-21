@@ -9,6 +9,7 @@
 [ext_resource type="Shader" path="res://status_effects/frost/icicle.gdshader" id="7_icicle_shader"]
 [ext_resource type="Texture2D" path="res://vfx/shared/flash_glow.tres" id="8_flash"]
 [ext_resource type="Script" path="res://vfx/base/vfx_flash.gd" id="9_flash"]
+[ext_resource type="Texture2D" path="res://vfx/shared/smoke.png" id="fx_smoke"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_icicle"]
 shader = ExtResource("7_icicle_shader")
@@ -63,8 +64,10 @@ endScale = 1.1
 texture_filter = 2
 material = ExtResource("2_add")
 position = Vector2(0, 3)
-amount = 12
-texture = ExtResource("4_dot")
+amount = 8
+texture = ExtResource("fx_smoke")
+angle_min = -180.0
+angle_max = 180.0
 lifetime = 0.9
 one_shot = true
 explosiveness = 0.9
@@ -76,14 +79,14 @@ spread = 180.0
 gravity = Vector2(0, -6)
 initial_velocity_min = 3.0
 initial_velocity_max = 12.0
-scale_amount_min = 1.2
-scale_amount_max = 2.0
+scale_amount_min = 0.48
+scale_amount_max = 0.8
 color_ramp = SubResource("Gradient_mist")
 
 [node name="Icicles" type="CPUParticles2D" parent="."]
 material = SubResource("ShaderMaterial_icicle")
 position = Vector2(0, 5)
-amount = 9
+amount = 6
 texture = ExtResource("6_icicle")
 lifetime = 0.55
 one_shot = true
@@ -106,7 +109,7 @@ scale_amount_curve = SubResource("Curve_erupt")
 color_ramp = SubResource("Gradient_icicle_fade")
 
 [node name="Shards" type="CPUParticles2D" parent="."]
-amount = 16
+amount = 11
 texture = ExtResource("5_pixel")
 lifetime = 0.45
 one_shot = true

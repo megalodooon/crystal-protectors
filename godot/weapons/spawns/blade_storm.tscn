@@ -5,6 +5,7 @@
 [ext_resource type="Texture2D" path="res://vfx/shared/soft_glow.tres" id="3_glow"]
 [ext_resource type="Texture2D" path="res://vfx/shared/soft_dot.tres" id="4_dot"]
 [ext_resource type="Curve" path="res://vfx/shared/shrink_curve.tres" id="5_shrink"]
+[ext_resource type="Script" path="res://vfx/base/vfx_trail.gd" id="fx_trail"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_storm"]
 resource_local_to_scene = true
@@ -35,41 +36,24 @@ scale = Vector2(1.6, 1.6)
 modulate = Color(1, 1, 1, 0.25)
 texture = ExtResource("3_glow")
 
-[node name="Trail1" type="CPUParticles2D" parent="."]
+[node name="Trail1" type="Node2D" parent="."]
 material = ExtResource("2_add")
-amount = 20
-texture = ExtResource("4_dot")
-lifetime = 0.2
-emission_shape = 1
-emission_sphere_radius = 2.0
-gravity = Vector2(0, 0)
-scale_amount_min = 0.5
-scale_amount_max = 0.8
-scale_amount_curve = ExtResource("5_shrink")
-color_ramp = SubResource("Gradient_trail")
+script = ExtResource("fx_trail")
+length = 0.12
+width = 1.6
+color = Color(1, 1, 1, 0.8)
 
-[node name="Trail2" type="CPUParticles2D" parent="."]
+[node name="Trail2" type="Node2D" parent="."]
 material = ExtResource("2_add")
-amount = 20
-texture = ExtResource("4_dot")
-lifetime = 0.2
-emission_shape = 1
-emission_sphere_radius = 2.0
-gravity = Vector2(0, 0)
-scale_amount_min = 0.5
-scale_amount_max = 0.8
-scale_amount_curve = ExtResource("5_shrink")
-color_ramp = SubResource("Gradient_trail")
+script = ExtResource("fx_trail")
+length = 0.12
+width = 1.6
+color = Color(1, 1, 1, 0.8)
 
-[node name="Trail3" type="CPUParticles2D" parent="."]
+[node name="Trail3" type="Node2D" parent="."]
 material = ExtResource("2_add")
-amount = 20
-texture = ExtResource("4_dot")
-lifetime = 0.2
-emission_shape = 1
-emission_sphere_radius = 2.0
-gravity = Vector2(0, 0)
-scale_amount_min = 0.5
-scale_amount_max = 0.8
-scale_amount_curve = ExtResource("5_shrink")
-color_ramp = SubResource("Gradient_trail")
+script = ExtResource("fx_trail")
+length = 0.12
+width = 1.6
+color = Color(1, 1, 1, 0.8)
+

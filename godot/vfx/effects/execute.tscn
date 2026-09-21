@@ -9,6 +9,7 @@
 [ext_resource type="Curve" path="res://vfx/shared/puff_curve.tres" id="7_puff"]
 [ext_resource type="Script" path="res://vfx/base/vfx_flash.gd" id="8_flash"]
 [ext_resource type="Script" path="res://vfx/base/vfx_spikes.gd" id="10_spikes"]
+[ext_resource type="Texture2D" path="res://vfx/shared/smoke.png" id="fx_smoke"]
 
 [sub_resource type="Gradient" id="Gradient_blood"]
 offsets = PackedFloat32Array(0, 0.7, 1)
@@ -27,8 +28,10 @@ shake = 1.0
 
 [node name="Shadow" type="CPUParticles2D" parent="."]
 texture_filter = 2
-amount = 8
-texture = ExtResource("6_dot")
+amount = 6
+texture = ExtResource("fx_smoke")
+angle_min = -180.0
+angle_max = 180.0
 lifetime = 0.8
 one_shot = true
 explosiveness = 1.0
@@ -42,8 +45,8 @@ initial_velocity_min = 15.0
 initial_velocity_max = 30.0
 damping_min = 30.0
 damping_max = 45.0
-scale_amount_min = 1.6
-scale_amount_max = 2.4
+scale_amount_min = 0.64
+scale_amount_max = 0.96
 scale_amount_curve = ExtResource("7_puff")
 color_ramp = SubResource("Gradient_shadow")
 
@@ -84,7 +87,7 @@ angleOffset = 45.0
 lengthRandomness = 0.0
 
 [node name="Blood" type="CPUParticles2D" parent="."]
-amount = 16
+amount = 11
 texture = ExtResource("5_pixel")
 lifetime = 0.6
 one_shot = true

@@ -11,6 +11,7 @@
 [ext_resource type="Script" path="res://vfx/base/vfx_spikes.gd" id="9_spikes"]
 [ext_resource type="Texture2D" path="res://vfx/shared/flash_glow.tres" id="10_flash"]
 [ext_resource type="Curve" path="res://vfx/shared/shrink_curve.tres" id="11_shrink"]
+[ext_resource type="Texture2D" path="res://vfx/shared/sparkle.png" id="fx_sparkle"]
 
 [sub_resource type="Gradient" id="Gradient_spark"]
 offsets = PackedFloat32Array(0, 0.2, 1)
@@ -50,16 +51,16 @@ color = Color(1, 0.86, 0.3, 1)
 texture_filter = 2
 material = ExtResource("2_add")
 position = Vector2(0, -12)
-amount = 6
-texture = ExtResource("3_dot")
+amount = 4
+texture = ExtResource("fx_sparkle")
 lifetime = 0.45
 randomness = 0.5
 local_coords = true
 emission_shape = 3
 emission_rect_extents = Vector2(9, 3)
 gravity = Vector2(0, -6)
-scale_amount_min = 0.35
-scale_amount_max = 0.55
+scale_amount_min = 0.192
+scale_amount_max = 0.303
 scale_amount_curve = ExtResource("6_twinkle")
 color = Color(1, 0.95, 0.6, 1)
 
@@ -92,7 +93,7 @@ color = Color(1, 0.88, 0.35, 1)
 texture_filter = 2
 material = ExtResource("2_add")
 position = Vector2(0, -6)
-amount = 10
+amount = 7
 texture = ExtResource("4_streak")
 lifetime = 0.3
 one_shot = true

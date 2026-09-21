@@ -8,6 +8,8 @@
 [ext_resource type="Curve" path="res://vfx/shared/puff_curve.tres" id="7_puff"]
 [ext_resource type="PackedScene" path="res://vfx/effects/explosion.tscn" id="9_explosion"]
 [ext_resource type="Texture2D" path="res://weapons/projectiles/meteor_rock.png" id="10_rock"]
+[ext_resource type="Script" path="res://vfx/base/vfx_trail.gd" id="fx_trail"]
+[ext_resource type="Texture2D" path="res://vfx/shared/smoke.png" id="fx_smoke"]
 
 [sub_resource type="Gradient" id="Gradient_fire"]
 offsets = PackedFloat32Array(0, 0.2, 0.55, 1)
@@ -37,32 +39,28 @@ texture = ExtResource("3_glow")
 
 [node name="Smoke" type="CPUParticles2D" parent="Rock"]
 texture_filter = 2
-amount = 8
-texture = ExtResource("5_dot")
+amount = 5
+texture = ExtResource("fx_smoke")
 lifetime = 0.5
 randomness = 0.4
 emission_shape = 1
 emission_sphere_radius = 2.0
 gravity = Vector2(0, -10)
-scale_amount_min = 0.8
-scale_amount_max = 1.1
+angle_min = -180.0
+angle_max = 180.0
+scale_amount_min = 0.32
+scale_amount_max = 0.44
 scale_amount_curve = ExtResource("7_puff")
 color_ramp = SubResource("Gradient_smoke")
 
-[node name="Trail" type="CPUParticles2D" parent="Rock"]
+[node name="Trail" type="Node2D" parent="Rock"]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 24
-texture = ExtResource("5_dot")
-lifetime = 0.28
-randomness = 0.3
-emission_shape = 1
-emission_sphere_radius = 2.5
-gravity = Vector2(0, 0)
-scale_amount_min = 0.7
-scale_amount_max = 1.0
-scale_amount_curve = ExtResource("6_shrink")
-color_ramp = SubResource("Gradient_fire")
+script = ExtResource("fx_trail")
+length = 0.16
+width = 2.8
+colorRamp = SubResource("Gradient_fire")
+fadePower = 1.0
 
 [node name="Glow" type="Sprite2D" parent="Rock"]
 texture_filter = 2

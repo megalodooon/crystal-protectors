@@ -4,6 +4,8 @@
 [ext_resource type="Shader" path="res://weapons/enchant/enchant.gdshader" id="2_glow"]
 [ext_resource type="Texture2D" path="res://vfx/shared/soft_dot.tres" id="3_dot"]
 [ext_resource type="Curve" path="res://vfx/shared/twinkle_curve.tres" id="4_twinkle"]
+[ext_resource type="Texture2D" path="res://vfx/shared/flame.png" id="fx_flame"]
+[ext_resource type="Texture2D" path="res://vfx/shared/streak.tres" id="fx_streak"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_glow"]
 shader = ExtResource("2_glow")
@@ -50,8 +52,8 @@ material = SubResource("ShaderMaterial_glow")
 texture_filter = 2
 material = SubResource("CanvasItemMaterial_add")
 emitting = false
-amount = 7
-texture = SubResource("GradientTexture2D_soft")
+amount = 4
+texture = ExtResource("fx_flame")
 lifetime = 0.24
 randomness = 0.4
 local_coords = false
@@ -60,8 +62,8 @@ spread = 180.0
 gravity = Vector2(0, -25)
 initial_velocity_min = 1.0
 initial_velocity_max = 3.0
-scale_amount_min = 0.25
-scale_amount_max = 0.5
+scale_amount_min = 0.15
+scale_amount_max = 0.3
 scale_amount_curve = SubResource("Curve_shrink")
 color_ramp = SubResource("Gradient_fire")
 
@@ -70,7 +72,8 @@ texture_filter = 2
 material = SubResource("CanvasItemMaterial_add")
 emitting = false
 amount = 2
-texture = ExtResource("3_dot")
+texture = ExtResource("fx_streak")
+particle_flag_align_y = true
 lifetime = 0.56
 randomness = 0.5
 local_coords = false
@@ -81,7 +84,7 @@ initial_velocity_min = 2.0
 initial_velocity_max = 5.0
 damping_min = 3.0
 damping_max = 6.0
-scale_amount_min = 0.3
-scale_amount_max = 0.5
+scale_amount_min = 0.15
+scale_amount_max = 0.25
 scale_amount_curve = ExtResource("4_twinkle")
 color_ramp = SubResource("Gradient_ember")

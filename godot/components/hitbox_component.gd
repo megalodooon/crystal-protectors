@@ -11,6 +11,7 @@ signal hit(hurtbox : HurtboxComponentClass, damage : float)
 @export var maxHits : int = 0
 
 var damageModifier : Callable
+var ignored : Array[HurtboxComponentClass] = []
 var hitCount : int = 0
 var pendingHurtboxes : Array[HurtboxComponentClass] = []
 
@@ -21,7 +22,7 @@ func _ready() -> void:
 
 func on_area_entered(area : Area2D) -> void:
 	var hurtbox : HurtboxComponentClass = area as HurtboxComponentClass
-	if not hurtbox:
+	if not hurtbox or ignored.has(hurtbox):
 		return
 	if pendingHurtboxes.is_empty():
 		resolve_hits.call_deferred()

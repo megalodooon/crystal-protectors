@@ -62,17 +62,21 @@ func _draw() -> void:
 	if alive.size() < 2:
 		return
 	var glowColor : Color = tetherColor.lerp(Color.WHITE, pulse * 0.4)
+	var meshPoints : PackedVector2Array = []
+	var meshColors : PackedColorArray = []
+	var meshIndices : PackedInt32Array = []
 	for i in alive.size():
 		var glowSize : float = 18.0 + pulse * 8.0
 		draw_texture_rect(GLOW_TEXTURE, Rect2(alive[i] - Vector2.ONE * glowSize / 2.0, Vector2.ONE * glowSize), false, Color(glowColor, 0.35 + pulse * 0.3))
 		if i == 0:
 			continue
 		var tether : PackedVector2Array = get_tether(alive[0], alive[i], i)
-		LightningClass.draw_layers(self, tether, tetherWidth * (1.0 + pulse * 0.6), glowColor, 0.75 + pulse * 0.25)
+		LightningClass.add_layers(meshPoints, meshColors, meshIndices, tether, tetherWidth * (1.0 + pulse * 0.6), glowColor, 0.75 + pulse * 0.25)
 		for j in 2:
 			var travel : float = fmod(age * 0.9 + j * 0.5 + i * 0.23, 1.0)
 			var mote : Vector2 = tether[roundi(travel * (tether.size() - 1))]
 			draw_texture_rect(GLOW_TEXTURE, Rect2(mote - Vector2.ONE * 3.0, Vector2.ONE * 6.0), false, Color(1.0, 1.0, 1.0, 0.8))
+	LightningClass.draw_bolt_mesh(self, meshPoints, meshColors, meshIndices)
 
 func get_tether(from : Vector2, to : Vector2, index : int) -> PackedVector2Array:
 	var tether : PackedVector2Array = []

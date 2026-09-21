@@ -1,5 +1,7 @@
 [gd_scene format=3]
 
+[ext_resource type="Texture2D" path="res://vfx/shared/smoke.png" id="fx_smoke"]
+
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_add"]
 blend_mode = 1
 
@@ -44,8 +46,10 @@ z_index = 1
 [node name="Mist" type="CPUParticles2D" parent="."]
 texture_filter = 2
 material = SubResource("CanvasItemMaterial_add")
-amount = 6
-texture = SubResource("GradientTexture2D_soft")
+amount = 4
+texture = ExtResource("fx_smoke")
+angle_min = -180.0
+angle_max = 180.0
 lifetime = 0.9
 randomness = 0.4
 local_coords = false
@@ -55,14 +59,14 @@ spread = 180.0
 gravity = Vector2(0, -4)
 initial_velocity_min = 0.5
 initial_velocity_max = 2.0
-scale_amount_min = 0.5
-scale_amount_max = 0.9
+scale_amount_min = 0.2
+scale_amount_max = 0.36
 color_ramp = SubResource("Gradient_mist")
 
 [node name="Bubbles" type="CPUParticles2D" parent="."]
 texture_filter = 2
 material = SubResource("CanvasItemMaterial_add")
-amount = 5
+amount = 3
 texture = SubResource("GradientTexture2D_bubble")
 lifetime = 0.8
 randomness = 0.5

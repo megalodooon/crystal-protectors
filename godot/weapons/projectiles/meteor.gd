@@ -46,6 +46,9 @@ func land() -> void:
 	rock.visible = false
 	for child in rock.find_children("*", "CPUParticles2D", true, false):
 		child.emitting = false
+	for child in rock.get_children():
+		if child is VfxTrailClass:
+			child.emitting = false
 	if onImpact.is_valid():
 		onImpact.call(global_position)
 	Vfx.spawn_effect(impactScene, global_position, radius)

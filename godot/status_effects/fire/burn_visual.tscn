@@ -1,5 +1,8 @@
 [gd_scene format=3]
 
+[ext_resource type="Texture2D" path="res://vfx/shared/flame.png" id="fx_flame"]
+[ext_resource type="Texture2D" path="res://vfx/shared/streak.tres" id="fx_streak"]
+
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_add"]
 blend_mode = 1
 
@@ -32,8 +35,8 @@ z_index = 1
 [node name="Flames" type="CPUParticles2D" parent="."]
 texture_filter = 2
 material = SubResource("CanvasItemMaterial_add")
-amount = 16
-texture = SubResource("GradientTexture2D_soft")
+amount = 10
+texture = ExtResource("fx_flame")
 lifetime = 0.5
 randomness = 0.4
 local_coords = false
@@ -43,14 +46,16 @@ spread = 180.0
 gravity = Vector2(0, -30)
 initial_velocity_min = 1.0
 initial_velocity_max = 4.0
-scale_amount_min = 0.4
-scale_amount_max = 0.8
+scale_amount_min = 0.24
+scale_amount_max = 0.48
 scale_amount_curve = SubResource("Curve_shrink")
 color_ramp = SubResource("Gradient_fire")
 
 [node name="Embers" type="CPUParticles2D" parent="."]
 material = SubResource("CanvasItemMaterial_add")
-amount = 4
+amount = 2
+texture = ExtResource("fx_streak")
+particle_flag_align_y = true
 lifetime = 0.8
 randomness = 0.5
 local_coords = false
@@ -60,6 +65,6 @@ spread = 180.0
 gravity = Vector2(0, -20)
 initial_velocity_min = 3.0
 initial_velocity_max = 8.0
-scale_amount_min = 0.5
-scale_amount_max = 0.7
+scale_amount_min = 0.25
+scale_amount_max = 0.35
 color_ramp = SubResource("Gradient_ember")

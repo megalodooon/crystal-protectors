@@ -14,18 +14,20 @@ class_name VfxArcsClass
 
 var elapsed : float = 0.0
 var flickerTimer : float = 0.0
-var bolts : Array[PackedVector2Array] = []
+var boltMeshes : Array[ArrayMesh] = []
+var boltTransforms : Array[Transform2D] = []
 
 #------------------------#
 
 func _ready() -> void:
 	build_bolts()
+	update_fade()
 
 func restart() -> void:
 	elapsed = 0.0
 	flickerTimer = 0.0
 	build_bolts()
-	queue_redraw()
+	update_fade()
 
 func _process(delta : float) -> void:
 	elapsed += delta
@@ -35,20 +37,30 @@ func _process(delta : float) -> void:
 	if flickerTimer >= flickerTime:
 		flickerTimer = 0.0
 		build_bolts()
-	queue_redraw()
+	update_fade()
 
 func _draw() -> void:
+	for i in boltMeshes.size():
+		draw_mesh(boltMeshes[i], null, boltTransforms[i])
+
+func update_fade() -> void:
 	var progress : float = (elapsed - delay) / duration
 	if progress < 0.0 or progress > 1.0:
-		return
-	var fade : float = 1.0 - progress * progress
-	for bolt in bolts:
-		LightningClass.draw_layers(self, bolt, width * 0.7, color, fade, 0.9)
+		self_modulate.a = 0.0
+	else:
+		self_modulate.a = 1.0 - progress * progress
 
 func build_bolts() -> void:
-	bolts.clear()
+	boltMeshes.clear()
+	boltTransforms.clear()
 	var progress : float = clampf((elapsed - delay) / duration, 0.0, 1.0)
 	var reach : float = lerpf(innerRadius, outerRadius, minf(progress * 2.5 + 0.3, 1.0))
 	for i in count:
 		var direction : Vector2 = Vector2.from_angle(TAU * i / maxi(count, 1) + randf_range(-0.35, 0.35))
-		bolts.append(LightningClass.create_bolt(direction * innerRadius, direction * reach * randf_range(0.7, 1.0), 2.0, 2.5))
+		var from : Vector2 = direction * innerRadius
+		var to : Vector2 = direction * reach * randf_range(0.7, 1.0)
+		if from.distance_to(to) < 0.5:
+			continue
+		boltMeshes.append(LightningClass.get_bolt_mesh(from.distance_to(to), 2.0, 2.5, width * 0.7, color, 0.9))
+		boltTransforms.append(LightningClass.get_bolt_transform(from, to))
+	queue_redraw()

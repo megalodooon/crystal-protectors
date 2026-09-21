@@ -70,7 +70,7 @@ lengthRandomness = 0.6
 [node name="Debris" type="CPUParticles2D" parent="."]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 12
+amount = 8
 texture = ExtResource("5_streak")
 lifetime = 0.45
 one_shot = true

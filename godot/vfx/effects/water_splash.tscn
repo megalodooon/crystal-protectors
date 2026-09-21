@@ -9,6 +9,7 @@
 [ext_resource type="Curve" path="res://vfx/shared/shrink_curve.tres" id="7_shrink"]
 [ext_resource type="Curve" path="res://vfx/shared/puff_curve.tres" id="8_puff"]
 [ext_resource type="Script" path="res://vfx/base/vfx_flash.gd" id="9_flash"]
+[ext_resource type="Texture2D" path="res://vfx/shared/smoke.png" id="fx_smoke"]
 
 [sub_resource type="Gradient" id="Gradient_water"]
 offsets = PackedFloat32Array(0, 0.6, 1)
@@ -50,8 +51,10 @@ endScale = 1.0
 [node name="Mist" type="CPUParticles2D" parent="."]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 10
-texture = ExtResource("5_dot")
+amount = 7
+texture = ExtResource("fx_smoke")
+angle_min = -180.0
+angle_max = 180.0
 lifetime = 0.6
 one_shot = true
 explosiveness = 0.9
@@ -64,13 +67,13 @@ initial_velocity_min = 15.0
 initial_velocity_max = 35.0
 damping_min = 40.0
 damping_max = 60.0
-scale_amount_min = 1.2
-scale_amount_max = 2.0
+scale_amount_min = 0.48
+scale_amount_max = 0.8
 scale_amount_curve = ExtResource("8_puff")
 color_ramp = SubResource("Gradient_mist")
 
 [node name="Drops" type="CPUParticles2D" parent="."]
-amount = 24
+amount = 17
 texture = ExtResource("6_pixel")
 lifetime = 0.5
 one_shot = true
@@ -92,7 +95,7 @@ color_ramp = SubResource("Gradient_water")
 [node name="Streaks" type="CPUParticles2D" parent="."]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 12
+amount = 8
 texture = ExtResource("4_streak")
 lifetime = 0.3
 one_shot = true

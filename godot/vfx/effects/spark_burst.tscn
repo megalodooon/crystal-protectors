@@ -42,7 +42,7 @@ width = 0.9
 [node name="Sparks" type="CPUParticles2D" parent="."]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 9
+amount = 6
 texture = ExtResource("4_streak")
 lifetime = 0.3
 one_shot = true

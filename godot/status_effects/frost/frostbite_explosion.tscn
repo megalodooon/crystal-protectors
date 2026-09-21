@@ -57,7 +57,7 @@ color_ramp = SubResource("Gradient_flash_fade")
 
 [node name="Icicles" type="CPUParticles2D" parent="."]
 material = SubResource("ShaderMaterial_icicle")
-amount = 8
+amount = 6
 texture = ExtResource("1_icicle")
 lifetime = 0.6
 one_shot = true
@@ -76,7 +76,7 @@ scale_amount_curve = SubResource("Curve_icicle_shrink")
 color_ramp = SubResource("Gradient_icicle_fade")
 
 [node name="Shards" type="CPUParticles2D" parent="."]
-amount = 16
+amount = 11
 lifetime = 0.4
 one_shot = true
 explosiveness = 1.0

@@ -9,6 +9,7 @@
 [ext_resource type="Curve" path="res://vfx/shared/twinkle_curve.tres" id="7_twinkle"]
 [ext_resource type="PackedScene" path="res://vfx/effects/star_impact.tscn" id="8_impact"]
 [ext_resource type="Script" path="res://vfx/base/vfx_flash.gd" id="9_flash"]
+[ext_resource type="Script" path="res://vfx/base/vfx_trail.gd" id="fx_trail"]
 
 [sub_resource type="Gradient" id="Gradient_trail"]
 offsets = PackedFloat32Array(0, 0.2, 0.6, 1)
@@ -44,25 +45,19 @@ loop = true
 
 [node name="Rock" type="Node2D" parent="."]
 
-[node name="Trail" type="CPUParticles2D" parent="Rock"]
+[node name="Trail" type="Node2D" parent="Rock"]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 20
-texture = ExtResource("4_dot")
-lifetime = 0.3
-randomness = 0.3
-emission_shape = 1
-emission_sphere_radius = 1.5
-gravity = Vector2(0, 0)
-scale_amount_min = 0.5
-scale_amount_max = 0.8
-scale_amount_curve = ExtResource("6_shrink")
-color_ramp = SubResource("Gradient_trail")
+script = ExtResource("fx_trail")
+length = 0.2
+width = 1.8
+colorRamp = SubResource("Gradient_trail")
+fadePower = 1.0
 
 [node name="Glitter" type="CPUParticles2D" parent="Rock"]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 5
+amount = 3
 texture = ExtResource("5_sparkle")
 lifetime = 0.55
 randomness = 0.5

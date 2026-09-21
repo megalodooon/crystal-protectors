@@ -8,6 +8,7 @@
 [ext_resource type="Script" path="res://vfx/base/vfx_flash.gd" id="6_flash"]
 [ext_resource type="Curve" path="res://vfx/shared/twinkle_curve.tres" id="7_twinkle"]
 [ext_resource type="Curve" path="res://vfx/shared/shrink_curve.tres" id="8_shrink"]
+[ext_resource type="Texture2D" path="res://vfx/shared/sparkle.png" id="fx_sparkle"]
 
 [sub_resource type="Gradient" id="Gradient_mote"]
 offsets = PackedFloat32Array(0, 0.25, 1)
@@ -39,8 +40,8 @@ loop = true
 [node name="Motes" type="CPUParticles2D" parent="Loop"]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 4
-texture = ExtResource("3_dot")
+amount = 2
+texture = ExtResource("fx_sparkle")
 lifetime = 0.9
 randomness = 0.4
 emission_shape = 3
@@ -50,8 +51,8 @@ spread = 15.0
 gravity = Vector2(0, -12)
 initial_velocity_min = 3.0
 initial_velocity_max = 6.0
-scale_amount_min = 0.25
-scale_amount_max = 0.4
+scale_amount_min = 0.138
+scale_amount_max = 0.22
 scale_amount_curve = ExtResource("7_twinkle")
 color_ramp = SubResource("Gradient_mote")
 
@@ -74,7 +75,7 @@ color_ramp = SubResource("Gradient_heal")
 
 [node name="HealSparks" type="CPUParticles2D" parent="Pulse"]
 emitting = false
-amount = 4
+amount = 3
 texture = ExtResource("5_pixel")
 lifetime = 0.45
 one_shot = true

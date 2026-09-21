@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" path="res://vfx/shared/soft_dot.tres" id="4_dot"]
 [ext_resource type="Shader" path="res://weapons/enchant/enchant.gdshader" id="5_enchant"]
 [ext_resource type="Curve" path="res://vfx/shared/shrink_curve.tres" id="6_shrink"]
+[ext_resource type="Script" path="res://vfx/base/vfx_trail.gd" id="fx_trail"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_blade"]
 radius = 7.0
@@ -55,21 +56,14 @@ local_coords = false
 gravity = Vector2(0, 0)
 color_ramp = SubResource("Gradient_afterimage")
 
-[node name="Trail" type="CPUParticles2D" parent="."]
+[node name="Trail" type="Node2D" parent="."]
 z_index = -1
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 24
-texture = ExtResource("4_dot")
-lifetime = 0.3
-local_coords = false
-emission_shape = 1
-emission_sphere_radius = 5.0
-gravity = Vector2(0, 0)
-scale_amount_min = 0.4
-scale_amount_max = 0.7
-scale_amount_curve = ExtResource("6_shrink")
-color_ramp = SubResource("Gradient_trail")
+script = ExtResource("fx_trail")
+length = 0.22
+width = 3.0
+color = Color(1, 1, 1, 0.45)
 
 [node name="Visuals" type="Node2D" parent="."]
 

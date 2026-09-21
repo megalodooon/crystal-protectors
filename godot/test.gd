@@ -2,12 +2,14 @@ extends Node2D
 
 
 @export var player : PlayerClass
+@export var characters : Array[PackedScene]
 @export var weapons : Array[PackedScene]
 @export var rarities : Array[RarityClass]
 @export var waveManager : WaveManagerClass
 @export var testElements : Array[WeaponEffectClass]
 @export var enemySpriteScales : Dictionary[PackedScene, float]
 @export var enemyColors : Dictionary[PackedScene, Color]
+@export var labelInterval : float = 0.1
 
 @onready var rarityLabel : Label = $CanvasLayer/HUD/RarityLabel
 @onready var upgradeLabel : Label = $CanvasLayer/HUD/UpgradeLabel
@@ -19,9 +21,11 @@ extends Node2D
 @onready var hoverLabel : Label = $CanvasLayer/HUD/HoverLabel
 @onready var minimap : MinimapClass = $CanvasLayer/HUD/Minimap
 
-var weaponIndex : int = 0
+var characterIndex : int = 0
+var wieldable : Dictionary[PackedScene, bool] = {}
 var elementIndex : int = -1
 var elementWeapon : WeaponClass
+var labelTimer : float = 0.0
 
 #------------------------#
 
@@ -29,9 +33,12 @@ func _ready() -> void:
 	player.weaponItem.randomize_attributes()
 	update_labels()
 
-func _process(_delta : float) -> void:
-	update_wave_label()
-	update_tower_label()
+func _process(delta : float) -> void:
+	labelTimer -= delta
+	if labelTimer <= 0.0:
+		labelTimer = labelInterval
+		update_wave_label()
+		update_tower_label()
 	update_hover_label()
 	if player.weapon != elementWeapon:
 		elementWeapon = player.weapon
@@ -41,10 +48,11 @@ func _process(_delta : float) -> void:
 func _unhandled_input(event : InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
 		var item : WeaponItemClass = player.weaponItem
-		if event.keycode == KEY_Q and not weapons.is_empty():
-			weaponIndex = (weaponIndex + 1) % weapons.size()
-			item.weaponScene = weapons[weaponIndex]
-			player.equip_weapon(item)
+		if event.keycode == KEY_Q:
+			cycle_weapon(item)
+		if event.keycode == KEY_TAB:
+			switch_character()
+			return
 		if event.keycode == KEY_E:
 			item.level_up()
 		if event.keycode == KEY_R:
@@ -78,6 +86,38 @@ func _unhandled_input(event : InputEvent) -> void:
 			newItem.randomize_attributes()
 			player.equip_weapon(newItem)
 		update_labels()
+
+func cycle_weapon(item : WeaponItemClass) -> void:
+	var options : Array[PackedScene] = []
+	for scene in weapons:
+		if not wieldable.has(scene):
+			wieldable[scene] = player.can_wield(scene)
+		if wieldable[scene]:
+			options.append(scene)
+	if options.is_empty():
+		return
+	item.weaponScene = options[(options.find(item.weaponScene) + 1) % options.size()]
+	player.equip_weapon(item)
+
+func switch_character() -> void:
+	if characters.size() < 2:
+		return
+	characterIndex = (characterIndex + 1) % characters.size()
+	var oldPlayer : PlayerClass = player
+	var newPlayer : PlayerClass = characters[characterIndex].instantiate()
+	newPlayer.position = oldPlayer.position
+	(newPlayer.get_node("TowerBuilder") as TowerBuilderClass).waveManager = waveManager
+	add_child(newPlayer)
+	move_child(newPlayer, oldPlayer.get_index())
+	newPlayer.towerBuilder.take_over(oldPlayer.towerBuilder)
+	oldPlayer.get_node("Camera2D").reparent(newPlayer)
+	oldPlayer.queue_free()
+	player = newPlayer
+	minimap.player = newPlayer
+	minimap.towerBuilder = newPlayer.towerBuilder
+	wieldable.clear()
+	player.weaponItem.randomize_attributes()
+	update_labels()
 
 func use_tower_keys(keycode : int) -> void:
 	var builder : TowerBuilderClass = player.towerBuilder
@@ -149,7 +189,7 @@ func update_labels() -> void:
 	if not item or not item.rarity:
 		return
 	var weaponName : String = item.weaponScene.resource_path.get_file().get_basename().capitalize()
-	rarityLabel.text = "Q " + weaponName + "  1-" + str(rarities.size()) + " " + item.rarity.rarityName + "  F1 hide"
+	rarityLabel.text = "Tab " + player.characterName + "  Q " + weaponName + "  1-" + str(rarities.size()) + " " + item.rarity.rarityName + "  F1 hide"
 	rarityLabel.modulate = item.rarity.color
 	var rarityText : String = "R Rarity up at level " + str(item.UPGRADES.rarityUpgradeLevel)
 	if item.can_upgrade_rarity():

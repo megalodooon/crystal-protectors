@@ -53,7 +53,7 @@ angleOffset = 45.0
 [node name="Sparks" type="CPUParticles2D" parent="."]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 6
+amount = 4
 texture = ExtResource("5_streak")
 lifetime = 0.35
 one_shot = true
@@ -75,7 +75,7 @@ color_ramp = SubResource("Gradient_spark")
 [node name="Twinkles" type="CPUParticles2D" parent="."]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 5
+amount = 4
 texture = ExtResource("6_sparkle")
 lifetime = 0.9
 one_shot = true

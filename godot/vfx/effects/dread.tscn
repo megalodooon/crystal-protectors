@@ -8,6 +8,7 @@
 [ext_resource type="Curve" path="res://vfx/shared/shrink_curve.tres" id="6_shrink"]
 [ext_resource type="Script" path="res://vfx/base/vfx_flash.gd" id="7_flash"]
 [ext_resource type="Script" path="res://vfx/base/vfx_spikes.gd" id="8_spikes"]
+[ext_resource type="Texture2D" path="res://vfx/shared/smoke.png" id="fx_smoke"]
 
 [sub_resource type="Gradient" id="Gradient_shadow"]
 offsets = PackedFloat32Array(0, 0.2, 1)
@@ -60,8 +61,10 @@ spin = -1.0
 
 [node name="Smoke" type="CPUParticles2D" parent="."]
 texture_filter = 2
-amount = 14
-texture = ExtResource("4_dot")
+amount = 10
+texture = ExtResource("fx_smoke")
+angle_min = -180.0
+angle_max = 180.0
 lifetime = 0.9
 one_shot = true
 explosiveness = 0.9
@@ -73,16 +76,18 @@ initial_velocity_min = 30.0
 initial_velocity_max = 55.0
 damping_min = 50.0
 damping_max = 70.0
-scale_amount_min = 1.5
-scale_amount_max = 2.2
+scale_amount_min = 0.6
+scale_amount_max = 0.88
 scale_amount_curve = ExtResource("5_puff")
 color_ramp = SubResource("Gradient_shadow")
 
 [node name="Wisps" type="CPUParticles2D" parent="."]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 12
-texture = ExtResource("4_dot")
+amount = 8
+texture = ExtResource("fx_smoke")
+angle_min = -180.0
+angle_max = 180.0
 lifetime = 0.8
 one_shot = true
 explosiveness = 0.85
@@ -96,7 +101,7 @@ tangential_accel_min = 30.0
 tangential_accel_max = 60.0
 damping_min = 30.0
 damping_max = 50.0
-scale_amount_min = 0.35
-scale_amount_max = 0.55
+scale_amount_min = 0.14
+scale_amount_max = 0.22
 scale_amount_curve = ExtResource("6_shrink")
 color_ramp = SubResource("Gradient_wisp")

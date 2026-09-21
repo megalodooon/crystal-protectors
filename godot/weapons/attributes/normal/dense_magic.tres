@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="TradeoffAttributeClass" format=3]
+
+[ext_resource type="Script" path="res://weapons/attributes/behaviors/tradeoff_attribute.gd" id="1_attribute"]
+[ext_resource type="Script" path="res://weapons/attributes/base/attribute_scaling.gd" id="2_scaling"]
+[ext_resource type="Script" path="res://weapons/attacks/attack_type.gd" id="3_attack_type"]
+[ext_resource type="Resource" path="res://weapons/attacks/spell_type.tres" id="4_spell"]
+
+[sub_resource type="Resource" id="Resource_scaling"]
+script = ExtResource("2_scaling")
+minBase = 0.08
+maxBase = 0.1
+perStep = 0.003
+percent = true
+
+[sub_resource type="Resource" id="Resource_second"]
+script = ExtResource("2_scaling")
+minBase = -0.12
+maxBase = -0.1
+perStep = 0.001
+percent = true
+
+[resource]
+script = ExtResource("1_attribute")
+secondStat = 17
+secondScaling = SubResource("Resource_second")
+attributeName = "Dense Magic"
+description = "+{value}% Damage, {second}% Bolt Speed"
+stat = 1
+scaling = SubResource("Resource_scaling")
+attackTypes = Array[ExtResource("3_attack_type")]([ExtResource("4_spell")])

@@ -2,6 +2,8 @@ extends Node2D
 class_name VfxSpikesClass
 
 
+const QUAD_INDICES : PackedInt32Array = [0, 1, 2, 0, 2, 3]
+
 @export var count : int = 8
 @export var length : float = 14.0
 @export var width : float = 1.5
@@ -16,6 +18,9 @@ class_name VfxSpikesClass
 
 var elapsed : float = 0.0
 var spikes : Array[Vector3] = []
+var meshPoints : PackedVector2Array = []
+var meshColors : PackedColorArray = []
+var meshIndices : PackedInt32Array = []
 
 #------------------------#
 
@@ -48,16 +53,28 @@ func _draw() -> void:
 		return
 	var grow : float = 1.0 - pow(1.0 - minf(progress * 3.0, 1.0), 3.0)
 	var fade : float = 1.0 - progress
+	meshPoints.clear()
+	meshColors.clear()
+	meshIndices.clear()
 	for spike in spikes:
-		draw_spike(spike, grow, fade, Color(color, fade * 0.9), 2.2)
+		add_spike(spike, grow, fade, Color(color, fade * 0.9), 2.2)
 	for spike in spikes:
-		draw_spike(spike, grow, fade, Color(1.0, 1.0, 1.0, fade), 0.8)
+		add_spike(spike, grow, fade, Color(1.0, 1.0, 1.0, fade), 0.8)
+	LightningClass.draw_bolt_mesh(self, meshPoints, meshColors, meshIndices)
 
-func draw_spike(spike : Vector3, grow : float, fade : float, spikeColor : Color, widthScale : float) -> void:
+func add_spike(spike : Vector3, grow : float, fade : float, spikeColor : Color, widthScale : float) -> void:
 	var direction : Vector2 = Vector2.from_angle(spike.x + spin * elapsed)
 	var spikeLength : float = length * spike.y * grow
 	var spikeWidth : float = width * spike.z * widthScale * (0.3 + fade * 0.7)
 	if spikeLength < 0.2 or spikeWidth < 0.05:
 		return
 	var side : Vector2 = direction.orthogonal() * spikeWidth
-	draw_colored_polygon(PackedVector2Array([side, direction * spikeLength, -side, -direction * spikeWidth * 1.5]), spikeColor)
+	var first : int = meshPoints.size()
+	meshPoints.push_back(side)
+	meshPoints.push_back(direction * spikeLength)
+	meshPoints.push_back(-side)
+	meshPoints.push_back(-direction * spikeWidth * 1.5)
+	for i in 4:
+		meshColors.push_back(spikeColor)
+	for offset in QUAD_INDICES:
+		meshIndices.push_back(first + offset)

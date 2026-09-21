@@ -2,6 +2,8 @@ extends Node2D
 class_name PathNetworkClass
 
 
+signal pulses_rebuilt
+
 const PULSE_SCENE := preload("res://paths/path_pulse.tscn")
 const MAX_CHAIN : int = 8
 
@@ -42,8 +44,11 @@ func _process(delta : float) -> void:
 			time = 0.0
 		cycleFade = 1.0 - clampf((time - travelTime - style.holdTime) / style.fadeTime, 0.0, 1.0)
 	else:
+		var settledTime : float = travelTime + style.trailLength / style.speed
+		if gray >= 1.0 and time >= settledTime:
+			return
 		gray = move_toward(gray, 1.0, delta / style.stopFadeTime)
-		time = minf(time + delta, travelTime + style.trailLength / style.speed)
+		time = minf(time + delta, settledTime)
 	var opacity : float = lerpf(1.0, style.waveOpacity, gray) * cycleFade
 	for path in paths:
 		path.pulse.visible = not path.pulse.sources.is_empty()
@@ -76,6 +81,7 @@ func rebuild_pulses() -> void:
 	for path in paths:
 		if path.pulse.isSpawn:
 			add_pulse(path, 0.0, 0.0, 0)
+	pulses_rebuilt.emit()
 
 func is_spawn(path : EnemyPathClass) -> bool:
 	if not path.active:

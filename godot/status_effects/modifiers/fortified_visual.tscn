@@ -7,6 +7,7 @@
 [ext_resource type="Script" path="res://vfx/base/vfx_flash.gd" id="5_flash"]
 [ext_resource type="Script" path="res://vfx/base/vfx_orbit.gd" id="6_orbit"]
 [ext_resource type="Curve" path="res://vfx/shared/twinkle_curve.tres" id="7_twinkle"]
+[ext_resource type="Texture2D" path="res://vfx/shared/sparkle.png" id="fx_sparkle"]
 
 [sub_resource type="Gradient" id="Gradient_glint"]
 offsets = PackedFloat32Array(0, 0.3, 1)
@@ -48,13 +49,13 @@ twinkleSpeed = 3.0
 texture_filter = 2
 material = ExtResource("2_add")
 amount = 2
-texture = ExtResource("3_dot")
+texture = ExtResource("fx_sparkle")
 lifetime = 0.7
 randomness = 0.5
 emission_shape = 3
 emission_rect_extents = Vector2(6, 7)
 gravity = Vector2(0, 0)
-scale_amount_min = 0.25
-scale_amount_max = 0.4
+scale_amount_min = 0.138
+scale_amount_max = 0.22
 scale_amount_curve = ExtResource("7_twinkle")
 color_ramp = SubResource("Gradient_glint")

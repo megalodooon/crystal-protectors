@@ -13,6 +13,7 @@ const BREAK_EFFECT := preload("res://vfx/effects/crystal_shatter.tscn")
 @export var rangeHint : Sprite2D
 @export_flags_2d_physics var targetLayer : int = 16
 @export var buildTime : float = 0.3
+@export var retargetTime : float = 0.1
 @export var barWidth : float = 12.0
 @export var hoverSize : Vector2 = Vector2(16.0, 22.0)
 @export var hoverOffset : Vector2 = Vector2(0.0, -8.0)
@@ -52,6 +53,8 @@ func _physics_process(delta : float) -> void:
 		return
 	if attack():
 		cooldown = stats.attackCooldown
+	else:
+		cooldown = retargetTime
 
 func set_valid(value : bool) -> void:
 	modulate = Color(0.6, 1.0, 0.7, 0.6) if value else Color(1.0, 0.45, 0.45, 0.5)

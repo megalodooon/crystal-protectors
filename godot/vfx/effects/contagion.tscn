@@ -8,6 +8,7 @@
 [ext_resource type="Texture2D" path="res://vfx/shared/bubble.tres" id="6_bubble"]
 [ext_resource type="Curve" path="res://vfx/shared/puff_curve.tres" id="7_puff"]
 [ext_resource type="Script" path="res://vfx/base/vfx_flash.gd" id="8_flash"]
+[ext_resource type="Texture2D" path="res://vfx/shared/smoke.png" id="fx_smoke"]
 
 [sub_resource type="Gradient" id="Gradient_toxic"]
 offsets = PackedFloat32Array(0, 0.2, 0.6, 1)
@@ -47,8 +48,10 @@ endScale = 1.0
 
 [node name="Murk" type="CPUParticles2D" parent="."]
 texture_filter = 2
-amount = 8
-texture = ExtResource("4_dot")
+amount = 6
+texture = ExtResource("fx_smoke")
+angle_min = -180.0
+angle_max = 180.0
 lifetime = 1.1
 one_shot = true
 explosiveness = 0.9
@@ -62,16 +65,18 @@ initial_velocity_min = 15.0
 initial_velocity_max = 35.0
 damping_min = 25.0
 damping_max = 35.0
-scale_amount_min = 2.4
-scale_amount_max = 3.4
+scale_amount_min = 0.96
+scale_amount_max = 1.36
 scale_amount_curve = ExtResource("7_puff")
 color_ramp = SubResource("Gradient_murk")
 
 [node name="Cloud" type="CPUParticles2D" parent="."]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 14
-texture = ExtResource("4_dot")
+amount = 10
+texture = ExtResource("fx_smoke")
+angle_min = -180.0
+angle_max = 180.0
 lifetime = 0.9
 one_shot = true
 explosiveness = 0.9
@@ -85,15 +90,15 @@ initial_velocity_min = 20.0
 initial_velocity_max = 48.0
 damping_min = 35.0
 damping_max = 55.0
-scale_amount_min = 1.8
-scale_amount_max = 2.8
+scale_amount_min = 0.72
+scale_amount_max = 1.12
 scale_amount_curve = ExtResource("7_puff")
 color_ramp = SubResource("Gradient_toxic")
 
 [node name="Droplets" type="CPUParticles2D" parent="."]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 18
+amount = 13
 texture = ExtResource("5_pixel")
 lifetime = 0.6
 one_shot = true
@@ -114,7 +119,7 @@ color_ramp = SubResource("Gradient_drop")
 [node name="Bubbles" type="CPUParticles2D" parent="."]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 10
+amount = 7
 texture = ExtResource("6_bubble")
 lifetime = 0.8
 one_shot = true

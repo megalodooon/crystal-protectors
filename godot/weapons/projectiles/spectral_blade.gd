@@ -36,6 +36,8 @@ func _ready() -> void:
 		shader.set_shader_parameter("glowColor", color)
 	for particles : CPUParticles2D in find_children("*", "CPUParticles2D", true, false):
 		particles.color = color.lerp(Color.WHITE, 0.3)
+	var trail : VfxTrailClass = $Trail
+	trail.color = Color(color.lerp(Color.WHITE, 0.3), trail.color.a)
 
 func _process(delta : float) -> void:
 	visuals.rotation += spinSpeed * delta

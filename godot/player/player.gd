@@ -5,6 +5,8 @@ class_name PlayerClass
 const PLACEHOLDER_IMAGE := preload("res://player/player_placeholder.png")
 const PLACEHOLDER_HAND_IMAGE := preload("res://player/hand_placeholder.png")
 
+@export var characterName : String = ""
+@export var weaponTypes : Array[AttackTypeClass]
 @export var image : Texture2D
 @export var handImage : Texture2D
 @export var weaponItem : WeaponItemClass
@@ -58,6 +60,16 @@ func spawn_weapon() -> void:
 	weapon.wielder = self
 	hand.add_child(weapon)
 	hand.move_child(weapon, 0)
+
+func can_wield(scene : PackedScene) -> bool:
+	if weaponTypes.is_empty():
+		return true
+	var weaponNode : WeaponClass = scene.instantiate()
+	var allowed : bool = false
+	for attackNode in weaponNode.get_attacks():
+		allowed = allowed or weaponTypes.has(attackNode.get_attack_type())
+	weaponNode.free()
+	return allowed
 
 func on_weapon_item_changed() -> void:
 	if (weaponItem.rarity and weapon.rarity != weaponItem.rarity) or weapon.attributes != weaponItem.attributes:

@@ -13,6 +13,7 @@ signal enemy_spawned(enemy : EnemyClass)
 
 var waves : Array[WaveClass]
 var portals : Array[PortalClass]
+var enemies : Array[EnemyClass] = []
 var waveIndex : int = 0
 var isWaveRunning : bool = false
 var autoStartTimeLeft : float = 0.0
@@ -100,6 +101,7 @@ func spawn_enemy(group : SpawnGroupClass) -> void:
 	enemy.modifier = group.modifier
 	enemy.tree_exited.connect(on_enemy_removed.bind(enemy, group))
 	aliveEnemies += 1
+	enemies.append(enemy)
 	group.on_enemy_added()
 	get_enemy_parent().add_child(enemy)
 	enemy.pathFollowComponent.start(group.portal.path, enemy)
@@ -109,6 +111,7 @@ func spawn_enemy(group : SpawnGroupClass) -> void:
 func on_enemy_removed(enemy : EnemyClass, group : SpawnGroupClass) -> void:
 	if not enemy.is_queued_for_deletion():
 		return
+	enemies.erase(enemy)
 	aliveEnemies -= 1
 	group.on_enemy_removed()
 	check_wave_finished()

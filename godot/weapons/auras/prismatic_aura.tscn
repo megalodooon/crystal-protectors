@@ -7,6 +7,7 @@
 [ext_resource type="Texture2D" path="res://vfx/shared/sparkle.png" id="5_sparkle"]
 [ext_resource type="Curve" path="res://vfx/shared/twinkle_curve.tres" id="6_twinkle"]
 [ext_resource type="Curve" path="res://vfx/shared/shrink_curve.tres" id="7_shrink"]
+[ext_resource type="Texture2D" path="res://vfx/shared/sparkle.png" id="fx_sparkle"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_glow"]
 shader = ExtResource("2_glow")
@@ -35,8 +36,8 @@ material = SubResource("ShaderMaterial_glow")
 texture_filter = 2
 material = ExtResource("3_add")
 emitting = false
-amount = 5
-texture = ExtResource("4_dot")
+amount = 3
+texture = ExtResource("fx_sparkle")
 lifetime = 0.56
 randomness = 0.4
 local_coords = false
@@ -47,8 +48,8 @@ initial_velocity_min = 1.0
 initial_velocity_max = 4.0
 damping_min = 2.0
 damping_max = 4.0
-scale_amount_min = 0.25
-scale_amount_max = 0.45
+scale_amount_min = 0.138
+scale_amount_max = 0.248
 scale_amount_curve = ExtResource("7_shrink")
 color_ramp = SubResource("Gradient_rainbow")
 

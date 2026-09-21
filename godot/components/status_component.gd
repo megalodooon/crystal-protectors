@@ -8,6 +8,7 @@ signal effect_removed(effect : StatusEffectClass)
 @export var hurtbox : HurtboxComponentClass
 @export var sprite : Sprite2D
 @export var visualParent : Node2D
+@export var maxVisuals : int = 2
 
 var activeEffects : Dictionary[String, StatusEffectClass] = {}
 
@@ -44,7 +45,7 @@ func apply_effect(effect : StatusEffectClass) -> void:
 	newEffect.timeLeft = newEffect.duration
 	activeEffects[newEffect.effectName] = newEffect
 	set_process(true)
-	if newEffect.visualScene and Vfx.add_status_visual(newEffect):
+	if newEffect.visualScene and Vfx.add_status_visual(newEffect) and can_show_visual(newEffect):
 		create_visual(newEffect, true)
 	newEffect.on_apply()
 	effect_added.emit(newEffect)
@@ -57,12 +58,23 @@ func create_visual(effect : StatusEffectClass, playBurst : bool) -> void:
 	get_visual_parent().add_child(effect.visual)
 	effect.on_visual_created()
 
-func set_visual_shown(effect : StatusEffectClass, shown : bool) -> void:
+func can_show_visual(effect : StatusEffectClass) -> bool:
+	if effect.beneficial or effect.alwaysShowVisual or maxVisuals <= 0:
+		return true
+	var shown : int = 0
+	for active : StatusEffectClass in activeEffects.values():
+		if active != effect and not active.beneficial and not active.alwaysShowVisual and active.visual and active.visual.visible:
+			shown += 1
+	return shown < maxVisuals
+
+func set_visual_shown(effect : StatusEffectClass, allowed : bool) -> bool:
+	var shown : bool = allowed and can_show_visual(effect)
 	if shown and not effect.visual:
 		create_visual(effect, false)
 	if effect.visual:
 		effect.visual.visible = shown
 		effect.visual.process_mode = Node.PROCESS_MODE_INHERIT if shown else Node.PROCESS_MODE_DISABLED
+	return shown
 
 func on_damage_taken(amount : float, damageType : DamageTypeClass) -> void:
 	for active : StatusEffectClass in activeEffects.values():

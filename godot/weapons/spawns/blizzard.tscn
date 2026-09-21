@@ -9,6 +9,7 @@
 [ext_resource type="Curve" path="res://vfx/shared/puff_curve.tres" id="7_puff"]
 [ext_resource type="Curve" path="res://vfx/shared/twinkle_curve.tres" id="8_twinkle"]
 [ext_resource type="Script" path="res://vfx/base/vfx_flash.gd" id="9_flash"]
+[ext_resource type="Texture2D" path="res://vfx/shared/smoke.png" id="fx_smoke"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_zone"]
 resource_local_to_scene = true
@@ -57,8 +58,10 @@ loop = true
 [node name="Mist" type="CPUParticles2D" parent="Visuals"]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 14
-texture = ExtResource("4_dot")
+amount = 8
+texture = ExtResource("fx_smoke")
+angle_min = -180.0
+angle_max = 180.0
 lifetime = 1.2
 randomness = 0.5
 local_coords = true
@@ -67,15 +70,15 @@ emission_rect_extents = Vector2(22, 9)
 gravity = Vector2(0, 0)
 initial_velocity_min = 2.0
 initial_velocity_max = 6.0
-scale_amount_min = 2.0
-scale_amount_max = 3.0
+scale_amount_min = 0.8
+scale_amount_max = 1.2
 scale_amount_curve = ExtResource("7_puff")
 color_ramp = SubResource("Gradient_mist")
 
 [node name="Wind" type="CPUParticles2D" parent="Visuals"]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 12
+amount = 7
 texture = ExtResource("5_streak")
 lifetime = 0.5
 randomness = 0.4
@@ -93,7 +96,7 @@ color_ramp = SubResource("Gradient_wind")
 [node name="Snow" type="CPUParticles2D" parent="Visuals"]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 30
+amount = 18
 texture = ExtResource("6_sparkle")
 lifetime = 0.9
 randomness = 0.5

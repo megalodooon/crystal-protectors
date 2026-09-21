@@ -144,6 +144,17 @@ func on_tower_removed(tower : TowerClass, stats : TowerStatsClass) -> void:
 	usedUnits = maxi(usedUnits - stats.manaCost, 0)
 	changed.emit()
 
+func take_over(previous : TowerBuilderClass) -> void:
+	previous.select(-1)
+	mana = previous.mana
+	usedUnits = previous.usedUnits
+	defenseUnits = previous.defenseUnits
+	for tower in previous.built:
+		tower.tree_exited.connect(on_tower_removed.bind(tower, tower.stats))
+		built.append(tower)
+	previous.built.clear()
+	changed.emit()
+
 func get_tower_parent() -> Node:
 	if towerParent:
 		return towerParent

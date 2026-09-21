@@ -7,6 +7,7 @@
 [ext_resource type="Texture2D" path="res://vfx/shared/streak.tres" id="5_streak"]
 [ext_resource type="Curve" path="res://vfx/shared/twinkle_curve.tres" id="6_twinkle"]
 [ext_resource type="Script" path="res://vfx/base/vfx_flash.gd" id="7_flash"]
+[ext_resource type="Texture2D" path="res://vfx/shared/sparkle.png" id="fx_sparkle"]
 
 [sub_resource type="Gradient" id="Gradient_crimson"]
 offsets = PackedFloat32Array(0, 0.25, 1)
@@ -34,22 +35,22 @@ loop = true
 [node name="Sparkles" type="CPUParticles2D" parent="."]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 6
-texture = ExtResource("4_dot")
+amount = 4
+texture = ExtResource("fx_sparkle")
 lifetime = 0.55
 randomness = 0.5
 emission_shape = 3
 emission_rect_extents = Vector2(7, 7)
 gravity = Vector2(0, -10)
-scale_amount_min = 0.3
-scale_amount_max = 0.5
+scale_amount_min = 0.165
+scale_amount_max = 0.275
 scale_amount_curve = ExtResource("6_twinkle")
 color_ramp = SubResource("Gradient_crimson")
 
 [node name="Rays" type="CPUParticles2D" parent="."]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 4
+amount = 2
 texture = ExtResource("5_streak")
 lifetime = 0.3
 randomness = 0.4

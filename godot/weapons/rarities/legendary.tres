@@ -4,6 +4,8 @@
 [ext_resource type="Script" uid="uid://62usds3gqkdb" path="res://weapons/attacks/slash_style.gd" id="2_slashstyle"]
 [ext_resource type="Resource" uid="uid://cd3jmqh6dfk0i" path="res://weapons/rarities/mythic.tres" id="3_next"]
 [ext_resource type="Script" uid="uid://bxwnpisywsux2" path="res://weapons/enchant/enchant_style.gd" id="3_enchantstyle"]
+[ext_resource type="Script" path="res://weapons/attacks/spell_style.gd" id="4_spellstyle"]
+[ext_resource type="PackedScene" path="res://vfx/effects/spell_impact.tscn" id="5_impact"]
 
 [sub_resource type="Resource" id="Resource_enchantstyle"]
 script = ExtResource("3_enchantstyle")
@@ -21,11 +23,28 @@ core = 0.85
 tipGlow = 0.8
 streaks = 0.7
 chromaticAberration = 1.0
-orbAmount = 3
 hitSparkSize = 1.1
-hitSparkAmount = 8
+hitSparkAmount = 6
 screenShake = 2.0
 hitStop = 0.04
+
+[sub_resource type="Resource" id="Resource_spellstyle"]
+script = ExtResource("4_spellstyle")
+sizeMultiplier = 1.08
+trailLength = 0.22
+trailWidth = 1.4
+glow = 0.75
+core = 0.85
+streaks = 0.7
+helix = 0.5
+sparkles = 0.6
+chromaticAberration = 0.8
+headSize = 1.1
+flare = 0.75
+castFlash = 1.1
+impactScene = ExtResource("5_impact")
+hitSparkAmount = 4
+screenShake = 1.0
 
 [resource]
 script = ExtResource("1_rarity")
@@ -36,4 +55,5 @@ attributeSlots = 5
 maxSpecialAttributes = 1
 nextRarity = ExtResource("3_next")
 slashStyle = SubResource("Resource_slashstyle")
+spellStyle = SubResource("Resource_spellstyle")
 enchantStyle = SubResource("Resource_enchantstyle")

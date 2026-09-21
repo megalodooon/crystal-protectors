@@ -77,7 +77,7 @@ spin = -1.5
 [node name="Sparks" type="CPUParticles2D" parent="."]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 20
+amount = 14
 texture = ExtResource("5_streak")
 lifetime = 0.45
 one_shot = true
@@ -101,7 +101,7 @@ color_ramp = SubResource("Gradient_spark")
 [node name="Glitter" type="CPUParticles2D" parent="."]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 12
+amount = 8
 texture = ExtResource("6_sparkle")
 lifetime = 0.8
 one_shot = true

@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" path="res://vfx/shared/streak.tres" id="4_streak"]
 [ext_resource type="Texture2D" path="res://vfx/shared/soft_dot.tres" id="5_dot"]
 [ext_resource type="Curve" path="res://vfx/shared/twinkle_curve.tres" id="6_twinkle"]
+[ext_resource type="Texture2D" path="res://vfx/shared/sparkle.png" id="fx_sparkle"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_glow"]
 shader = ExtResource("2_glow")
@@ -30,7 +31,7 @@ material = SubResource("ShaderMaterial_glow")
 texture_filter = 2
 material = ExtResource("3_add")
 emitting = false
-amount = 3
+amount = 2
 texture = ExtResource("4_streak")
 lifetime = 0.08
 randomness = 0.6
@@ -49,15 +50,15 @@ color_ramp = SubResource("Gradient_spark")
 texture_filter = 2
 material = ExtResource("3_add")
 emitting = false
-amount = 3
-texture = ExtResource("5_dot")
+amount = 2
+texture = ExtResource("fx_sparkle")
 lifetime = 0.17
 randomness = 0.6
 local_coords = false
 emission_shape = 4
 spread = 180.0
 gravity = Vector2(0, 0)
-scale_amount_min = 0.2
-scale_amount_max = 0.35
+scale_amount_min = 0.11
+scale_amount_max = 0.192
 scale_amount_curve = ExtResource("6_twinkle")
 color_ramp = SubResource("Gradient_spark")

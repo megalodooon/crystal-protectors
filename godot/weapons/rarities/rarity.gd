@@ -9,6 +9,7 @@ class_name RarityClass
 @export var maxSpecialAttributes : int = 0
 @export var nextRarity : RarityClass
 @export var slashStyle : SlashStyleClass
+@export var spellStyle : SpellStyleClass
 @export var enchantStyle : EnchantStyleClass
 @export var effects : Array[WeaponEffectClass]
 

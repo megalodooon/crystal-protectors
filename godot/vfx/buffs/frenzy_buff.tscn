@@ -7,6 +7,7 @@
 [ext_resource type="Texture2D" path="res://vfx/shared/streak.tres" id="5_streak"]
 [ext_resource type="Curve" path="res://vfx/shared/shrink_curve.tres" id="6_shrink"]
 [ext_resource type="Script" path="res://vfx/base/vfx_flash.gd" id="7_flash"]
+[ext_resource type="Texture2D" path="res://vfx/shared/flame.png" id="fx_flame"]
 
 [sub_resource type="Gradient" id="Gradient_rage"]
 offsets = PackedFloat32Array(0, 0.25, 0.6, 1)
@@ -39,8 +40,8 @@ loop = true
 texture_filter = 2
 material = ExtResource("2_add")
 position = Vector2(0, 5)
-amount = 14
-texture = ExtResource("4_dot")
+amount = 8
+texture = ExtResource("fx_flame")
 lifetime = 0.45
 randomness = 0.4
 emission_shape = 3
@@ -50,15 +51,15 @@ spread = 15.0
 gravity = Vector2(0, -50)
 initial_velocity_min = 6.0
 initial_velocity_max = 14.0
-scale_amount_min = 0.45
-scale_amount_max = 0.8
+scale_amount_min = 0.27
+scale_amount_max = 0.48
 scale_amount_curve = ExtResource("6_shrink")
 color_ramp = SubResource("Gradient_rage")
 
 [node name="Streaks" type="CPUParticles2D" parent="."]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 5
+amount = 3
 texture = ExtResource("5_streak")
 lifetime = 0.3
 randomness = 0.4

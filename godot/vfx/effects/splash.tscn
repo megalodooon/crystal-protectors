@@ -9,6 +9,7 @@
 [ext_resource type="Curve" path="res://vfx/shared/shrink_curve.tres" id="7_shrink"]
 [ext_resource type="Script" path="res://vfx/base/vfx_flash.gd" id="8_flash"]
 [ext_resource type="Script" path="res://vfx/base/vfx_spikes.gd" id="10_spikes"]
+[ext_resource type="Texture2D" path="res://vfx/shared/streak.tres" id="fx_streak"]
 
 [sub_resource type="Gradient" id="Gradient_fade"]
 offsets = PackedFloat32Array(0, 0.2, 1)
@@ -54,7 +55,7 @@ duration = 0.24
 [node name="Sparks" type="CPUParticles2D" parent="."]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 14
+amount = 10
 texture = ExtResource("5_streak")
 lifetime = 0.35
 one_shot = true
@@ -76,8 +77,9 @@ color_ramp = SubResource("Gradient_fade")
 [node name="Debris" type="CPUParticles2D" parent="."]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 9
-texture = ExtResource("6_dot")
+amount = 6
+texture = ExtResource("fx_streak")
+particle_flag_align_y = true
 lifetime = 0.55
 one_shot = true
 explosiveness = 0.95
@@ -89,7 +91,7 @@ initial_velocity_min = 20.0
 initial_velocity_max = 55.0
 damping_min = 50.0
 damping_max = 80.0
-scale_amount_min = 0.4
-scale_amount_max = 0.9
+scale_amount_min = 0.2
+scale_amount_max = 0.45
 scale_amount_curve = ExtResource("7_shrink")
 color_ramp = SubResource("Gradient_fade")

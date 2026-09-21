@@ -14,3 +14,4 @@ effectName = "Crystal"
 duration = 1.0
 tickInterval = 0.0
 visualScene = ExtResource("4_visual")
+alwaysShowVisual = true

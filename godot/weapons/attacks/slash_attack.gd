@@ -40,6 +40,7 @@ func perform() -> void:
 	slash.rotation = global_rotation - weapon.swingRotation + centerAngle
 	if weapon.wielder:
 		weapon.wielder.add_child(slash)
+		weapon.wielder.move_child(slash, get_arm().get_index())
 	else:
 		slash.position = global_position
 		get_tree().current_scene.add_child(slash)
@@ -60,6 +61,12 @@ func swing_weapon(duration : float, totalCurve : float, centerAngle : float) -> 
 	swingTween.tween_property(weapon, "swingRotation", 0.0, 0.2).from(wrapf(endRotation, -PI, PI)).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	swingTween.parallel().tween_property(weapon.visuals, "rotation", weapon.get_hold_rotation(), 0.2).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	swingTween.tween_callback(func() -> void: weapon.isSwinging = false)
+
+func get_arm() -> Node:
+	var node : Node = weapon
+	while node.get_parent() and node.get_parent() != weapon.wielder:
+		node = node.get_parent()
+	return node
 
 func get_attack_type() -> AttackTypeClass:
 	return ATTACK_TYPE

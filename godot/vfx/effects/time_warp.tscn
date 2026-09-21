@@ -8,6 +8,7 @@
 [ext_resource type="Script" path="res://vfx/base/vfx_flash.gd" id="6_flash"]
 [ext_resource type="Script" path="res://vfx/base/vfx_ring.gd" id="7_ring"]
 [ext_resource type="Script" path="res://vfx/base/vfx_spikes.gd" id="8_spikes"]
+[ext_resource type="Texture2D" path="res://vfx/shared/sparkle.png" id="fx_sparkle"]
 
 [sub_resource type="Gradient" id="Gradient_mote"]
 offsets = PackedFloat32Array(0, 0.25, 1)
@@ -73,8 +74,8 @@ spin = -7.0
 [node name="Motes" type="CPUParticles2D" parent="."]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 18
-texture = ExtResource("4_dot")
+amount = 13
+texture = ExtResource("fx_sparkle")
 lifetime = 1.0
 one_shot = true
 explosiveness = 0.85
@@ -86,7 +87,7 @@ emission_ring_inner_radius = 8.0
 gravity = Vector2(0, 0)
 orbit_velocity_min = -0.3
 orbit_velocity_max = -0.15
-scale_amount_min = 0.35
-scale_amount_max = 0.7
+scale_amount_min = 0.192
+scale_amount_max = 0.385
 scale_amount_curve = ExtResource("5_twinkle")
 color_ramp = SubResource("Gradient_mote")

@@ -7,7 +7,7 @@ project that a fresh chat would need.
 Keep it short: only write down what matters. Small details
 that are easy to see in the project do not belong here.
 
-Last updated: 2026-09-20
+Last updated: 2026-09-21
 
 
 --------------------------------------------------------------
@@ -99,14 +99,16 @@ coding style (section 5). Follow it exactly.
   water, debuffs, modifiers), towers/, ui/ (HUD pieces), vfx/ (base = parts, shared =
   textures and curves, effects = one-shot effect scenes, buffs),
   weapons/ (attacks, attributes/{base, behaviors, normal, special, synergy},
-  auras, base, effects, enchant, projectiles, rarities, slashing,
+  auras, base, casting, effects, enchant, projectiles, rarities, slashing,
   spawns).
 - Moving files: move the file with its .uid/.import and replace the
   res:// path in every .tscn/.tres/.gd/.godot file.
 - Exception: godot/test.tscn + test.gd sit in the project root on
   purpose. Main scene: a FULL LEVEL (10 waves) that every system can be
-  tested inside, not a bare sandbox. Q cycles the test
-  weapons (weapons list), keys 1-7 = new item of that rarity
+  tested inside, not a bare sandbox. Tab switches the character (Knight /
+  Mage, characters list; towers, mana and camera carry over), Q cycles the
+  test weapons the character can wield (weapons list holds swords AND
+  staffs), keys 1-7 = new item of that rarity
   (level 0, random attributes), E level up, R upgrade rarity,
   C weapon combat level +1, Z enemy combat level +1 (label shows the
   modifier chance), T cycles a test element on the held weapon
@@ -228,7 +230,16 @@ Example: godot/weapons/base/weapon.gd
 --------------------------------------------------------------
 [Player]  godot/player/player.tscn + player.gd  (PlayerClass)
 - Base player = the player with no class chosen.
-  Classes = inherited scenes of player.tscn.
+  Classes = inherited scenes of player.tscn: knight.tscn (the player we
+  had, slash weapons) and mage.tscn (mage.png placeholder, staffs). A
+  class sets characterName, weaponTypes (AttackTypeClass list it may wield,
+  empty = any; can_wield(scene) checks a weapon scene), image and its
+  starting weaponItem. New class = new inherited scene. Tower lists stay
+  on the base for now (no class specific towers decided yet).
+  TowerBuilderClass.take_over(previous) moves mana, units and built
+  towers to a new character's builder (hero swap).
+- HandPivot has z_index 1 so the slash (inserted right before the arm in
+  the wielder's children, same z) draws BEHIND the blade but above enemies.
 - Scene: Visuals/Sprite2D (body), HandPivot/Hand/Sprite2D (hand),
   AnimationPlayer, CollisionShape2D, components, StateMachine
   (MoveState, AttackState).
@@ -310,7 +321,8 @@ Example: godot/weapons/base/weapon.gd
   collected and hit nearest first (deferred), so maxHits picks the
   closest enemies. damageModifier (Callable, set by the weapon) changes
   damage per target before crit (first strike etc.). hitCount must be
-  reset when a hitbox is reused. Hurtboxes at 0 HP
+  reset when a hitbox is reused. ignored = hurtboxes it never hits
+  (projectile bursts from a target ignore that target). Hurtboxes at 0 HP
   are still hit (test dummies reach 0 at high damage; skipping them
   made the slash stop hitting). Kills are counted once via
   lastHitKilled instead.
@@ -369,8 +381,9 @@ Example: godot/weapons/base/weapon.gd
   get_color() = first attack's color (slash = blade color).
   A weapon scene is the TEMPLATE; its damage is the damage at
   upgrade level 0, combat level 1, rarity multiplier 1.
-- Weapon scenes live by category: weapons/slashing/ (png + tscn
-  together). Hammers etc. get their own folder (weapons/smashing/).
+- Weapon scenes live by category: weapons/slashing/ and weapons/casting/
+  (staffs; png + tscn together). Hammers etc. get their own folder
+  (weapons/smashing/).
   Existing: wooden_sword, iron_sword, spear (360 spin), flame_sword
   (physical hits + fire effect; only the burn deals fire damage),
   frost_scythe (physical hits + frost effect), dagger (0.18s swing,
@@ -384,11 +397,14 @@ Example: godot/weapons/base/weapon.gd
     get_attack_type(), get_color().
     Hits must be passed to register_hit(hurtbox, damage) so
     effects hear about them (connect hitbox/projectile "hit").
-  * SlashAttackClass (slash_attack.gd): see [Slash] below. The only
-    attack so far (unused melee/projectile attacks were removed).
-  Attack types = AttackTypeClass .tres (<name>_type.tres, only
-  slash_type.tres now). Each attack script returns its type from
+  * SlashAttackClass (slash_attack.gd): see [Slash] below.
+  * SpellAttackClass (spell_attack.gd): the mage's attack, see [Spells].
+  Attack types = AttackTypeClass .tres (<name>_type.tres: slash_type,
+  spell_type). Each attack script returns its type from
   get_attack_type() (const ATTACK_TYPE preload). Attributes use them.
+  AttackClass.uses_stat(stat): true = this attack reads that stat, so
+  StatBoost attributes (Piercing, Volley) may roll (is_stat_used asks the
+  weapon's attacks first).
   New attack type = script extending AttackClass, override perform()
   and get_attack_type(), + a new <name>_type.tres.
   Each attack type with visuals (hammer smash etc.) gets its own
@@ -400,8 +416,10 @@ Example: godot/weapons/base/weapon.gd
   _draw + trail, hit spark on hit, fades out, maxHits 1.
   meteor.tscn: MeteorClass (Meteor attribute).
   spirit_orb.tscn: SpiritOrbClass homing orb (turnSpeed,
-  seekRange: turns toward the nearest hurtbox on its mask), glow +
-  core + trail, hit spark, fades out.
+  seekRange: turns toward the nearest hurtbox on its mask, re-picks the
+  target every seekInterval), glow + core + ribbon trails, hit spark,
+  fades out. spell_shard / spell_barrage.tscn = inherited spell bolts
+  (see [Spells]) used by Splitting Bolts and Arcane Barrage.
   projectile.weapon = the weapon that fired it (set by
   ProjectileAttributeClass). spectral_blade.tscn: SpectralBladeClass,
   a spinning ghost copy of the weapon texture that flies out and returns
@@ -421,7 +439,7 @@ Example: godot/weapons/base/weapon.gd
   (floating crystal beside the wielder firing spirit orbs).
 - RarityClass (rarities/): Resource with rarityName, color,
   damageMultiplier, attributeSlots, maxSpecialAttributes, nextRarity,
-  slashStyle (embedded), enchantStyle, effects. nextRarity = what a
+  slashStyle and spellStyle (embedded), enchantStyle, effects. nextRarity = what a
   rarity upgrade turns it into (common > ... > mythic; mythic and
   artifact have none).
   Rarity slash range bonuses were reduced (felt op): sizeMultiplier
@@ -535,7 +553,9 @@ Example: godot/weapons/base/weapon.gd
   EXTRA_TARGETS, STATUS_DAMAGE, MOVE_SPEED (10), STATUS_DURATION (11),
   EFFECT_CHANCE (12), EFFECT_AREA (13), EFFECT_DAMAGE (14, proc
   damage: get_effect_damage_multiplier), PIERCE (15, projectile
-  maxHits), EXTRA_PROJECTILES (16).
+  maxHits), EXTRA_PROJECTILES (16), PROJECTILE_SPEED (17),
+  PROJECTILE_RANGE (18), HOMING (19, turn speed rad/s), BOUNCES (20).
+  17-20 and ATTACK_SIZE / PIERCE / EXTRA_PROJECTILES are read by spells.
   Plain stat attributes need no script: code reads
   weapon.get_stat(stat) where the stat matters (slash reads
   ATTACK_SIZE, ATTACK_ARC, EXTRA_TARGETS; player reads MOVE_SPEED;
@@ -615,7 +635,9 @@ Example: godot/weapons/base/weapon.gd
     ATTACK triggers, targetLayer then used).
   * ProjectileAttributeClass (projectileScene, countScaling,
     spreadAngle, spawnDistance; ATTACK = fired from the wielder at
-    aimRotation, HIT/KILL = burst in all directions from the target).
+    aimRotation, ringBurst = a full ring around the wielder instead,
+    HIT/KILL = burst in all directions from the target, which the
+    projectiles ignore).
   * KnockbackAreaAttributeClass (radius, force, pull; everyone around
     the target, shrinking ring when pulling), ContagionAttributeClass
     (copies the target's active statuses to everyone within radius;
@@ -684,8 +706,18 @@ Example: godot/weapons/base/weapon.gd
   capped low (+1 at level 15-20, never more). Damage over time values
   are % of weapon damage PER TICK and must stay visible at level 0
   (a tick below 0.5 shows as 0: that looked like no damage).
-- 117 attributes (68 normal, 49 special) + 18 synergies. Exact numbers
+- 126 attributes (74 normal, 52 special) + 19 synergies. Exact numbers
   live in the .tres files. Value = level 0 worst-best (level 30 best).
+- Spell attributes (2026-09-21, attackTypes [spell], so only staffs roll
+  them; every generic attribute rolls on staffs too): Spell Size 2-3%
+  (10.5%), Velocity (bolt speed) 4-6% (18%), Far Reach (bolt range) 5-7%
+  (19%), Seeking +1-1.5 (3) homing, Ricochet +1 bounce (+2 at 20), Dense
+  Magic (+8-10% (19%) dmg, -12..-10% bolt speed), Echo [special] (ATTACK
+  6-9% (18%): cast again 0.15s later), Splitting Bolts [special] (HIT
+  12-16% (25%): 2 shards (3 at 20) 20-25% (34%)), Arcane Barrage
+  [special] (ATTACK 8-10% (16%): ring of 6 curving bolts (8 at 20)
+  20-25% (34%)). Synergy Arcane Storm (Echo + Arcane Barrage: Echo casts
+  also release 8 bolts).
   Weapon archetypes (developer asked for basic, powerful, weak, insane
   and variable weapons): variable = Volatile, Double or Nothing,
   Wildcard, Wild Magic, Starfall; weak = Dull and Clumsy (curses, NOT in
@@ -824,8 +856,9 @@ Example: godot/weapons/base/weapon.gd
   back sweep). Only one of them may have swingsWeapon on, the others
   would fight it over the swing animation. Rotate the extra node in the
   scene to aim it (the back sweep is rotated 180 deg).
-  Each attack: spawns ONE slash.tscn as child of the wielder, swings
-  weapon Visuals over 70% of duration, alternates swing direction.
+  Each attack: spawns ONE slash.tscn as child of the wielder, right before
+  the arm (get_arm), so the blade draws on top of the slash (developer),
+  swings weapon Visuals over 70% of duration, alternates swing direction.
 - Size = (1 + (style.sizeMultiplier - 1) x raritySizeGrowth) x
   (1 + Slash Size attribute). raritySizeGrowth 1 = normal, higher =
   grows more per rarity (spear uses 2.5).
@@ -836,8 +869,7 @@ Example: godot/weapons/base/weapon.gd
 - Style = styleOverride, else weapon.rarity.slashStyle.
 - SlashStyleClass (Resource): duration, sizeMultiplier, curveBonus,
   trail, glow, core, tipGlow, streaks, chromaticAberration,
-  orbAmount, hitSparkSize, hitSparkAmount,
-  screenShake, hitStop.
+  hitSparkSize, hitSparkAmount, screenShake, hitStop.
 - screenShake (2.0) and hitStop (0.04) are capped at epic: legendary+
   use the same. More shake felt like too much, more hit stop froze
   the game up to 20% of the time while attacking and felt laggy.
@@ -852,9 +884,10 @@ Example: godot/weapons/base/weapon.gd
 - Colors: taken automatically from the weapon's Visuals Sprite2D
   (dark/main/light by luminance, cached per texture), or from
   SlashAttack colorTexture if set (spear uses iron_sword.png).
-- Particles: none on the arc. Glowing orbs spawn only at the HIT
-  location (Vfx.show_hit_spark). No dust anywhere: the developer
-  removed it, it looked out of place.
+- Particles: none on the arc. A hit spark (flash + star spikes + streak
+  sparks, NO orbs since 2026-09-21) spawns only at the HIT location
+  (Vfx.show_hit_spark). No dust anywhere: the developer removed it, it
+  looked out of place.
 - Own HitboxComponent: sector polygon from radius/size/curve, mask
   Enemy Hurtbox, active first 60% of duration. Max targets: slash
   maxTargets (3, spear 4) + Cleave (+1, +2 at level 20), nearest first.
@@ -869,16 +902,91 @@ Example: godot/weapons/base/weapon.gd
 - Shaders follow the same style (2 blank lines after the header,
   camelCase uniforms, //------------------------// separator).
 
+[Spells]  godot/weapons/attacks/ (spell_attack.gd, spell_motion.gd, spell_bolt.gd/.tscn, spell_style.gd, spell_trail.gdshader/.tres, spell_type.tres)
+- The mage's attack: magical bolts. SpellAttackClass node in a staff
+  scene, placed on the gem (node position = where bolts appear; it also
+  draws the cast flash there with flashTexture + starTexture, additive
+  material on the node). Exports: boltScene (spell_bolt.tscn), motion
+  (SpellMotionClass, embedded), count, spread (fan), volleyDelay (bolts
+  of one cast one after another), size, pierce (maxHits), raritySizeGrowth,
+  headStretch (longer head, frost shards), boltColor (else the most
+  saturated sprite pixel), pointsWeapon (staff snaps to the aim with a
+  recoil kick while casting; weapon.isSwinging), recoil.
+  Bolts get Extra Projectiles, Pierce, Spell Size (ATTACK_SIZE),
+  PROJECTILE_SPEED, PROJECTILE_RANGE, HOMING and BOUNCES from attributes.
+- SpellMotionClass = the flight pattern, all editable in the inspector:
+  distance + flightTime + travelCurve (EASING: distance over time; empty =
+  ease out), Formation (spawnRadius / spawnArc / spawnAngle: bolts gather
+  around the gem, hover holdTime, launch one by one with launchStagger,
+  convergeDistance = fly toward that point on the aim line), Path
+  (swayAmount + swayCurve: sideways arc, mirrored per bolt so fans
+  converge; waveAmount + waves: sine wave, opposite phase per bolt =
+  braid; orbitRadius + orbitTurns + orbitCurve: bolts circle a moving
+  center), Seeking (homing turn speed, homingRange, homingStart).
+  A bolt flies a "carrier" along its heading by the travel curve and adds
+  the path offset in the carrier frame, so every pattern works with homing.
+- SpellBoltClass (extends ProjectileClass): ribbon trail (VfxTrailClass
+  with the spell trail material) + head (Glow, Flare star, Core). Fizzles
+  at the end of its range, impact = hit spark (+ impactScene from epic),
+  Ricochet re-aims it at the nearest unhit enemy. Works standalone too
+  (attribute projectiles): it then takes style, colors and material
+  from the weapon's SpellAttack.
+- SpellStyleClass on RarityClass.spellStyle = how cool a bolt looks:
+  sizeMultiplier (same as slash), trailLength (0.12 -> 0.28 s),
+  trailWidth, glow, core, streaks (energy flowing back), helix (two
+  strands wrapping the trail, legendary+), sparkles (glints), chromatic
+  aberration (epic+), headSize, flare (star on the head), castFlash,
+  impactScene (spell_impact.tscn, epic+), hit spark, screenShake,
+  hitStop (0: many bolts hit, hit stop would feel laggy).
+  The trail material is one per SpellAttack (shared by its bolts).
+- Staffs (weapons/casting/, holdAngle -80): Apprentice Staff (1 homing
+  bolt, ease out, arcane), Twin Wand (2 braided bolts), Ember Rod (3 bolts
+  on converging arcs, fire), Frost Scepter (4 ice lances gather around the
+  gem, hover, launch one by one accelerating toward the aim, frost), Storm
+  Staff (3 orbs orbiting a slowly drifting center, pierce 2, lightning),
+  Star Scepter (5 seekers fanned 120 deg that curve onto enemies, holy).
+  Single target damage is in line with the swords (about 20-25 per second
+  at level 0 common).
+- New staff = duplicate a staff scene, change the sprite, the SpellAttack
+  exports and its motion. New pattern idea = combine the motion groups
+  first; only add code to SpellMotionClass.get_offset when that is not
+  enough.
+
 [VFX]  godot/vfx/
 - PERFORMANCE RULE (developer: must run on the worst PCs, but never
   change what the player sees): every effect goes through the Vfx
   autoload (core/vfx.tscn + vfx.gd), never instantiate effects
   yourself. See [Vfx budget] below.
 - effects/hit_sparks.tscn: HitSparksClass draws EVERY hit spark in one
-  node (flash + star spikes + spark streaks + glowing orbs, particle
-  math copied from CPUParticles2D). Look = its exports (textures,
-  curves, gradients, speeds). Call Vfx.show_hit_spark(position, color,
-  strength, sparkAmount, orbAmount, angle).
+  node (flash + star spikes + spark streaks; the glowing orbs were removed,
+  developer: too many orbs). Each layer is ONE MultiMesh draw (flashes,
+  spike fronts, spike backs, sparks), not a draw call per particle.
+  Look = its exports (textures, curves, gradients, speeds). Call
+  Vfx.show_hit_spark(position, color, strength, sparkAmount, angle).
+- PARTICLE LOOK RULE (developer 2026-09-21: "way too many particles, they
+  all look like orbs, with 3 effects it looks unprofessional"): soft round
+  dots (soft_dot) only for glows. Motes / glints / twinkles = sparkle.png,
+  smoke / mist / murk / dust = smoke.png (lumpy puff, random rotation),
+  fire = flame.png (tongue), drops / embers = streak aligned to velocity
+  (particle_flag_align_y). Trails of moving things = VfxTrailClass
+  ribbons, never chains of dots. Keep counts low: every emitter was cut
+  about 40% (loops) / 30% (bursts).
+- A target shows at most StatusComponent.maxVisuals (2) harmful status
+  visuals; the rest wait until one ends. StatusEffectClass.alwaysShowVisual
+  skips the cap (frost build up, crystal, doom: they carry information).
+  Modifiers (beneficial) never count.
+- vfx/base/vfx_trail.gd: VfxTrailClass ribbon trail, a child of the moving
+  node: records its global position every physics tick for length
+  seconds and draws one tapered triangle strip (width, color or
+  colorRamp, widthCurve, fadePower, soft = alpha edges; soft off + a
+  ShaderMaterial = the shader shapes it, UV.x 0 head -> 1 tail).
+  emitting off = it shrinks away; clear() restarts it.
+- LightningClass bolts are CACHED MESHES: get_bolt_mesh(length, ...) keeps
+  MESH_VARIANTS random shapes per length bucket and draws them stretched
+  to the real length (get_bolt_transform). Lightning and VfxArcs only swap
+  meshes on flicker and fade with self_modulate, so nothing is rebuilt per
+  frame. add_layers / draw_bolt_mesh are for shapes that change every
+  frame (soul link tethers).
 - effects/damage_numbers.tscn: DamageNumbersClass draws every damage
   number in one node (pop, rise, fade, crit = bigger, critColor, "!",
   text via NumberFormatClass). Pixel identical to the old Label version
@@ -910,8 +1018,9 @@ Example: godot/weapons/base/weapon.gd
   Keep effect roots at z_index 2 (pooled effects live under the
   autoload, which draws before the level at equal z).
   vfx/shared/: additive material, soft dot/glow, flash, streak, pixel,
-  bubble textures, sparkle.png (4 point star glint) and
-  puff/shrink/twinkle curves. Reuse them.
+  bubble textures, sparkle.png (4 point star glint), smoke.png (lumpy
+  puff), flame.png (flame tongue) and puff/shrink/twinkle curves.
+  Reuse them.
 - vfx/effects/ holds every effect scene (no folder per effect):
   splash, water_splash, explosion, nova, crit_burst, smite,
   thunderclap, time_warp, contagion, vortex, repulse, execute,
@@ -920,8 +1029,8 @@ Example: godot/weapons/base/weapon.gd
   lightning, damage_numbers, volatile_pop, jackpot, aftershock,
   wild_magic, star_impact, sunlance (beam, baseRadius
   = length), catalyst, rend, crystal_shatter, doom_burst,
-  singularity_collapse, soul_bind, frost_nova, inferno, divine_wrath,
-  dread. smite = light column + ground glow + arcs + motes.
+  singularity_collapse, soul_bind, frost_nova, inferno, dread,
+  spell_impact. smite = light column + ground glow + arcs + motes.
   Kept subtle: several at once must not blow out to white.
 - Buff visuals (vfx/buffs/<name>_buff.tscn): BuffVisualClass on the
   wielder, tiers (particle emitters turned on by stack count), stop()
@@ -953,7 +1062,9 @@ Example: godot/weapons/base/weapon.gd
   use sparksPerCrowd / numbersPerCrowd / boltsPerCrowd.
 - Status visuals: StatusComponent asks add_status_visual(effect); only
   on-screen visuals are created, max statusVisualsPerCrowd per effect
-  name per statusCrowdRadius cell, max maxStatusVisuals total. Every
+  name per statusCrowdRadius cell, max maxStatusVisuals total (only
+  visuals that really show count: set_visual_shown returns the result
+  after the per-target cap). Every
   updateInterval the rest is hidden (visible off + process disabled =
   free) and shown again when needed (created late = no Burst:
   StatusVisualClass.skipBurst). StatusEffectClass.on_visual_created()
@@ -962,9 +1073,15 @@ Example: godot/weapons/base/weapon.gd
 - add_cullable(node): moving visuals (slash waves, spirit orbs, status
   zones) are hidden while off screen; gameplay keeps running.
 - Warmup: the first frames instantiate every scene in warmupFolders
-  (vfx/effects, vfx/buffs, status_effects) nearly invisible so shaders
-  compile at load, not on the first hit; VfxEffect scenes stay in the
-  pool.
+  (vfx/effects, vfx/buffs, status_effects) and warmupScenes (file paths:
+  spell_bolt.tscn, so the first cast does not stutter) nearly invisible
+  so shaders compile at load, not on the first hit; VfxEffect scenes stay
+  in the pool.
+- LOAD CYCLE GOTCHA: projectile scenes (slash_wave, spell_bolt) must never
+  be the FIRST thing loaded (preload / ext_resource in an autoload): their
+  script chain reaches weapon_item.gd, which preloads the attribute pool,
+  which loads the projectile scene again -> "referenced non-existent
+  resource". That is why warmupScenes are paths loaded at runtime.
 - IMPORTANT: vfx.gd must NOT use status/hurtbox class types (it uses
   Resource + duck typing). An autoload with typed references to the
   status_effect / status_component / hurtbox scripts makes Godot leak
@@ -972,7 +1089,16 @@ Example: godot/weapons/base/weapon.gd
 - Portals hide themselves completely when closed or off screen.
 - Verify performance with a benchmark scene in a scratch copy
   (40 stacked enemies, strong weapon, vsync off, frame times) in both
-  renderers (Mobile and gl_compatibility = web).
+  renderers (Mobile and gl_compatibility = web). The dev PC has a
+  GeForce 940MX (an empty scene already costs about 3.5 ms there). A
+  running game or editor on the same PC inflates every number: always
+  compare old and new code back to back.
+- Per frame GDScript work is the real cost here: never issue one draw
+  call per particle / segment / marker from GDScript. Batch it (MultiMesh:
+  hit sparks, minimap markers; cached meshes: lightning), redraw only when
+  the shape changes, and throttle searches (towers retarget every
+  retargetTime when idle, enemies check blocking towers every
+  blockCheckTime, spirit orbs re-pick targets every seekInterval).
 
 [Status effects]  godot/status_effects/
 - Folders: base/ (status_effect, status_interaction,
@@ -1117,8 +1243,9 @@ Example: godot/weapons/base/weapon.gd
   wave's portals; empty = every active path that is not fed by a
   branch). A spawn path holds a Portal node (see [Waves]).
   play_preview() / stop_preview(). During a wave (stopped) the same
-  paths stay visible, grayed out and transparent (waveOpacity).
-  playOnStart export.
+  paths stay visible, grayed out and transparent (waveOpacity); once
+  faded the network stops updating them. pulses_rebuilt signal = the set
+  of shown paths changed (the minimap listens). playOnStart export.
 - Look + timing: path_pulse_style.tres (PathPulseStyleClass),
   the network's style export (default = that file).
 - path_pulse.tscn: spawned per path at runtime. Line
@@ -1274,23 +1401,32 @@ Example: godot/weapons/base/weapon.gd
   unit for testing, apply_scale re-runs on size_changed, and
   get_canvas_rect() gives the rect back in game pixels (the hover
   tooltip dodges it).
-- Ground and lanes are BAKED into one ImageTexture, not redrawn: the
-  ground layer is stamped once into groundImage, and bake_map()
-  duplicates it and fill_rect()s the lanes on top (laneOutline 3 dark,
-  laneCore 1 bright in PathNetwork.style.coreColor; locked paths are
-  darkened by lockedFade and stamped first so an open lane wins where
-  they cross). Drawing the map is then ONE draw_texture_rect_region.
-  Re-baked on EnemyPath.active_changed. Drawing the lanes live was
-  thousands of draw_rect calls a frame and the map felt laggy.
+- COLORS COME FROM THE WORLD (developer). The ground is RENDERED from the
+  world once, not recolored: bake_ground() adds a one shot SubViewport
+  that shares the level's World2D with canvas_cull_mask = mapLayer, so it
+  draws only canvas items on render layer 10 "Minimap" (the item AND
+  every parent need that layer: Test root and Ground have it; a real
+  map's ground / tile layers must get it too). Nothing is drawn twice per
+  frame: enemies are never in that render, they are markers.
+- Lanes are added on top of that image in the world's own lane colors
+  (the path style's glow + core, added like the additive glow in the
+  world), gray during a wave like the world, and only lanes the world
+  shows (pulse sources) are lit. Locked or unused lanes are a very faint
+  gray line (lockedStrength; developer: locked lanes were distracting).
+  The map is re-baked on PathNetwork.pulses_rebuilt and when a wave
+  starts or ends; drawing it is ONE draw_texture_rect_region.
 - Portals on the map are the REAL portal (developer: it should look
   like the one on the stage, not a drawn icon): make_portal() adds a
   child Sprite2D with the portal's own texture and a ShaderMaterial on
   portal.gdshader, fed that portal's color / voidColor, sized to
-  portalSize game pixels. Locked portals use intensity = lockedFade.
-  They swirl exactly like the stage ones.
-- Towers and enemies are blocks in their get_color() / sprite tint with
-  a dark border. The player is a plain marker with no box behind it;
-  set playerIcon to the character's head once heads exist.
+  portalSize game pixels. Locked portals are grayed and dimmed
+  (lockedPortal). They swirl exactly like the stage ones.
+- Towers and enemies are blocks in their sprite's own color (texture color
+  weighted to saturated pixels x modulate, cached) with a dark border,
+  all drawn as ONE MultiMesh (the border is baked into the marker mesh).
+  Enemies come from WaveManager.enemies (the alive list), not a scan of
+  the scene. The player is a plain marker with no box behind it; set
+  playerIcon to the character's head once heads exist.
 
 [Collision layers]
 1 World, 2 Player, 3 Enemy, 4 Player Hurtbox, 5 Enemy Hurtbox, 6 Tower.
@@ -1451,3 +1587,21 @@ Input actions: left, right, up, down (WASD), attack (left mouse).
             pulses a ring on the ground every time it attacks. Tower
             placing snaps to an 8px grid. Hovering a tower shows a
             tooltip with the tier and the repair / upgrade / sell costs.
+            Character system: the player is the Knight (knight.tscn), new
+            Mage (mage.tscn) with a new attack type: spells. Magical bolts
+            with eased flight and patterns (arcs, braids, orbits,
+            formations, seekers), rarity spell styles from a plain line to
+            helix strands + chromatic trails, 6 staffs, 9 spell attributes
+            and the Arcane Storm synergy. Tab switches character in the test.
+            Particles cleaned up: no more orb look (sparkle / smoke / flame /
+            streak textures), about 40% fewer particles, ribbon trails
+            instead of dot chains, max 2 status visuals per enemy, hit sparks
+            without orbs. Slash draws behind the blade.
+            Minimap takes its colors from the world (ground rendered once
+            from the world, lanes in the world's lane colors, gray during
+            waves), locked lanes and portals are much more grayed out.
+            Performance (same PC, same conditions, wave 7 with a strong
+            weapon): 7.8 -> 5.6 ms per frame (median 7.2 -> 4.7), web
+            renderer 7.9 -> 5.5, draw calls 127 -> 98. Hit sparks 2.6 ms ->
+            0.1 ms (MultiMesh), lightning / shock arcs 1.7 -> 0.2 ms (cached
+            meshes), towers and enemies stop searching every frame.

@@ -10,6 +10,7 @@
 [ext_resource type="Curve" path="res://vfx/shared/puff_curve.tres" id="8_puff"]
 [ext_resource type="Script" path="res://vfx/base/vfx_flash.gd" id="9_flash"]
 [ext_resource type="Script" path="res://vfx/base/vfx_ring.gd" id="10_ring"]
+[ext_resource type="Texture2D" path="res://vfx/shared/smoke.png" id="fx_smoke"]
 
 [sub_resource type="Gradient" id="Gradient_air"]
 offsets = PackedFloat32Array(0, 0.25, 1)
@@ -52,8 +53,10 @@ startAlpha = 0.5
 [node name="Dust" type="CPUParticles2D" parent="."]
 texture_filter = 2
 position = Vector2(0, 3)
-amount = 10
-texture = ExtResource("4_dot")
+amount = 7
+texture = ExtResource("fx_smoke")
+angle_min = -180.0
+angle_max = 180.0
 lifetime = 0.6
 one_shot = true
 explosiveness = 1.0
@@ -67,8 +70,8 @@ initial_velocity_min = 50.0
 initial_velocity_max = 80.0
 damping_min = 110.0
 damping_max = 150.0
-scale_amount_min = 1.2
-scale_amount_max = 2.0
+scale_amount_min = 0.48
+scale_amount_max = 0.8
 scale_amount_curve = ExtResource("8_puff")
 color_ramp = SubResource("Gradient_dust")
 
@@ -86,7 +89,7 @@ color = Color(0.7, 0.85, 1, 1)
 [node name="Streaks" type="CPUParticles2D" parent="."]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 20
+amount = 14
 texture = ExtResource("5_streak")
 lifetime = 0.3
 one_shot = true

@@ -20,6 +20,7 @@ extends Node
 
 @export_group("Warmup")
 @export var warmupFolders : PackedStringArray = ["res://vfx/effects/", "res://vfx/buffs/", "res://status_effects/"]
+@export_file("*.tscn") var warmupScenes : Array[String] = []
 @export var warmupFrames : int = 3
 
 @onready var damageNumbers : DamageNumbersClass = $DamageNumbers
@@ -102,9 +103,9 @@ func show_damage_number(position : Vector2, amount : float, damageType : DamageT
 	if can_spawn(damageNumbers, position, numbersPerCrowd):
 		damageNumbers.add(position, amount, damageType, isCrit)
 
-func show_hit_spark(position : Vector2, color : Color, strength : float, sparkAmount : int, orbAmount : int, angle : float) -> void:
+func show_hit_spark(position : Vector2, color : Color, strength : float, sparkAmount : int, angle : float) -> void:
 	if can_spawn(hitSparks, position, sparksPerCrowd):
-		hitSparks.add(position, color, strength, sparkAmount, orbAmount, angle)
+		hitSparks.add(position, color, strength, sparkAmount, angle)
 
 func spawn_effect(scene : PackedScene, position : Vector2, radius : float = 0.0, color : Color = Color.WHITE, parent : Node = null, angle : float = 0.0, crowded : bool = true) -> Node2D:
 	if not scene:
@@ -232,10 +233,9 @@ func update_status_visuals() -> void:
 			var position : Vector2 = get_status_position(effect)
 			var cell : Vector2i = get_cell(position)
 			var shown : bool = rect.has_point(position) and cells.get(cell, 0) < statusVisualsPerCrowd and shownStatusVisuals < maxStatusVisuals
-			if shown:
+			if effect.status.set_visual_shown(effect, shown):
 				cells[cell] = cells.get(cell, 0) + 1
 				shownStatusVisuals += 1
-			effect.status.set_visual_shown(effect, shown)
 
 func is_status_active(effect : Resource) -> bool:
 	var status : Variant = effect.status
@@ -270,7 +270,9 @@ func update_warmup() -> void:
 	if warmupLeft == warmupFrames:
 		var center : Vector2 = get_view_rect().get_center()
 		warmup.global_position = center
-		for path in find_scenes(warmupFolders):
+		var paths : PackedStringArray = PackedStringArray(warmupScenes)
+		paths.append_array(find_scenes(warmupFolders))
+		for path in paths:
 			var scene : PackedScene = load(path)
 			var node : Node = scene.instantiate()
 			var effect : VfxEffectClass = node as VfxEffectClass

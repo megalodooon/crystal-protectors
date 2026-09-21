@@ -5,21 +5,28 @@ class_name SpiritOrbClass
 @export var turnSpeed : float = 7.0
 @export var seekRange : float = 70.0
 @export var fadeTime : float = 0.15
+@export var seekInterval : float = 0.1
 
 @onready var glow : Sprite2D = $Glow
 @onready var core : Sprite2D = $Core
+@onready var wake : VfxTrailClass = $Wake
+@onready var trail : VfxTrailClass = $Trail
+@onready var wisps : CPUParticles2D = $Wisps
 
 var age : float = 0.0
 var seekQuery : PhysicsShapeQueryParameters2D
+var seekTimer : float = 0.0
+var target : HurtboxComponentClass
 
 #------------------------#
 
 func _ready() -> void:
 	super()
 	glow.self_modulate = color
-	for particles : CPUParticles2D in [$Wake, $Trail, $Wisps]:
-		particles.color = color
-		particles.emitting = true
+	wake.color = Color(color, wake.color.a)
+	trail.color = Color(color.lerp(Color.WHITE, 0.35), trail.color.a)
+	wisps.color = color
+	wisps.emitting = true
 	var shape : CircleShape2D = CircleShape2D.new()
 	shape.radius = seekRange
 	seekQuery = PhysicsShapeQueryParameters2D.new()
@@ -37,8 +44,11 @@ func _process(delta : float) -> void:
 	core.scale = Vector2.ONE * (0.25 + 0.06 * pulse)
 
 func _physics_process(delta : float) -> void:
-	var target : HurtboxComponentClass = find_target()
-	if target:
+	seekTimer -= delta
+	if seekTimer <= 0.0 or not is_instance_valid(target):
+		seekTimer = seekInterval
+		target = find_target()
+	if is_instance_valid(target):
 		rotation = rotate_toward(rotation, global_position.angle_to_point(target.global_position), turnSpeed * delta)
 	super(delta)
 
@@ -52,5 +62,5 @@ func find_target() -> HurtboxComponentClass:
 	return closest
 
 func on_hit(hurtbox : HurtboxComponentClass, hitDamage : float) -> void:
-	Vfx.show_hit_spark(hurtbox.global_position, color, 0.8, 8, 5, rotation + PI / 2.0)
+	Vfx.show_hit_spark(hurtbox.global_position, color, 0.8, 5, rotation + PI / 2.0)
 	super(hurtbox, hitDamage)

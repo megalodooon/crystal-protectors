@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://status_effects/frost/frost_visual.gd" id="1_visual"]
 [ext_resource type="Shader" path="res://status_effects/frost/frost_overlay.gdshader" id="2_overlay"]
+[ext_resource type="Texture2D" path="res://vfx/shared/smoke.png" id="fx_smoke"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_overlay"]
 resource_local_to_scene = true
@@ -39,8 +40,10 @@ material = SubResource("ShaderMaterial_overlay")
 [node name="Mist" type="CPUParticles2D" parent="."]
 texture_filter = 2
 material = SubResource("CanvasItemMaterial_add")
-amount = 8
-texture = SubResource("GradientTexture2D_soft")
+amount = 5
+texture = ExtResource("fx_smoke")
+angle_min = -180.0
+angle_max = 180.0
 lifetime = 0.9
 randomness = 0.4
 local_coords = false
@@ -50,13 +53,13 @@ spread = 180.0
 gravity = Vector2(0, 4)
 initial_velocity_min = 0.5
 initial_velocity_max = 2.0
-scale_amount_min = 0.4
-scale_amount_max = 0.7
+scale_amount_min = 0.16
+scale_amount_max = 0.28
 color_ramp = SubResource("Gradient_mist")
 
 [node name="Snow" type="CPUParticles2D" parent="."]
 material = SubResource("CanvasItemMaterial_add")
-amount = 6
+amount = 4
 lifetime = 0.8
 randomness = 0.5
 local_coords = false

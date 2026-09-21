@@ -86,7 +86,7 @@ loop = true
 [node name="Glints" type="CPUParticles2D" parent="Loop"]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 5
+amount = 3
 texture = ExtResource("5_sparkle")
 lifetime = 0.55
 randomness = 0.5
@@ -126,7 +126,7 @@ alternate = 0.5
 [node name="Shards" type="CPUParticles2D" parent="Burst"]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 10
+amount = 7
 texture = ExtResource("6_streak")
 lifetime = 0.4
 one_shot = true

@@ -1,0 +1,59 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://weapons/base/weapon.gd" id="1_weapon"]
+[ext_resource type="Resource" path="res://weapons/rarities/common.tres" id="2_common"]
+[ext_resource type="Texture2D" path="res://weapons/casting/frost_scepter.png" id="3_sprite"]
+[ext_resource type="Script" path="res://weapons/attacks/spell_attack.gd" id="4_spell"]
+[ext_resource type="Resource" path="res://damage/ice.tres" id="5_damage"]
+[ext_resource type="PackedScene" path="res://weapons/attacks/spell_bolt.tscn" id="6_bolt"]
+[ext_resource type="Script" path="res://weapons/attacks/spell_motion.gd" id="7_motion"]
+[ext_resource type="Material" path="res://vfx/shared/add_material.tres" id="8_add"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_glow.tres" id="9_glow"]
+[ext_resource type="Texture2D" path="res://vfx/shared/sparkle.png" id="10_sparkle"]
+[ext_resource type="Script" path="res://weapons/effects/weapon_effect.gd" id="11_effect"]
+[ext_resource type="Resource" path="res://weapons/effects/frost.tres" id="12_element"]
+
+[sub_resource type="Curve" id="Curve_travel"]
+_data = [Vector2(0, 0), 0.0, 0.15, 0, 0, Vector2(1, 1), 2.6, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Resource" id="Resource_motion"]
+script = ExtResource("7_motion")
+distance = 140.0
+flightTime = 0.42
+travelCurve = SubResource("Curve_travel")
+spawnRadius = 14.0
+spawnArc = 150.0
+holdTime = 0.18
+launchStagger = 0.06
+convergeDistance = 70.0
+
+[node name="FrostScepter" type="Node2D"]
+script = ExtResource("1_weapon")
+rarity = ExtResource("2_common")
+damage = 4.5
+attackCooldown = 0.75
+damageType = ExtResource("5_damage")
+effects = Array[ExtResource("11_effect")]([ExtResource("12_element")])
+holdAngle = -80.0
+
+[node name="Visuals" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="Visuals"]
+position = Vector2(4.5, 0)
+rotation = 0.7853982
+texture = ExtResource("3_sprite")
+
+[node name="SpellAttack" type="Node2D" parent="."]
+texture_filter = 2
+material = ExtResource("8_add")
+position = Vector2(10.4, 0)
+script = ExtResource("4_spell")
+boltScene = ExtResource("6_bolt")
+motion = SubResource("Resource_motion")
+count = 4
+headStretch = 0.9
+recoil = 1.0
+boltColor = Color(0.45, 0.85, 1, 1)
+flashTexture = ExtResource("9_glow")
+starTexture = ExtResource("10_sparkle")

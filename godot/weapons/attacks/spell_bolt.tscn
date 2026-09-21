@@ -1,0 +1,47 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://weapons/attacks/spell_bolt.gd" id="1_bolt"]
+[ext_resource type="Script" path="res://vfx/base/vfx_trail.gd" id="2_trail"]
+[ext_resource type="Material" path="res://vfx/shared/add_material.tres" id="3_add"]
+[ext_resource type="Texture2D" path="res://vfx/shared/soft_glow.tres" id="4_glow"]
+[ext_resource type="Texture2D" path="res://vfx/shared/flash_glow.tres" id="5_flash"]
+[ext_resource type="Texture2D" path="res://vfx/shared/sparkle.png" id="6_sparkle"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_bolt"]
+resource_local_to_scene = true
+radius = 3.5
+
+[node name="SpellBolt" type="Area2D"]
+texture_filter = 2
+z_index = 1
+collision_layer = 0
+collision_mask = 17
+monitorable = false
+script = ExtResource("1_bolt")
+maxHits = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_bolt")
+
+[node name="Trail" type="Node2D" parent="."]
+show_behind_parent = true
+script = ExtResource("2_trail")
+fadePower = 1.1
+soft = false
+maxPoints = 40
+
+[node name="Glow" type="Sprite2D" parent="."]
+material = ExtResource("3_add")
+scale = Vector2(0.42, 0.42)
+self_modulate = Color(1, 1, 1, 0.85)
+texture = ExtResource("4_glow")
+
+[node name="Flare" type="Sprite2D" parent="."]
+material = ExtResource("3_add")
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("6_sparkle")
+
+[node name="Core" type="Sprite2D" parent="."]
+material = ExtResource("3_add")
+scale = Vector2(0.2, 0.2)
+texture = ExtResource("5_flash")

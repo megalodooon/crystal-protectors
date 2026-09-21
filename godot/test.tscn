@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://syrpd78moacd"]
 
 [ext_resource type="Script" uid="uid://dttya6kqeq481" path="res://test.gd" id="1_test"]
-[ext_resource type="PackedScene" uid="uid://bxgjh5il07bj3" path="res://player/player.tscn" id="2_player"]
+[ext_resource type="PackedScene" path="res://player/knight.tscn" id="2_player"]
 [ext_resource type="PackedScene" path="res://weapons/slashing/wooden_sword.tscn" id="3_sword"]
 [ext_resource type="Resource" uid="uid://uawdk2x0kkvq" path="res://weapons/rarities/common.tres" id="4_common"]
 [ext_resource type="Resource" uid="uid://bd3ny53s6x1mp" path="res://weapons/rarities/uncommon.tres" id="5_uncommon"]
@@ -44,6 +44,13 @@
 [ext_resource type="Resource" path="res://status_effects/modifiers/fortified.tres" id="37_fortified"]
 [ext_resource type="Resource" path="res://status_effects/modifiers/regenerating.tres" id="45_regenerating"]
 [ext_resource type="PackedScene" path="res://ui/minimap.tscn" id="46_minimap"]
+[ext_resource type="PackedScene" path="res://player/mage.tscn" id="47_mage"]
+[ext_resource type="PackedScene" path="res://weapons/casting/apprentice_staff.tscn" id="48_apprentice_staff"]
+[ext_resource type="PackedScene" path="res://weapons/casting/twin_wand.tscn" id="49_twin_wand"]
+[ext_resource type="PackedScene" path="res://weapons/casting/ember_rod.tscn" id="50_ember_rod"]
+[ext_resource type="PackedScene" path="res://weapons/casting/frost_scepter.tscn" id="51_frost_scepter"]
+[ext_resource type="PackedScene" path="res://weapons/casting/storm_staff.tscn" id="52_storm_staff"]
+[ext_resource type="PackedScene" path="res://weapons/casting/star_scepter.tscn" id="53_star_scepter"]
 
 [sub_resource type="Resource" id="Resource_weapon_item"]
 script = ExtResource("20_weapon_item")
@@ -110,9 +117,11 @@ _data = {
 point_count = 3
 
 [node name="Test" type="Node2D" unique_id=1342735548 node_paths=PackedStringArray("player", "waveManager")]
+visibility_layer = 513
 script = ExtResource("1_test")
 player = NodePath("Player")
-weapons = Array[PackedScene]([ExtResource("3_sword"), ExtResource("15_iron_sword"), ExtResource("16_spear"), ExtResource("17_flame_sword"), ExtResource("19_frost_scythe"), ExtResource("40_dagger"), ExtResource("41_greatsword"), ExtResource("42_war_axe"), ExtResource("43_halberd"), ExtResource("44_storm_glaive")])
+characters = Array[PackedScene]([ExtResource("2_player"), ExtResource("47_mage")])
+weapons = Array[PackedScene]([ExtResource("3_sword"), ExtResource("15_iron_sword"), ExtResource("16_spear"), ExtResource("17_flame_sword"), ExtResource("19_frost_scythe"), ExtResource("40_dagger"), ExtResource("41_greatsword"), ExtResource("42_war_axe"), ExtResource("43_halberd"), ExtResource("44_storm_glaive"), ExtResource("48_apprentice_staff"), ExtResource("49_twin_wand"), ExtResource("50_ember_rod"), ExtResource("51_frost_scepter"), ExtResource("52_storm_staff"), ExtResource("53_star_scepter")])
 rarities = Array[ExtResource("14_rarity")]([ExtResource("4_common"), ExtResource("5_uncommon"), ExtResource("6_rare"), ExtResource("7_epic"), ExtResource("8_legendary"), ExtResource("9_mythic"), ExtResource("10_artifact")])
 waveManager = NodePath("WaveManager")
 testElements = Array[ExtResource("29_weapon_effect")]([ExtResource("30_fire"), ExtResource("31_frost"), ExtResource("32_poison"), ExtResource("33_lightning"), ExtResource("34_water")])
@@ -127,6 +136,7 @@ ExtResource("28_small_enemy"): Color(0.5, 1, 0.5, 1)
 })
 
 [node name="Ground" type="Sprite2D" parent="."]
+visibility_layer = 513
 z_index = -10
 texture_repeat = 2
 texture = SubResource("NoiseTexture2D_ground")
@@ -694,7 +704,6 @@ pathNetwork = NodePath("../../../PathNetwork")
 waveManager = NodePath("../../../WaveManager")
 towerBuilder = NodePath("../../../Player/TowerBuilder")
 player = NodePath("../../../Player")
-groundTexture = SubResource("NoiseTexture2D_ground")
 
 [node name="HoverLabel" type="Label" parent="CanvasLayer/HUD"]
 visible = false

@@ -72,7 +72,7 @@ alternate = 0.5
 
 [node name="Crystals" type="CPUParticles2D" parent="."]
 texture_filter = 2
-amount = 9
+amount = 6
 texture = ExtResource("7_shard")
 lifetime = 0.6
 one_shot = true
@@ -94,7 +94,7 @@ color_ramp = SubResource("Gradient_shard")
 [node name="Sparks" type="CPUParticles2D" parent="."]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 14
+amount = 10
 texture = ExtResource("5_streak")
 lifetime = 0.35
 one_shot = true
@@ -116,7 +116,7 @@ color_ramp = SubResource("Gradient_spark")
 [node name="Glitter" type="CPUParticles2D" parent="."]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 10
+amount = 7
 texture = ExtResource("6_sparkle")
 lifetime = 0.8
 one_shot = true

@@ -8,6 +8,7 @@
 [ext_resource type="Curve" path="res://vfx/shared/shrink_curve.tres" id="6_shrink"]
 [ext_resource type="Curve" path="res://vfx/shared/puff_curve.tres" id="7_puff"]
 [ext_resource type="Script" path="res://vfx/base/vfx_flash.gd" id="8_flash"]
+[ext_resource type="Texture2D" path="res://vfx/shared/smoke.png" id="fx_smoke"]
 
 [sub_resource type="Gradient" id="Gradient_gravity"]
 offsets = PackedFloat32Array(0, 0.25, 1)
@@ -53,8 +54,10 @@ loop = true
 z_index = -2
 texture_filter = 2
 position = Vector2(0, 6)
-amount = 6
-texture = ExtResource("3_dot")
+amount = 4
+texture = ExtResource("fx_smoke")
+angle_min = -180.0
+angle_max = 180.0
 lifetime = 0.9
 randomness = 0.4
 emission_shape = 3
@@ -62,8 +65,8 @@ emission_rect_extents = Vector2(6, 2)
 gravity = Vector2(0, 3)
 initial_velocity_min = 1.0
 initial_velocity_max = 3.0
-scale_amount_min = 1.0
-scale_amount_max = 1.5
+scale_amount_min = 0.4
+scale_amount_max = 0.6
 scale_amount_curve = ExtResource("7_puff")
 color_ramp = SubResource("Gradient_mist")
 
@@ -71,7 +74,7 @@ color_ramp = SubResource("Gradient_mist")
 texture_filter = 2
 material = ExtResource("2_add")
 position = Vector2(0, -17)
-amount = 12
+amount = 7
 texture = ExtResource("4_streak")
 lifetime = 0.35
 randomness = 0.3
@@ -92,8 +95,10 @@ color_ramp = SubResource("Gradient_gravity")
 z_index = -2
 texture_filter = 2
 position = Vector2(0, 3)
-amount = 8
-texture = ExtResource("3_dot")
+amount = 5
+texture = ExtResource("fx_smoke")
+angle_min = -180.0
+angle_max = 180.0
 lifetime = 0.65
 randomness = 0.4
 emission_shape = 3
@@ -103,8 +108,8 @@ spread = 5.0
 gravity = Vector2(0, 30)
 initial_velocity_min = 2.0
 initial_velocity_max = 5.0
-scale_amount_min = 0.5
-scale_amount_max = 0.8
+scale_amount_min = 0.2
+scale_amount_max = 0.32
 scale_amount_curve = ExtResource("6_shrink")
 color_ramp = SubResource("Gradient_tar")
 
@@ -114,7 +119,7 @@ color_ramp = SubResource("Gradient_tar")
 texture_filter = 2
 material = ExtResource("2_add")
 position = Vector2(0, -16)
-amount = 16
+amount = 11
 texture = ExtResource("4_streak")
 lifetime = 0.25
 one_shot = true

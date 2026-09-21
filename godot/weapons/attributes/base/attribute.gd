@@ -2,7 +2,7 @@ extends Resource
 class_name AttributeClass
 
 
-enum Stat { NONE, DAMAGE, CRIT_CHANCE, CRIT_DAMAGE, ATTACK_SPEED, KNOCKBACK, ATTACK_SIZE, ATTACK_ARC, EXTRA_TARGETS, STATUS_DAMAGE, MOVE_SPEED, STATUS_DURATION, EFFECT_CHANCE, EFFECT_AREA, EFFECT_DAMAGE, PIERCE, EXTRA_PROJECTILES }
+enum Stat { NONE, DAMAGE, CRIT_CHANCE, CRIT_DAMAGE, ATTACK_SPEED, KNOCKBACK, ATTACK_SIZE, ATTACK_ARC, EXTRA_TARGETS, STATUS_DAMAGE, MOVE_SPEED, STATUS_DURATION, EFFECT_CHANCE, EFFECT_AREA, EFFECT_DAMAGE, PIERCE, EXTRA_PROJECTILES, PROJECTILE_SPEED, PROJECTILE_RANGE, HOMING, BOUNCES }
 enum Trigger { NONE, ATTACK, HIT, CRIT, KILL, PROC }
 
 @export var attributeName : String
@@ -23,6 +23,9 @@ enum Trigger { NONE, ATTACK, HIT, CRIT, KILL, PROC }
 #------------------------#
 
 static func is_stat_used(weapon : WeaponClass, chosen : Array[AttributeClass], usedStat : Stat) -> bool:
+	for attackNode in weapon.get_attacks():
+		if attackNode.uses_stat(usedStat):
+			return true
 	for effect in weapon.get_all_effects():
 		if effect.uses_stat(usedStat):
 			return true

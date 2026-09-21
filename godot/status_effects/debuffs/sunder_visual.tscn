@@ -11,6 +11,7 @@
 [ext_resource type="Script" path="res://vfx/base/vfx_orbit.gd" id="9_orbit"]
 [ext_resource type="Texture2D" path="res://vfx/shared/flash_glow.tres" id="10_flash"]
 [ext_resource type="Curve" path="res://vfx/shared/shrink_curve.tres" id="11_shrink"]
+[ext_resource type="Texture2D" path="res://vfx/shared/streak.tres" id="fx_streak"]
 
 [sub_resource type="Gradient" id="Gradient_ember"]
 offsets = PackedFloat32Array(0, 0.25, 1)
@@ -59,8 +60,9 @@ twinkleSpeed = 6.0
 [node name="Embers" type="CPUParticles2D" parent="Loop"]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 9
-texture = ExtResource("3_dot")
+amount = 5
+texture = ExtResource("fx_streak")
+particle_flag_align_y = true
 lifetime = 0.6
 randomness = 0.4
 emission_shape = 3
@@ -70,13 +72,13 @@ spread = 40.0
 gravity = Vector2(0, -25)
 initial_velocity_min = 2.0
 initial_velocity_max = 6.0
-scale_amount_min = 0.3
-scale_amount_max = 0.55
+scale_amount_min = 0.15
+scale_amount_max = 0.275
 scale_amount_curve = ExtResource("11_shrink")
 color_ramp = SubResource("Gradient_ember")
 
 [node name="Flakes" type="CPUParticles2D" parent="Loop"]
-amount = 3
+amount = 2
 texture = ExtResource("6_pixel")
 lifetime = 0.7
 randomness = 0.5
@@ -115,7 +117,7 @@ duration = 0.25
 color = Color(1, 0.4, 0.15, 1)
 
 [node name="MetalShards" type="CPUParticles2D" parent="Burst"]
-amount = 14
+amount = 10
 texture = ExtResource("6_pixel")
 lifetime = 0.5
 one_shot = true
@@ -134,7 +136,7 @@ color_ramp = SubResource("Gradient_metal")
 [node name="HotSparks" type="CPUParticles2D" parent="Burst"]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 9
+amount = 6
 texture = ExtResource("4_streak")
 lifetime = 0.3
 one_shot = true

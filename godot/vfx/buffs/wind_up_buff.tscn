@@ -33,7 +33,7 @@ loop = true
 [node name="Orbit" type="CPUParticles2D" parent="."]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 8
+amount = 6
 texture = ExtResource("4_dot")
 lifetime = 0.45
 local_coords = true
@@ -51,7 +51,7 @@ color_ramp = SubResource("Gradient_spark")
 [node name="Orbit2" type="CPUParticles2D" parent="."]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 10
+amount = 8
 texture = ExtResource("4_dot")
 lifetime = 0.35
 local_coords = true
@@ -69,7 +69,7 @@ color_ramp = SubResource("Gradient_spark")
 [node name="Crackle" type="CPUParticles2D" parent="."]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 5
+amount = 3
 texture = ExtResource("5_streak")
 lifetime = 0.15
 randomness = 0.6

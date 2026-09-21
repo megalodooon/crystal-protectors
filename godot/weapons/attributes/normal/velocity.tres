@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="AttributeClass" format=3]
+
+[ext_resource type="Script" path="res://weapons/attributes/base/attribute.gd" id="1_attribute"]
+[ext_resource type="Script" path="res://weapons/attributes/base/attribute_scaling.gd" id="2_scaling"]
+[ext_resource type="Script" path="res://weapons/attacks/attack_type.gd" id="3_attack_type"]
+[ext_resource type="Resource" path="res://weapons/attacks/spell_type.tres" id="4_spell"]
+
+[sub_resource type="Resource" id="Resource_scaling"]
+script = ExtResource("2_scaling")
+minBase = 0.04
+maxBase = 0.06
+perStep = 0.004
+percent = true
+
+[resource]
+script = ExtResource("1_attribute")
+attributeName = "Velocity"
+description = "+{value}% Bolt Speed"
+stat = 17
+scaling = SubResource("Resource_scaling")
+attackTypes = Array[ExtResource("3_attack_type")]([ExtResource("4_spell")])

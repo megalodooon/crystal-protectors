@@ -52,7 +52,7 @@ loop = true
 [node name="Accretion" type="CPUParticles2D" parent="Visuals"]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 60
+amount = 48
 texture = ExtResource("4_dot")
 lifetime = 0.7
 randomness = 0.3
@@ -72,7 +72,7 @@ color_ramp = SubResource("Gradient_accretion")
 [node name="Debris" type="CPUParticles2D" parent="Visuals"]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 10
+amount = 6
 texture = ExtResource("5_streak")
 lifetime = 0.45
 randomness = 0.4

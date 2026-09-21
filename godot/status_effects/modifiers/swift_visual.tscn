@@ -40,7 +40,7 @@ loop = true
 z_index = -2
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 10
+amount = 8
 texture = ExtResource("3_dot")
 lifetime = 0.35
 randomness = 0.3
@@ -56,7 +56,7 @@ color_ramp = SubResource("Gradient_trail")
 [node name="Gusts" type="CPUParticles2D" parent="Loop"]
 texture_filter = 2
 material = ExtResource("2_add")
-amount = 3
+amount = 2
 texture = ExtResource("4_streak")
 lifetime = 0.3
 randomness = 0.5

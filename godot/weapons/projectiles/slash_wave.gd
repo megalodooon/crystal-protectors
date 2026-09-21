@@ -10,7 +10,7 @@ const SEGMENTS : int = 10
 @export var fadeTime : float = 0.12
 
 @onready var glow : Sprite2D = $Glow
-@onready var trail : CPUParticles2D = $Trail
+@onready var trail : VfxTrailClass = $Trail
 
 var age : float = 0.0
 
@@ -19,8 +19,7 @@ var age : float = 0.0
 func _ready() -> void:
 	super()
 	glow.self_modulate = color
-	trail.color = color
-	trail.emitting = true
+	trail.color = Color(color, trail.color.a)
 	Vfx.add_cullable(self)
 
 func _process(delta : float) -> void:
@@ -41,5 +40,5 @@ func get_crescent(arc : float, width : float) -> PackedVector2Array:
 	return points
 
 func on_hit(hurtbox : HurtboxComponentClass, hitDamage : float) -> void:
-	Vfx.show_hit_spark(hurtbox.global_position, color, 0.6, 4, 0, rotation + PI / 2.0)
+	Vfx.show_hit_spark(hurtbox.global_position, color, 0.6, 3, rotation + PI / 2.0)
 	super(hurtbox, hitDamage)
