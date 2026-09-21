@@ -4,7 +4,7 @@ class_name WeaponItemClass
 
 const UPGRADES := preload("res://weapons/base/weapon_upgrades.tres")
 const COMBAT_SCALING := preload("res://core/combat_scaling.tres")
-const ATTRIBUTE_POOL := preload("res://weapons/attributes/base/attribute_pool.tres")
+const ATTRIBUTE_POOL_PATH : String = "res://weapons/attributes/base/attribute_pool.tres"
 
 @export var weaponScene : PackedScene
 @export var rarity : RarityClass
@@ -15,19 +15,22 @@ const ATTRIBUTE_POOL := preload("res://weapons/attributes/base/attribute_pool.tr
 
 #------------------------#
 
+static func get_attribute_pool() -> AttributePoolClass:
+	return load(ATTRIBUTE_POOL_PATH)
+
 func create_weapon() -> WeaponClass:
 	var weapon : WeaponClass = weaponScene.instantiate()
 	weapon.item = self
 	for roll in attributes:
 		if roll and roll.attribute:
 			weapon.attributes.append(roll)
-	weapon.synergies = ATTRIBUTE_POOL.get_synergy_rolls(weapon.attributes)
+	weapon.synergies = get_attribute_pool().get_synergy_rolls(weapon.attributes)
 	if rarity:
 		weapon.rarity = rarity
 	return weapon
 
 func get_synergy_rolls() -> Array[AttributeRollClass]:
-	return ATTRIBUTE_POOL.get_synergy_rolls(attributes)
+	return get_attribute_pool().get_synergy_rolls(attributes)
 
 func is_max_level() -> bool:
 	return level >= UPGRADES.maxLevel
@@ -49,7 +52,7 @@ func upgrade_rarity() -> void:
 		return
 	rarity = rarity.nextRarity
 	rarityUpgraded = true
-	attributes = ATTRIBUTE_POOL.roll_attributes(self, attributes)
+	attributes = get_attribute_pool().roll_attributes(self, attributes)
 	emit_changed()
 
 func upgrade_combat_level(amount : int = 1) -> void:
@@ -57,7 +60,7 @@ func upgrade_combat_level(amount : int = 1) -> void:
 	emit_changed()
 
 func randomize_attributes() -> void:
-	attributes = ATTRIBUTE_POOL.roll_attributes(self)
+	attributes = get_attribute_pool().roll_attributes(self)
 	emit_changed()
 
 func get_damage_multiplier() -> float:

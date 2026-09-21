@@ -1077,11 +1077,13 @@ Example: godot/weapons/base/weapon.gd
   spell_bolt.tscn, so the first cast does not stutter) nearly invisible
   so shaders compile at load, not on the first hit; VfxEffect scenes stay
   in the pool.
-- LOAD CYCLE GOTCHA: projectile scenes (slash_wave, spell_bolt) must never
-  be the FIRST thing loaded (preload / ext_resource in an autoload): their
-  script chain reaches weapon_item.gd, which preloads the attribute pool,
-  which loads the projectile scene again -> "referenced non-existent
-  resource". That is why warmupScenes are paths loaded at runtime.
+- LOAD CYCLE GOTCHA: the attribute pool loads projectile scenes whose scripts
+  lead back to weapon_item.gd. When weapon_item.gd PRELOADED the pool, the
+  web export broke (binary resources: "Cannot get class ''", no weapon, no
+  HUD) and a projectile scene loaded first errored. So the pool is loaded
+  at runtime (get_attribute_pool) and autoloads reference scenes by path
+  (warmupScenes). Never preload the pool or a projectile scene from a
+  script every weapon depends on.
 - IMPORTANT: vfx.gd must NOT use status/hurtbox class types (it uses
   Resource + duck typing). An autoload with typed references to the
   status_effect / status_component / hurtbox scripts makes Godot leak

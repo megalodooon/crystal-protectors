@@ -217,7 +217,7 @@ func update_attribute_panel() -> void:
 	attributeText.text = text
 
 func equip_random_synergy() -> void:
-	var synergies : Array[AttributeClass] = WeaponItemClass.ATTRIBUTE_POOL.synergies
+	var synergies : Array[AttributeClass] = WeaponItemClass.get_attribute_pool().synergies
 	if synergies.is_empty() or rarities.is_empty():
 		return
 	var synergy : AttributeClass = synergies.pick_random()
@@ -232,7 +232,7 @@ func equip_random_synergy() -> void:
 		roll.attribute = required as AttributeClass
 		roll.quality = randf()
 		kept.append(roll)
-	newItem.attributes = WeaponItemClass.ATTRIBUTE_POOL.roll_attributes(newItem, kept)
+	newItem.attributes = WeaponItemClass.get_attribute_pool().roll_attributes(newItem, kept)
 	player.equip_weapon(newItem)
 
 func apply_test_element() -> void:
