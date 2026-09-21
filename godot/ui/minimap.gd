@@ -12,19 +12,18 @@ class_name MinimapClass
 @export var margin : float = 2.0
 @export var groundTexture : Texture2D
 @export var playerIcon : Texture2D
-@export var updateInterval : float = 0.05
 @export var detailScale : int = 0
 @export_range(0.125, 1.0) var pixelScale : float = 0.5
 
 @export_group("Look")
 @export var shadeColor : Color = Color(0.0, 0.0, 0.05, 0.3)
 @export var frameColor : Color = Color(0.08, 0.06, 0.09)
-@export var outlineColor : Color = Color(0.05, 0.03, 0.07, 0.9)
+@export var outlineColor : Color = Color(0.05, 0.03, 0.07)
 @export var playerColor : Color = Color(1.0, 1.0, 1.0)
 @export var lockedFade : float = 0.4
 @export var laneOutline : int = 3
 @export var laneCore : int = 1
-@export var portalRadius : Vector2i = Vector2i(2, 3)
+@export var portalSize : float = 8.0
 @export var towerBlock : int = 2
 @export var enemyBlock : int = 2
 @export var playerBlock : int = 2
@@ -32,24 +31,29 @@ class_name MinimapClass
 
 var unit : float = 1.0
 var pixel : float = 1.0
-var cells : float = 1.0
+var cells : int = 1
 var worldPerCell : float = 1.0
 var view : Rect2 = Rect2()
-var timer : float = 0.0
-var laneSamples : Dictionary[EnemyPathClass, PackedVector2Array] = {}
+var groundImage : Image
+var mapTexture : ImageTexture
+var portalSprites : Dictionary[PortalClass, Sprite2D] = {}
 
 #------------------------#
 
 func _ready() -> void:
 	clip_contents = true
 	get_viewport().size_changed.connect(apply_scale)
+	start.call_deferred()
+
+func start() -> void:
+	if pathNetwork:
+		for path in pathNetwork.paths:
+			path.active_changed.connect(bake)
 	apply_scale()
 
-func _process(delta : float) -> void:
-	timer += delta
-	if timer < updateInterval:
-		return
-	timer = 0.0
+func _process(_delta : float) -> void:
+	update_view()
+	update_portals()
 	queue_redraw()
 
 func apply_scale() -> void:
@@ -58,10 +62,10 @@ func apply_scale() -> void:
 	size = Vector2.ONE * minimapSize * unit
 	scale = Vector2.ONE / unit
 	position = Vector2(get_canvas_size().x - minimapSize - margin, margin)
-	cells = size.x / pixel
-	worldPerCell = viewSize / cells
-	laneSamples.clear()
-	queue_redraw()
+	cells = int(size.x / pixel)
+	worldPerCell = viewSize / float(cells)
+	groundImage = null
+	bake()
 
 func get_detail_scale() -> int:
 	if detailScale > 0:
@@ -78,6 +82,80 @@ func get_canvas_size() -> Vector2:
 func get_canvas_rect() -> Rect2:
 	return Rect2(position, Vector2.ONE * minimapSize)
 
+#-------------BAKING-------------#
+
+func bake() -> void:
+	bake_map()
+	bake_portals()
+	queue_redraw()
+
+func bake_map() -> void:
+	if not groundImage:
+		bake_ground()
+	var mapImage : Image = groundImage.duplicate()
+	if pathNetwork:
+		for path in get_ordered_paths():
+			stamp_lane(mapImage, path, laneOutline, outlineColor)
+		for path in get_ordered_paths():
+			stamp_lane(mapImage, path, laneCore, fade(get_core_color(), path.active))
+	mapTexture = ImageTexture.create_from_image(mapImage)
+
+func bake_ground() -> void:
+	var mapCells : Vector2i = Vector2i((mapSize / worldPerCell).ceil())
+	groundImage = Image.create_empty(mapCells.x, mapCells.y, false, Image.FORMAT_RGBA8)
+	if not groundTexture:
+		groundImage.fill(Color(0.1, 0.1, 0.12))
+		return
+	var ground : Image = groundTexture.get_image()
+	if ground.is_compressed():
+		ground.decompress()
+	for y in mapCells.y:
+		for x in mapCells.x:
+			var spot : Vector2i = Vector2i(Vector2(float(x), float(y)) * worldPerCell)
+			var tone : Color = ground.get_pixel(spot.x % ground.get_width(), spot.y % ground.get_height())
+			groundImage.set_pixel(x, y, tone.lerp(Color(shadeColor, 1.0), shadeColor.a))
+
+func stamp_lane(image : Image, path : EnemyPathClass, thickness : int, color : Color) -> void:
+	var length : float = path.get_length()
+	if length <= 0.0:
+		return
+	var steps : int = maxi(int(length / (worldPerCell * 0.7)), 1)
+	var half : int = (thickness - 1) / 2
+	var bounds : Rect2i = Rect2i(Vector2i.ZERO, image.get_size())
+	for i in steps + 1:
+		var cell : Vector2i = Vector2i((path.get_global_point(length * float(i) / float(steps)) / worldPerCell).floor())
+		var block : Rect2i = Rect2i(cell - Vector2i.ONE * half, Vector2i.ONE * thickness).intersection(bounds)
+		if block.has_area():
+			image.fill_rect(block, color)
+
+func bake_portals() -> void:
+	for sprite : Sprite2D in portalSprites.values():
+		sprite.queue_free()
+	portalSprites.clear()
+	if not waveManager:
+		return
+	for portal in waveManager.portals:
+		portalSprites[portal] = make_portal(portal)
+
+func make_portal(portal : PortalClass) -> Sprite2D:
+	var body : Sprite2D = portal.body
+	var sprite : Sprite2D = Sprite2D.new()
+	sprite.texture = body.texture
+	sprite.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	sprite.scale = body.scale * portalSize * unit / (float(body.texture.get_height()) * body.scale.y)
+	var shader : ShaderMaterial = ShaderMaterial.new()
+	shader.shader = (body.material as ShaderMaterial).shader
+	shader.set_shader_parameter("glowColor", portal.color)
+	shader.set_shader_parameter("coreColor", portal.color.lerp(Color.WHITE, 0.55))
+	shader.set_shader_parameter("voidColor", portal.voidColor)
+	shader.set_shader_parameter("intensity", 1.0 if is_open(portal) else lockedFade)
+	shader.set_shader_parameter("flash", 0.0)
+	sprite.material = shader
+	add_child(sprite)
+	return sprite
+
+#-------------DRAWING-------------#
+
 func update_view() -> void:
 	var center : Vector2 = player.global_position if player else mapSize / 2.0
 	var origin : Vector2 = center - Vector2.ONE * viewSize / 2.0
@@ -85,85 +163,22 @@ func update_view() -> void:
 	origin.y = clampf(origin.y, 0.0, maxf(mapSize.y - viewSize, 0.0))
 	view = Rect2((origin / worldPerCell).floor() * worldPerCell, Vector2.ONE * viewSize)
 
+func update_portals() -> void:
+	for portal : PortalClass in portalSprites:
+		var sprite : Sprite2D = portalSprites[portal]
+		sprite.visible = view.has_point(portal.global_position)
+		if sprite.visible:
+			sprite.position = (to_cell(portal.global_position) * pixel).round()
+
 func _draw() -> void:
-	update_view()
-	if groundTexture:
-		draw_texture_rect_region(groundTexture, Rect2(Vector2.ZERO, size), view)
-	draw_rect(Rect2(Vector2.ZERO, size), shadeColor)
-	draw_lanes()
-	draw_portals()
+	if not mapTexture:
+		return
+	var offset : Vector2 = (view.position / worldPerCell).round()
+	draw_texture_rect_region(mapTexture, Rect2(Vector2.ZERO, size), Rect2(offset, Vector2.ONE * float(cells)))
 	draw_towers()
 	draw_enemies()
 	draw_player()
 	draw_rect(Rect2(Vector2.ZERO, size), frameColor, false, unit)
-
-func draw_lanes() -> void:
-	if not pathNetwork:
-		return
-	var ordered : Array[EnemyPathClass] = get_ordered_paths()
-	for path in ordered:
-		draw_lane(path, laneOutline, outlineColor)
-	for path in ordered:
-		draw_lane(path, laneCore, fade(get_core_color(), path.active))
-
-func get_ordered_paths() -> Array[EnemyPathClass]:
-	var ordered : Array[EnemyPathClass] = []
-	for path in pathNetwork.paths:
-		if not path.active:
-			ordered.append(path)
-	for path in pathNetwork.paths:
-		if path.active:
-			ordered.append(path)
-	return ordered
-
-func draw_lane(path : EnemyPathClass, thickness : int, color : Color) -> void:
-	var seen : Dictionary[Vector2, bool] = {}
-	for sample in get_lane_samples(path):
-		if not view.grow(worldPerCell * float(thickness)).has_point(sample):
-			continue
-		var cell : Vector2 = to_cell(sample)
-		if seen.has(cell):
-			continue
-		seen[cell] = true
-		draw_block(cell, thickness, color)
-
-func get_lane_samples(path : EnemyPathClass) -> PackedVector2Array:
-	if laneSamples.has(path):
-		return laneSamples[path]
-	var samples : PackedVector2Array = []
-	var length : float = path.get_length()
-	if length > 0.0:
-		var steps : int = maxi(int(length / (worldPerCell * 0.5)), 1)
-		for i in steps + 1:
-			samples.append(path.get_global_point(length * float(i) / float(steps)))
-	laneSamples[path] = samples
-	return samples
-
-func draw_portals() -> void:
-	if not waveManager:
-		return
-	for portal in waveManager.portals:
-		draw_portal(portal)
-
-func draw_portal(portal : PortalClass) -> void:
-	var open : bool = portal.path == null or portal.path.active
-	var center : Vector2 = to_cell(portal.global_position)
-	var rim : Color = fade(portal.color, open)
-	var core : Color = fade(portal.color.lerp(Color.WHITE, 0.5), open)
-	var hole : Color = fade(portal.voidColor, open)
-	for y in range(-portalRadius.y - 1, portalRadius.y + 2):
-		for x in range(-portalRadius.x - 1, portalRadius.x + 2):
-			var spread : float = Vector2(float(x) / float(portalRadius.x), float(y) / float(portalRadius.y)).length()
-			if spread > 1.25:
-				continue
-			var cellColor : Color = hole
-			if spread > 1.0:
-				cellColor = outlineColor
-			elif spread > 0.72:
-				cellColor = core
-			elif spread > 0.45:
-				cellColor = rim
-			draw_block(center + Vector2(float(x), float(y)), 1, cellColor)
 
 func draw_towers() -> void:
 	if not towerBuilder:
@@ -181,13 +196,12 @@ func draw_enemies() -> void:
 func draw_player() -> void:
 	if not player:
 		return
-	var icon : Texture2D = get_player_icon()
-	if not icon:
+	if not playerIcon:
 		draw_marker(player.global_position, playerBlock, playerColor)
 		return
 	var iconSize : Vector2 = Vector2.ONE * playerIconSize * unit
 	var spot : Vector2 = (to_cell(player.global_position) * pixel).round()
-	draw_texture_rect(icon, Rect2(spot - iconSize / 2.0, iconSize), false)
+	draw_texture_rect(playerIcon, Rect2(spot - iconSize / 2.0, iconSize), false)
 
 func draw_marker(spot : Vector2, block : int, color : Color) -> void:
 	if not view.has_point(spot):
@@ -197,18 +211,26 @@ func draw_marker(spot : Vector2, block : int, color : Color) -> void:
 	draw_block(cell, block, color)
 
 func draw_block(cell : Vector2, thickness : int, color : Color) -> void:
-	if thickness <= 0:
-		return
 	var half : float = float(thickness) * 0.5 - 0.5
 	draw_rect(Rect2((cell - Vector2.ONE * half) * pixel, Vector2.ONE * float(thickness) * pixel), color)
 
 func to_cell(spot : Vector2) -> Vector2:
 	return ((spot - view.position) / worldPerCell).floor()
 
-func get_player_icon() -> Texture2D:
-	if playerIcon:
-		return playerIcon
-	return null
+#-------------HELPERS-------------#
+
+func get_ordered_paths() -> Array[EnemyPathClass]:
+	var ordered : Array[EnemyPathClass] = []
+	for path in pathNetwork.paths:
+		if not path.active:
+			ordered.append(path)
+	for path in pathNetwork.paths:
+		if path.active:
+			ordered.append(path)
+	return ordered
+
+func is_open(portal : PortalClass) -> bool:
+	return portal.path == null or portal.path.active
 
 func get_core_color() -> Color:
 	if pathNetwork and pathNetwork.style:

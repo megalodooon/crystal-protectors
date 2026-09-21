@@ -1259,35 +1259,38 @@ Example: godot/weapons/base/weapon.gd
   "move closer" when they are not.
 
 [Minimap]  godot/ui/minimap.gd + minimap.tscn
-- MinimapClass, a Control drawn with _draw() at updateInterval (0.05s).
-  Exports pathNetwork, waveManager, towerBuilder, player, mapSize and
-  groundTexture.
-- SQUARE, small (minimapSize 36 game pixels) and it does NOT show the
-  whole map (developer: it does not have to). It shows viewSize (160)
-  world pixels around the player, clamped to the map edges, and the view
-  origin is snapped to the cell grid so nothing shimmers while walking.
-  clip_contents keeps everything inside the frame.
+- MinimapClass, a Control. SQUARE, small (minimapSize 36 game pixels)
+  and it does NOT show the whole map: it shows viewSize (160) world
+  pixels around the player, clamped to the map edges, with the view
+  origin snapped to the cell grid so nothing shimmers while walking.
+  clip_contents keeps everything inside the frame. Only things INSIDE
+  the view are drawn (developer: nothing pinned to the edge).
 - It is not drawn at the game's 192x108 pixel size. apply_scale() reads
   the window's integer stretch scale into unit, makes the control that
   many times bigger and sets scale to 1 / unit: it lays out in game
-  pixels but every draw call lands on real window pixels. Everything is
-  still PIXEL ART on a grid of pixelScale (0.5) game pixels, so the
-  minimap has twice the game's resolution and hard edges. detailScale
-  overrides unit for testing, and apply_scale re-runs on size_changed.
+  pixels but every draw call lands on real window pixels. The map art
+  is PIXEL ART on a grid of pixelScale (0.5) game pixels, so it has
+  twice the game's resolution and hard edges. detailScale overrides
+  unit for testing, apply_scale re-runs on size_changed, and
   get_canvas_rect() gives the rect back in game pixels (the hover
-  tooltip dodges it). Sizes in the Look group are in CELLS.
-- Lanes are blocks on that grid: a laneOutline (3) dark band with a
-  laneCore (1) bright line in PathNetwork.style.coreColor. Locked paths
-  are darkened by lockedFade and drawn FIRST, so an open lane always
-  wins where they cross. World samples per path are cached (laneSamples,
-  cleared when the scale changes) and turned into cells each redraw,
-  since the view moves.
-- Markers: a portal is a small pixel version of the real one, a tall
-  ellipse with the portal's voidColor inside and its own color on the
-  rim. Towers and enemies are blocks in their get_color() / sprite tint
-  with a dark border. The player is a plain marker with no box behind
-  it; set playerIcon to the character's head once heads exist and it is
-  drawn instead.
+  tooltip dodges it).
+- Ground and lanes are BAKED into one ImageTexture, not redrawn: the
+  ground layer is stamped once into groundImage, and bake_map()
+  duplicates it and fill_rect()s the lanes on top (laneOutline 3 dark,
+  laneCore 1 bright in PathNetwork.style.coreColor; locked paths are
+  darkened by lockedFade and stamped first so an open lane wins where
+  they cross). Drawing the map is then ONE draw_texture_rect_region.
+  Re-baked on EnemyPath.active_changed. Drawing the lanes live was
+  thousands of draw_rect calls a frame and the map felt laggy.
+- Portals on the map are the REAL portal (developer: it should look
+  like the one on the stage, not a drawn icon): make_portal() adds a
+  child Sprite2D with the portal's own texture and a ShaderMaterial on
+  portal.gdshader, fed that portal's color / voidColor, sized to
+  portalSize game pixels. Locked portals use intensity = lockedFade.
+  They swirl exactly like the stage ones.
+- Towers and enemies are blocks in their get_color() / sprite tint with
+  a dark border. The player is a plain marker with no box behind it;
+  set playerIcon to the character's head once heads exist.
 
 [Collision layers]
 1 World, 2 Player, 3 Enemy, 4 Player Hurtbox, 5 Enemy Hurtbox, 6 Tower.
