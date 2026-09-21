@@ -122,6 +122,9 @@ coding style (section 5). Follow it exactly.
   U / H / J upgrade, repair and sell the tower under the mouse (a
   tooltip next to it shows the tier and what each key costs), M +100
   mana, F1 hide/show the whole HUD.
+  The Player instance has editable children ([editable path="Player"]):
+  without it the web export dropped the TowerBuilder overrides (mana,
+  defense units, waveManager). Keep it when replacing the Player.
   Map is 512x288 (bigger than the screen): Ground (tiled noise
   texture, z -10), Camera2D inside Player (smoothing, limits = map).
   Two hit dummies above the player start, out of every lane.
@@ -686,8 +689,9 @@ Example: godot/weapons/base/weapon.gd
   requiredAttributes/procSource are typed Resource on purpose: an
   attribute exporting its own class leaks at exit in Godot 4.7.
   New synergy = .tres in synergy/ + add it to the pool's synergies.
-- AttributePoolClass (base/attribute_pool.tres, preloaded by the item
-  as ATTRIBUTE_POOL): attributes (every rollable attribute),
+- AttributePoolClass (base/attribute_pool.tres, loaded on first use by
+  WeaponItemClass.get_attribute_pool(), never preloaded: see LOAD CYCLE):
+  attributes (every rollable attribute),
   maxAttributes (5). roll_attributes(item, kept): weapon
   fixedAttributes first (copied), then kept ones, then random picks
   (weighted, no duplicates, inRandomPool, can_roll, specials only up to

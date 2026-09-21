@@ -729,3 +729,5 @@ scroll_active = false
 autowrap_mode = 0
 
 [connection signal="enemy_spawned" from="WaveManager" to="." method="on_enemy_spawned"]
+
+[editable path="Player"]
